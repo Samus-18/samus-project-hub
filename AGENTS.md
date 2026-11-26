@@ -6,7 +6,7 @@
 4. Keep the site in docs/ synchronized with latest project versions and release metadata.
 5. No private chat exports, AI memory, auth credentials, local user paths, temporary build logs, tool histories or cached packages in public Git.
 6. Aurora: keep source clean of node_modules, dist binaries, old audit duplicates, screenshots with personal data. Keep original folder unchanged.
-7. Horizon Boost: do not bundle Magpie executables or hook/inject game DLLs. Capture FPS, output FPS and game FPS must remain distinct.
+7. Vanta FX: do not bundle Magpie executables or hook/inject game DLLs. Capture FPS, output FPS and game FPS must remain distinct.
 8. Thalvoryn: public binary release only after source/asset licensing is verified; keep credits and variants.
 9. Back up before editing and keep rollback instructions in the private external archive.
 10. Never overwrite released tag assets silently. Publish a new version and preserve old verified releases.

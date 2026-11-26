@@ -18,7 +18,7 @@ for src in parser.links:
  assert path.is_relative_to(SITE.resolve()) and path.is_file(),src
 assert (SITE/".nojekyll").exists()
 assert (SITE/"app.js").is_file() and (SITE/"styles.css").is_file()
-for name in ("aurora-chat.png","horizon-home.png","thalvoryn-pack.png"):
+for name in ("aurora-chat.png","vanta-home.png","thalvoryn-pack.png"):
  data=(SITE/"assets"/name).read_bytes()
  assert data[:8]==b"\x89PNG\r\n\x1a\n" and len(data)>1000,name
 projects=json.loads((ROOT/"projects.json").read_text(encoding="utf8"))

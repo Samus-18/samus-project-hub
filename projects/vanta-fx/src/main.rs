@@ -765,7 +765,7 @@ fn main() -> eframe::Result<()> {
         else{settings::load().main_window_size};
     let options=eframe::NativeOptions {
         viewport:egui::ViewportBuilder::default()
-            .with_title("HORIZON BOOST - Rust")
+            .with_title("Vanta FX - Native GPU Tools")
             .with_inner_size(if proof_overlay_editor_small{[420.0,620.0]}else if proof_overlay_small{[205.0,61.0]}else if proof_overlay_compact{[252.0,70.0]}else if visual_overlay{[670.0,730.0]}else if proof_narrow_filters{[960.0,720.0]}else if proof_compact_main{[840.0,560.0]}else if proof_appearance{[940.0,680.0]}else if proof_extras_view==Some(5){[940.0,620.0]}else if smoke{[1280.0,780.0]}else{saved_window})
             .with_min_inner_size(if proof_overlay_editor_small{[420.0,620.0]}else if proof_overlay_small{[205.0,61.0]}else if proof_overlay_compact{[252.0,70.0]}else if visual_overlay{[620.0,650.0]}else if smoke{[800.0,540.0]}else{[800.0,540.0]})
             .with_decorations(false)
@@ -774,7 +774,7 @@ fn main() -> eframe::Result<()> {
         renderer:eframe::Renderer::Glow,
         ..Default::default()
     };
-    eframe::run_native("HORIZON BOOST - Rust",options,Box::new(move|cc|{
+    eframe::run_native("Vanta FX - Native GPU Tools",options,Box::new(move|cc|{
         cc.egui_ctx.set_visuals(gui::visuals());
         cc.egui_ctx.style_mut(|style|{
             style.spacing.item_spacing=egui::vec2(7.0,6.0);

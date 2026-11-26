@@ -85,7 +85,7 @@ pub fn render(app:&mut BoostApp,ctx:&egui::Context){
     let theme=app.settings.ui_theme;
     let current=ctx.data(|d|d.get_temp::<u8>(egui::Id::new("hb-theme-current")));
     if current!=Some(theme){
-        let mut v=visuals();
+        let mut v=vf_visuals();
         if theme==1{v.panel_fill=Color32::from_rgb(3,3,5);v.window_fill=Color32::from_rgb(12,12,16);v.widgets.inactive.bg_fill=Color32::from_rgb(19,19,24);v.widgets.inactive.weak_bg_fill=v.widgets.inactive.bg_fill;}
         if theme==2{v.panel_fill=Color32::from_rgb(8,15,24);v.window_fill=Color32::from_rgb(18,30,43);v.widgets.inactive.bg_fill=Color32::from_rgb(26,43,61);v.widgets.inactive.weak_bg_fill=v.widgets.inactive.bg_fill;v.selection.bg_fill=Color32::from_rgb(45,96,140);}
         ctx.set_visuals(v);ctx.data_mut(|d|d.insert_temp(egui::Id::new("hb-theme-current"),theme));
@@ -124,7 +124,7 @@ pub fn render(app:&mut BoostApp,ctx:&egui::Context){
     if !app.is_smoke{let _=crate::win::round_horizon_window(false);}
     egui::TopBottomPanel::top("titlebar").exact_height(52.0).frame(
         Frame::new().fill(Color32::from_rgb(8,8,10)).inner_margin(egui::Margin::symmetric(14,8))
-    ).show(ctx,|ui|eclipse_header(app,ctx,ui));
+    ).show(ctx,|ui|vf_header(app,ctx,ui));
 
     // Narrow laptop windows / 135% accessible zoom use a scrollable
     // top navigation. No clipped icons, no page loss and no extra OS window.
@@ -134,11 +134,11 @@ pub fn render(app:&mut BoostApp,ctx:&egui::Context){
         .exact_height(44.)
         .frame(Frame::new().fill(Color32::from_rgb(6,6,9))
             .inner_margin(egui::Margin::symmetric(9,5)))
-        .show(ctx,|ui|suite_compact(app,ui));
+        .show(ctx,|ui|vf_compact(app,ui));
     }else{
         egui::SidePanel::left("nav").exact_width(NAV_WIDTH).resizable(false)
         .frame(Frame::new().fill(Color32::from_rgb(11,11,14)).inner_margin(egui::Margin::symmetric(9,10)))
-        .show(ctx,|ui|{egui::ScrollArea::vertical().id_salt("nav-scroll").auto_shrink([false,false]).show(ui,|ui|suite_sidebar(app,ui));});
+        .show(ctx,|ui|{egui::ScrollArea::vertical().id_salt("nav-scroll").auto_shrink([false,false]).show(ui,|ui|vf_navigation(app,ui));});
     }
 
     command_palette(app,ctx);
@@ -166,9 +166,9 @@ pub fn render(app:&mut BoostApp,ctx:&egui::Context){
         .frame(Frame::new().fill(Color32::from_rgb(8,8,10)).inner_margin(egui::Margin::symmetric(15,4)))
         .show(ctx,|ui|{
             ui.horizontal(|ui|{
-                ui.colored_label(RED,"●");
+                ui.colored_label(RED,"FX");
                 caption(ui,&app.status);if app.recorder.elapsed().is_some(){ui.colored_label(RED,"REC");}else if app.replay.active(){ui.label("REPLAY");}
-                ui.with_layout(Layout::right_to_left(Align::Center),|ui|{caption(ui,"HORIZON BOOST DEV  ·  D3D11 NATIVE");});
+                ui.with_layout(Layout::right_to_left(Align::Center),|ui|{caption(ui,"VANTA FX · V136 DEV  /  D3D11");});
             });
         });
 
@@ -176,7 +176,7 @@ pub fn render(app:&mut BoostApp,ctx:&egui::Context){
         if ctx.content_rect().width()<860.{egui::Margin::symmetric(10,10)}
         else{egui::Margin::symmetric(20,14)}))
         .show(ctx,|ui|{
-            rm_bg(ui,app);
+            // V136: flat low-noise surface; no fullscreen purple gradients.
             // Each page/sub-view owns its scroll position. Changing from a long
             // shader gallery to the compact Color Lab must never leave the
             // newly selected tab apparently blank at an old scroll offset.
@@ -191,8 +191,8 @@ pub fn render(app:&mut BoostApp,ctx:&egui::Context){
                 let content_width=ui.available_width().max(280.0);
                 ui.set_width(content_width);
                 ui.set_max_width(content_width);
-                motion_page(ui,app.page,suite_current(app));
-                suite_content(app,ui);
+                // No animated page-wide decoration.
+                vf_content(app,ui);
 
             });
         });
@@ -202,8 +202,8 @@ pub fn render(app:&mut BoostApp,ctx:&egui::Context){
         let (width,height,x,y)=v26_hud_geometry(app,screen);
         let editor_at_start=app.overlay_edit_mode;
         let changed=app.last_overlay_passive!=Some(!editor_at_start);
-        ctx.show_viewport_immediate(ViewportId::from_hash_of("horizon-overlay"),
-            ViewportBuilder::default().with_title("HORIZON BOOST - OVERLAY")
+        ctx.show_viewport_immediate(ViewportId::from_hash_of("vanta-overlay"),
+            ViewportBuilder::default().with_title("Vanta FX - HUD")
                 .with_inner_size([width,height])
                 .with_position([x,y])
                 .with_always_on_top()
@@ -378,3 +378,5 @@ include!("gui_remake_studio.rs");
 include!("gui_game_journal.rs");
 include!("gui_finish.rs");
 include!("gui_unsorted.rs");
+
+include!("gui_reborn.rs");

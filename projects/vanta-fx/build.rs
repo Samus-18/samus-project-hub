@@ -22,6 +22,6 @@ fn main() {
         println!("cargo:warning=Native icon resource not embedded; runtime icon still available");
     }
     println!("cargo:rerun-if-changed=horizon.rc");
-    println!("cargo:rerun-if-changed=assets/horizon.ico");
+    println!("cargo:rerun-if-changed=assets/vanta.ico");
     println!("cargo:rerun-if-changed=assets/rc_passthrough.py");
 }

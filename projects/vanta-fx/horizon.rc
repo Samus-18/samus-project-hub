@@ -1,0 +1,29 @@
+1 ICON "assets/vanta.ico"
+1 VERSIONINFO
+FILEVERSION 0,136,0,0
+PRODUCTVERSION 0,136,0,0
+FILEFLAGSMASK 0x3fL
+FILEFLAGS 0x0L
+FILEOS 0x40004L
+FILETYPE 0x1L
+FILESUBTYPE 0x0L
+BEGIN
+  BLOCK "StringFileInfo"
+  BEGIN
+    BLOCK "040904B0"
+    BEGIN
+      VALUE "CompanyName", "Samus Projects\0"
+      VALUE "FileDescription", "Vanta FX - native GPU and game tools\0"
+      VALUE "FileVersion", "V136-dev\0"
+      VALUE "InternalName", "vanta-fx\0"
+      VALUE "LegalCopyright", "Copyright 2026 Samus-18\0"
+      VALUE "OriginalFilename", "VantaFX.exe\0"
+      VALUE "ProductName", "Vanta FX\0"
+      VALUE "ProductVersion", "V136-dev\0"
+    END
+  END
+  BLOCK "VarFileInfo"
+  BEGIN
+    VALUE "Translation", 0x409, 1200
+  END
+END

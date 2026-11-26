@@ -9,10 +9,10 @@
       "status": "Windows installer — verification required"
     },
     {
-      "slug": "horizon-boost",
-      "version": "V135",
-      "tag": "horizon-boost-v135-dev",
-      "status": "Developer preview; 558 Rust tests; DXGI output accuracy"
+      "slug": "vanta-fx",
+      "version": "V136",
+      "tag": "vanta-fx-v136-dev",
+      "status": "Rust developer preview; 561 tests; new native UI; unsigned"
     },
     {
       "slug": "thalvoryn",
