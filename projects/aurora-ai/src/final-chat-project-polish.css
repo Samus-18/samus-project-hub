@@ -1,0 +1,140 @@
+/* Final chat-first / projects / settings refinement. Keeps the original Aurora video scene. */
+:root{--final-ink:#eef1f8;--final-muted:#aab3c6;--final-line:rgba(190,204,230,.13);--final-surface:rgba(11,16,28,.76);--final-soft:rgba(20,27,43,.68);--final-violet:#a995f5;--final-cyan:#83dbe4}
+.sidebar{width:264px!important;min-width:264px!important;padding:16px 12px 12px!important;background:rgba(9,13,23,.89)!important;border-right:1px solid var(--final-line)!important;backdrop-filter:blur(24px) saturate(1.18)!important;-webkit-backdrop-filter:blur(24px) saturate(1.18)!important;gap:7px!important}
+.brand{min-height:54px!important;border-bottom:1px solid var(--final-line)!important;padding:0 4px 12px!important;margin-bottom:2px!important}
+.sidebar-mode-switch{margin:3px 0 2px!important;padding:3px!important;background:rgba(255,255,255,.045)!important;border:1px solid var(--final-line)!important;border-radius:11px!important}
+.sidebar-mode-switch .mode-tab{height:32px!important;border-radius:8px!important;font-size:11px!important;letter-spacing:0!important}
+.newchat{height:40px!important;min-height:40px!important;border-radius:11px!important;justify-content:flex-start!important;padding:0 13px!important;font-size:12px!important;font-weight:650!important}
+.sidebar-search{margin:2px 0 7px!important}
+#mainNavigation{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:4px!important;padding:0 0 9px!important;border-bottom:1px solid var(--final-line)!important}
+#mainNavigation .nav{min-width:0!important;height:34px!important;min-height:34px!important;justify-content:flex-start!important;padding:0 9px!important;border-radius:8px!important;font-size:10.5px!important;color:#c0c9dc!important}
+#mainNavigation .nav i{font-size:14px!important}
+.sidebar-collection-section{display:flex!important;flex-direction:column!important;gap:4px!important;padding:3px 0 5px!important;min-width:0!important}
+.sidebar-collection-heading{min-height:25px!important;display:flex!important;align-items:center!important;justify-content:space-between!important;padding:0 6px!important;color:#9da8bd!important;font-size:9px!important;font-weight:750!important;letter-spacing:.12em!important}
+.sidebar-collection-heading small{font-size:8px!important;font-weight:600!important;letter-spacing:.08em!important;color:#738097!important}
+.sidebar-add{width:24px!important;height:24px!important;border:0!important;border-radius:7px!important;background:rgba(255,255,255,.055)!important;color:#d9deeb!important;font-size:17px!important;line-height:1!important;cursor:pointer!important}
+.sidebar-add:hover,.sidebar-view-all:hover{background:rgba(170,151,246,.14)!important;color:#fff!important}
+.sidebar-collection{display:flex!important;flex-direction:column!important;gap:2px!important;max-height:150px!important;overflow:auto!important;scrollbar-width:thin!important;min-width:0!important}
+.sidebar-collection-empty{padding:5px 7px!important;color:#7f8aa0!important;font-size:10px!important;line-height:1.45!important}
+.sidebar-collection-row{min-width:0!important;display:flex!important;align-items:center!important;gap:4px!important;padding:0 3px!important;border-radius:8px!important}
+.sidebar-collection-row:hover{background:rgba(255,255,255,.045)!important}
+.sidebar-collection-open{min-width:0!important;flex:1 1 auto!important;height:30px!important;overflow:hidden!important;border:0!important;border-radius:6px!important;background:transparent!important;color:#c6cddd!important;text-align:left!important;text-overflow:ellipsis!important;white-space:nowrap!important;font-size:10.5px!important;padding:0 6px!important;cursor:pointer!important}
+.sidebar-collection-open:hover{color:#fff!important;background:rgba(255,255,255,.055)!important}
+.sidebar-collection-remove{width:23px!important;min-width:23px!important;height:24px!important;border:0!important;border-radius:6px!important;background:transparent!important;color:#7f8ba0!important;font-size:15px!important;cursor:pointer!important}
+.sidebar-collection-remove:hover{background:rgba(255,255,255,.08)!important;color:#fff!important}
+.project-sidebar-dot{width:6px!important;height:6px!important;flex:0 0 6px!important;margin-left:5px!important;border-radius:50%!important;background:#77839a!important}
+.project-sidebar-dot.active{background:#72dfc0!important;box-shadow:0 0 9px rgba(114,223,192,.65)!important}
+.sidebar-view-all{height:24px!important;border:0!important;border-radius:6px!important;background:transparent!important;color:#a6b4ca!important;text-align:left!important;padding:0 7px!important;font-size:10px!important;cursor:pointer!important}
+.history-title{display:flex!important;align-items:center!important;justify-content:space-between!important;margin:6px 5px 0!important;color:#9da8bd!important;font-size:9px!important;letter-spacing:.12em!important;font-weight:750!important;flex:0 0 auto!important}
+.history-filters{display:flex!important;gap:3px!important;padding:2px!important;flex:0 0 auto!important}
+.history-filter{font-size:9px!important;min-height:25px!important;padding:0 9px!important;border-radius:7px!important}
+.history{flex:1 1 110px!important;min-height:80px!important}
+.history-row>button:first-child{font-size:10.5px!important;min-height:32px!important}
+.sidebar-bottom{margin-top:auto!important}
+.main{background:transparent!important}
+/* Chat messages: readable line length, inset text, subtly translucent glass. */
+.messages{width:min(860px,calc(100% - 64px))!important;max-width:860px!important;padding:15px 12px 22px!important;gap:20px!important}
+.message{gap:12px!important}
+.message.assistant .message-body{max-width:min(780px,calc(100% - 42px))!important;padding:13px 18px!important;border:1px solid rgba(193,205,229,.12)!important;border-radius:13px!important;background:rgba(13,19,32,.43)!important;backdrop-filter:blur(15px) saturate(1.12)!important;-webkit-backdrop-filter:blur(15px) saturate(1.12)!important;box-shadow:0 5px 22px rgba(0,0,0,.07)!important}
+.message.assistant .message-meta{margin:0 0 8px!important;color:#b8c4d6!important}
+.message-content{font-size:14px!important;line-height:1.78!important;overflow-wrap:anywhere!important;max-width:76ch!important}
+.message-content p{margin:0 0 12px!important}
+.message-content p:last-child{margin-bottom:0!important}
+.message-content ul,.message-content ol{padding-left:1.45em!important;margin:9px 0 13px!important}
+.message-content li{padding-left:3px!important;margin:4px 0!important}
+.message-content pre{padding:14px 16px!important;margin:12px 0!important;border-radius:11px!important;border:1px solid rgba(190,204,230,.14)!important}
+.message.user .message-body{max-width:min(690px,calc(100% - 42px))!important;padding:12px 16px!important;border-radius:15px 15px 5px 15px!important}
+.composer-wrap{width:min(860px,calc(100% - 64px))!important;max-width:860px!important;margin:0 auto 18px!important}
+.composer{border-radius:19px!important;background:rgba(13,18,30,.82)!important;border:1px solid rgba(190,204,230,.17)!important;backdrop-filter:blur(24px) saturate(1.15)!important;-webkit-backdrop-filter:blur(24px) saturate(1.15)!important;box-shadow:0 14px 45px rgba(0,0,0,.2)!important}
+.composer textarea{min-height:58px!important;padding:14px 16px 12px!important;font-size:14px!important;line-height:1.65!important}
+.composer-tools{gap:6px!important;flex-wrap:wrap!important}
+.composer .tool{font-size:10.5px!important;min-height:31px!important}
+/* Sidebar project / saved views and the multi-project manager. */
+.project-spaces-area{width:min(980px,100%);margin:0 auto 25px}
+.project-spaces-heading{display:flex;align-items:center;justify-content:space-between;gap:18px;margin:0 0 13px;padding:0 2px}
+.project-spaces-heading h2{font-size:19px;letter-spacing:-.025em;margin:0 0 5px;color:#f1f3fb}
+.project-spaces-heading p{font-size:12px;line-height:1.6;color:var(--final-muted);margin:0;max-width:650px}
+.project-workspace-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:11px}
+.project-space-card{min-width:0;display:flex;flex-direction:column;gap:10px;padding:16px;border:1px solid rgba(190,204,230,.14);border-radius:14px;background:rgba(12,18,31,.58);backdrop-filter:blur(16px);box-shadow:0 8px 25px rgba(0,0,0,.09)}
+.project-space-card-head{display:flex;align-items:center;gap:9px;min-width:0}
+.project-space-icon{width:32px;height:32px;display:grid;place-items:center;border-radius:9px;background:rgba(166,147,246,.13);color:#c5b7ff;font-size:17px}
+.project-space-card-head b{font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.project-space-card>small{font-size:10px;color:#8996ad;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.project-space-status{font-size:10px;color:#9eacc1}
+.project-space-open{width:100%;min-height:34px!important;border-radius:9px!important}
+.project-space-actions{display:flex;gap:7px}
+.project-space-actions .secondary{flex:1;min-height:29px;font-size:10px}
+.project-space-actions .danger{color:#e6a7ac;border-color:rgba(225,119,132,.2)}
+.code-project-select-row{display:grid;grid-template-columns:auto minmax(150px,1fr) auto;align-items:center;gap:10px;margin:12px 0 8px}
+.code-project-select-row label{font-size:11px;color:#aab5c9}
+.code-project-select-row select{min-width:0;width:100%;height:35px}
+.code-project-select-row button{white-space:nowrap}
+.scope-approval{font-size:10px;color:#8f9db2}
+/* Code remains a workspace, but follows the same centered conversation rhythm. */
+#agentView{width:100%;max-width:1120px;margin:0 auto;padding-left:clamp(18px,4vw,42px)!important;padding-right:clamp(18px,4vw,42px)!important}
+#agentView .work-capability-note{max-width:880px;margin:0 auto 12px!important;border-radius:10px!important;background:rgba(15,22,36,.48)!important;color:#b8c4d7!important;font-size:11px!important;line-height:1.55!important}
+#agentView .page-heading{max-width:880px;margin:0 auto 20px!important}
+#agentView .page-heading h1{font-size:clamp(25px,3vw,34px)!important;letter-spacing:-.04em!important}
+#agentView .page-heading p{max-width:760px;font-size:13px!important;line-height:1.65!important}
+#agentView .agent-advanced-settings{max-width:880px;margin:0 auto 14px!important;border:1px solid var(--final-line)!important;border-radius:12px!important;background:rgba(12,18,31,.55)!important}
+#agentView .agent-advanced-settings>summary{padding:12px 15px!important;font-size:12px!important}
+#agentView .agent-config-grid{max-width:880px!important;margin:0 auto!important;display:grid!important;grid-template-columns:minmax(0,1fr)!important;gap:12px!important}
+#agentView .scope-card{padding:15px 17px!important;border-radius:14px!important;background:rgba(13,19,32,.61)!important}
+#agentView .scope-card .panel-head{margin-bottom:8px!important}
+#agentView .scope-card .toggle-row{font-size:11px!important}
+#agentView .scope-card .path-row{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:10px!important;padding:9px 11px!important;background:rgba(255,255,255,.035)!important;border-radius:9px!important}
+#agentView .scope-card .path-row #scopePath{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:10px!important}
+#agentView .scope-card .muted{font-size:10.5px!important;line-height:1.5!important}
+#agentView .agent-run-actions{display:flex!important;gap:8px!important;margin-top:12px!important}
+#agentView .agent-run-actions button{min-height:36px!important}
+#agentView .run-card{padding:15px 17px!important;border-radius:14px!important;background:rgba(13,19,32,.62)!important}
+#agentView .run-card textarea{height:92px!important;min-height:92px!important;max-width:100%!important;border-radius:11px!important;background:rgba(7,11,19,.5)!important;font-size:13px!important;padding:13px 15px!important}
+#agentView #agentQueue{min-height:110px!important;margin-bottom:10px!important;padding:14px!important;border:1px solid rgba(190,204,230,.1)!important;border-radius:11px!important;background:rgba(255,255,255,.025)!important}
+/* Settings: larger typography, clear sections and a real 0-100 background range. */
+#settingsView{max-width:1120px;margin:0 auto;padding-left:clamp(18px,4vw,40px)!important;padding-right:clamp(18px,4vw,40px)!important}
+#settingsView .page-heading{max-width:980px;margin-left:auto!important;margin-right:auto!important}
+.settings-tabs{max-width:980px!important;margin:0 auto 18px!important;display:flex!important;flex-wrap:wrap!important;gap:5px!important;padding:6px!important;border:1px solid var(--final-line)!important;border-radius:12px!important;background:rgba(11,16,28,.58)!important;backdrop-filter:blur(14px)!important}
+.settings-tabs button{min-height:34px!important;padding:0 12px!important;border:0!important;border-radius:8px!important;background:transparent!important;color:#b7c1d3!important;font-size:11px!important}
+.settings-tabs button.active{background:rgba(166,147,246,.17)!important;color:#fff!important;box-shadow:inset 0 0 0 1px rgba(166,147,246,.18)!important}
+.settings-grid{max-width:980px!important;margin:0 auto!important;grid-template-columns:1fr!important;gap:14px!important}
+.settings-grid>.panel{padding:20px!important;border-radius:15px!important;background:rgba(12,18,31,.76)!important;border:1px solid var(--final-line)!important;backdrop-filter:blur(18px)!important}
+.settings-grid h3{font-size:15px!important;margin-bottom:7px!important}
+.settings-grid p{font-size:12px!important;line-height:1.65!important;color:#aeb9cd!important}
+.preference-row{min-height:48px!important;gap:18px!important;border-bottom:1px solid rgba(190,204,230,.075)!important}
+.preference-row>label:first-child{font-size:12px!important;color:#dce2ee!important}
+.preference-row input[type=range]{width:min(280px,42%)!important;accent-color:#ac98f7!important}
+.preference-row output{min-width:46px!important;color:#d4c8ff!important;font-size:11px!important;font-variant-numeric:tabular-nums!important}
+.settings-grid input:not([type=checkbox]):not([type=range]),.settings-grid select,.settings-grid textarea{font-size:12px!important;min-height:36px!important}
+/* Conventional searchable command switcher instead of a sci-fi control panel. */
+.command-palette{padding:clamp(54px,12vh,110px) 16px 16px!important}
+.palette-backdrop{background:rgba(3,6,12,.66)!important;backdrop-filter:blur(7px)!important}
+.palette-shell{width:min(610px,100%)!important;max-height:min(660px,78vh)!important;border:1px solid rgba(190,204,230,.18)!important;border-radius:17px!important;background:rgba(17,21,31,.97)!important;box-shadow:0 26px 90px rgba(0,0,0,.55)!important;backdrop-filter:blur(24px)!important}
+.palette-shell::before{display:none!important}
+.palette-topline{padding:17px 18px 13px!important;border-bottom:1px solid rgba(190,204,230,.1)!important}
+.palette-mark{width:30px!important;height:30px!important;border-radius:9px!important;background:rgba(166,147,246,.13)!important;color:#d7cbff!important}
+.palette-heading strong{font:650 14px/1.3 Inter,system-ui,sans-serif!important;letter-spacing:0!important;color:#f2f4fa!important}
+.palette-heading small{font:11px/1.4 Inter,system-ui,sans-serif!important;letter-spacing:0!important;color:#9ca8bc!important}
+.palette-search{margin:12px 16px!important;min-height:42px!important;border:1px solid rgba(190,204,230,.15)!important;border-radius:10px!important;background:rgba(255,255,255,.045)!important}
+.palette-search:focus-within{border-color:rgba(174,150,255,.5)!important;box-shadow:0 0 0 3px rgba(174,150,255,.08)!important}
+.palette-section-label{padding:3px 18px 8px!important;font:650 9px/1.3 Inter,system-ui,sans-serif!important;letter-spacing:.1em!important;color:#8793a9!important}
+.palette-items{padding:0 9px 12px!important;gap:2px!important;overflow:auto!important}
+.palette-item{min-height:52px!important;border:0!important;border-radius:9px!important;background:transparent!important;padding:8px 10px!important}
+.palette-item:hover,.palette-item.is-active{background:rgba(255,255,255,.075)!important;border:0!important;box-shadow:none!important}
+.palette-item b{font-size:12px!important;color:#e8edf6!important}
+.palette-item small{font-size:10px!important;color:#96a2b8!important}
+.palette-icon{width:30px!important;height:30px!important;border-radius:8px!important}
+.palette-footer{border-top:1px solid rgba(190,204,230,.1)!important;background:rgba(255,255,255,.02)!important}
+/* Responsive narrow window behavior. */
+@media(max-width:1050px){.sidebar{width:232px!important;min-width:232px!important}.messages,.composer-wrap{width:calc(100% - 36px)!important}.code-project-select-row{grid-template-columns:1fr auto}.code-project-select-row label{grid-column:1/-1}}
+@media(max-width:760px){.sidebar{width:205px!important;min-width:205px!important;padding:12px 8px!important}.messages{width:calc(100% - 24px)!important;padding:10px 3px 16px!important}.composer-wrap{width:calc(100% - 22px)!important}.message.assistant .message-body{padding:11px 13px!important}.project-spaces-heading{align-items:flex-start;flex-direction:column}.project-workspace-grid{grid-template-columns:1fr}.settings-tabs{overflow-x:auto;flex-wrap:nowrap!important}.settings-tabs button{white-space:nowrap}}
+
+/* Accessible project actions: an explicit small menu replaces the old typed prompt. */
+.project-sidebar-row{position:relative;overflow:visible!important}
+.project-sidebar-menu{position:absolute;z-index:30;right:2px;top:calc(100% - 2px);min-width:150px;padding:5px;border:1px solid rgba(165,177,207,.22);border-radius:12px;background:rgba(17,22,34,.97);box-shadow:0 14px 34px rgba(0,0,0,.34);display:grid;gap:3px}
+.project-sidebar-menu button{width:100%;min-height:32px;padding:7px 10px;border:0;border-radius:8px;background:transparent;color:var(--text,#edf0ff);text-align:left;font:inherit;font-size:12px;cursor:pointer}
+.project-sidebar-menu button:hover{background:rgba(146,126,228,.16)}
+.project-sidebar-menu button.danger{color:#ff9caa}
+.sidebar-collection-title{border:0;background:none;padding:0;color:inherit;font:inherit;font-size:11px;font-weight:700;letter-spacing:.14em;cursor:pointer;text-align:left}
+.sidebar-collection-title:hover{color:var(--accent,#ad94ff)}
+/* Keep Settings visible in the normal desktop navigation; profile settings remain a shortcut. */
+#mainNavigation .nav[data-view="settings"]{display:flex!important}

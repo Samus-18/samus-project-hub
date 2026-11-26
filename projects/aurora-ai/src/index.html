@@ -1,0 +1,3278 @@
+<!DOCTYPE html>
+<html lang="cs">
+ <head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width,initial-scale=1" name="viewport"/>
+  <meta content="default-src 'self'; media-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: http://127.0.0.1:8188; connect-src 'self' http://127.0.0.1:11434 http://127.0.0.1:8188; object-src 'none'; base-uri 'self'; form-action 'self'" http-equiv="Content-Security-Policy"/>
+  <title>
+   Aurora AI
+  </title>
+  <link href="icon.svg" rel="icon" type="image/svg+xml"/>
+  <link href="style.css" rel="stylesheet"/>
+  <link href="desktop-refinement.css" rel="stylesheet"/>
+  <link href="aurora-redesign.css" rel="stylesheet"/>
+  <link href="aurora-reference-refit.css" rel="stylesheet"/>
+  <link href="compatibility-polish.css" rel="stylesheet"/>
+  <link href="final-chat-project-polish.css" rel="stylesheet"/>
+  <link href="work-chat-unified.css" rel="stylesheet"/>
+  <link href="chat-centered-layout.css" rel="stylesheet"/>
+  <link href="connect-sidebar-refinement.css" rel="stylesheet"/>
+ </head>
+ <body>
+  <div aria-hidden="true" class="aurora-backdrop">
+   <video autoplay="" id="auroraBackgroundVideo" loop="" muted="" playsinline="" poster="aurora-background-poster.jpg" preload="auto" tabindex="-1">
+    <source src="aurora-background.mp4" type="video/mp4"/>
+   </video>
+  </div>
+  <div class="ambient">
+  </div>
+  <div class="app">
+   <aside class="sidebar">
+    <div class="brand">
+     <div class="logo">
+      <img alt="" src="icon.svg"/>
+     </div>
+     <div>
+      <b>
+       AURORA
+      </b>
+      <small>
+       Lokální AI asistentka
+      </small>
+     </div>
+    </div>
+    <button class="newchat" id="newChat">
+     ＋
+     <span>
+      Nová konverzace
+     </span>
+    </button>
+    <label class="sidebar-search" for="historySearch">
+     <span aria-hidden="true">
+      ⌕
+     </span>
+     <input aria-label="Hledat v konverzacích" autocomplete="off" id="historySearch" placeholder="Hledat chaty…" type="search"/>
+    </label>
+    <nav aria-label="Hlavní navigace" id="mainNavigation">
+     <button class="nav" data-view="models" title="Stáhnout a spravovat modely">
+      <i aria-hidden="true">
+       <svg viewbox="0 0 24 24">
+        <path d="M4 7.5 12 3l8 4.5v9L12 21l-8-4.5z"></path>
+        <path d="m4 7.5 8 4.6 8-4.6M12 12.1V21"></path>
+       </svg>
+      </i>
+      <span>
+       Modely
+      </span>
+     </button>
+     <button class="nav" data-view="connect" title="Připojit vývojové nástroje">
+      <i aria-hidden="true">
+       <svg viewbox="0 0 24 24">
+        <path d="M8 7V4m8 3V4M7 7h10v4a5 5 0 0 1-10 0V7Z"></path>
+        <path d="M12 16v4m-4 0h8M5 11H3m18 0h-2"></path>
+       </svg>
+      </i>
+      <span>
+       Connect
+      </span>
+     </button>
+     <button class="nav" data-view="tools" title="Nástroje a diagnostika">
+      <i aria-hidden="true">
+       <svg viewbox="0 0 24 24">
+        <path d="M14.2 6.1a5 5 0 0 0-6.5 6.5L3.5 16.8l3.7 3.7 4.2-4.2a5 5 0 0 0 6.5-6.5l-3.1 3.1-3.7-3.7z"></path>
+       </svg>
+      </i>
+      <span>
+       Nástroje
+      </span>
+     </button>
+     <button class="nav" data-view="images" title="Galerie vytvořených obrázků">
+      <i aria-hidden="true">
+       <svg viewbox="0 0 24 24">
+        <rect x="3" y="4" width="18" height="16" rx="2"></rect>
+        <circle cx="8.5" cy="9" r="1.5"></circle>
+        <path d="m21 15-5-5L5 20"></path>
+       </svg>
+      </i>
+      <span>
+       Galerie
+      </span>
+     </button>
+     <button class="nav" data-view="settings" title="Nastavení">
+      <i aria-hidden="true">
+       <svg viewbox="0 0 24 24">
+        <path d="M4 6h16M4 12h16M4 18h16"></path>
+        <circle cx="9" cy="6" r="2"></circle>
+        <circle cx="15" cy="12" r="2"></circle>
+        <circle cx="8" cy="18" r="2"></circle>
+       </svg>
+      </i>
+      <span>
+       Nastavení
+      </span>
+     </button>
+    </nav>
+    <section class="sidebar-collection-section">
+     <div class="sidebar-collection-heading">
+      <span class="sidebar-heading-label">
+       <svg aria-hidden="true" viewbox="0 0 24 24">
+        <path d="M6 4h12v16l-6-4-6 4V4Z">
+        </path>
+       </svg>
+       ULOŽENÉ
+      </span>
+      <span aria-label="Počet připnutých chatů" class="saved-count" hidden="" id="pinnedChatsCount">
+      </span>
+     </div>
+     <div class="sidebar-collection" id="pinnedChats">
+      <div class="sidebar-collection-empty">
+       Připnuté chaty se zobrazí tady. Připneš je přes nabídku ⋯.
+      </div>
+     </div>
+    </section>
+    <section class="sidebar-collection-section projects-sidebar-section">
+     <div class="sidebar-collection-heading">
+      <button class="sidebar-collection-title" id="defaultWorkspace" title="Zobrazit pracovní prostory" type="button">
+       <svg aria-hidden="true" viewbox="0 0 24 24">
+        <path d="M3 6.5A1.5 1.5 0 0 1 4.5 5H10l2 2h7.5A1.5 1.5 0 0 1 21 8.5v9a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 17.5v-11Z">
+        </path>
+       </svg>
+       PROJEKTY
+      </button>
+      <button aria-label="Přidat projekt" class="sidebar-add" id="addProjectBtnSidebar" title="Přidat projekt" type="button">
+       ＋
+      </button>
+     </div>
+     <div class="sidebar-collection" id="sidebarProjectList">
+      <div class="sidebar-collection-empty">
+       Zatím žádné projekty.
+      </div>
+     </div>
+     <button class="sidebar-view-all" id="viewAllProjects" type="button">
+      Zobrazit všechny projekty
+      <span>
+       ›
+      </span>
+     </button>
+    </section>
+    <div class="history-title">
+     <span class="sidebar-heading-label">
+      <svg aria-hidden="true" viewbox="0 0 24 24">
+       <circle cx="12" cy="12" r="9">
+       </circle>
+       <path d="M12 7v5l3 2">
+       </path>
+      </svg>
+      NEDÁVNÉ
+     </span>
+     <button class="iconbtn" id="clearHistory" title="Vymazat historii">
+      ⌫
+     </button>
+    </div>
+    <div aria-label="Filtr konverzací" class="history-filters" role="group">
+     <button class="history-filter active" data-history-filter="recent" type="button">
+      Nedávné
+     </button>
+     <button class="history-filter" data-history-filter="archived" type="button">
+      Archiv
+     </button>
+    </div>
+    <div class="history" id="history">
+    </div>
+    <div class="sidebar-bottom">
+     <div class="status-line">
+      <span class="status-dot" id="statusDot">
+      </span>
+      <span id="statusText">
+       Kontroluji Ollama…
+      </span>
+     </div>
+     <div class="profile">
+      <div class="avatar" id="profileAvatar">
+       A
+      </div>
+      <div>
+       <b id="profileDisplayName">
+        Lokální profil
+       </b>
+       <small id="hardwareShort">
+        Zjišťuji hardware…
+       </small>
+      </div>
+      <button class="iconbtn" id="settingsBtn">
+       ⚙
+      </button>
+     </div>
+    </div>
+   </aside>
+   <main class="main dashboard-hidden" data-mode="chat" data-view="chat">
+    <header class="topbar">
+     <button aria-expanded="true" aria-label="Skrýt postranní panel" class="sidebar-toggle" id="sidebarToggle" title="Skrýt postranní panel" type="button">
+      <svg aria-hidden="true" viewbox="0 0 24 24">
+       <rect height="16" rx="2" width="18" x="3" y="4">
+       </rect>
+       <path d="M9 4v16m5-10 2 2-2 2">
+       </path>
+      </svg>
+     </button>
+     <div class="topbar-location">
+      <span class="crumb">
+       WORKSPACE
+      </span>
+      <span class="slash">
+       /
+      </span>
+      <b id="viewTitle">
+       Nová konverzace
+      </b>
+     </div>
+     <div aria-label="Režim konverzace" class="chat-work-switch" role="tablist">
+      <button aria-selected="true" class="chat-work-tab active" id="chatModeToggle" role="tab" type="button">
+       Chat
+      </button>
+      <button aria-selected="false" class="chat-work-tab" id="workModeToggle" role="tab" type="button">
+       Work
+      </button>
+     </div>
+     <div class="top-actions">
+      <span class="ollama-controls">
+       <button class="ollama-action start" id="ollamaStartBtn" title="Spustit lokální Ollama" type="button">
+        ▶ Start
+       </button>
+       <button class="ollama-action stop" disabled="" id="ollamaStopBtn" title="Vypnout Ollama spuštěnou Aurorou" type="button">
+        ■ Stop
+       </button>
+      </span>
+      <button class="language-toggle" id="toggleLanguage" title="Switch interface to English" type="button">
+       EN
+      </button>
+      <button aria-controls="guideModal" aria-haspopup="dialog" aria-label="Otevřít průvodce Aurorou" class="help-guide-button" id="helpGuideBtn" title="Průvodce Aurorou" type="button">
+       ?
+      </button>
+      <button aria-controls="commandPalette" aria-haspopup="dialog" class="core-status" data-state="checking" id="coreStatus" title="Otevřít rychlé příkazy (Ctrl+K)" type="button">
+       <img alt="" class="core-mini-icon" src="icon.svg"/>
+       <span class="core-readout">
+        <strong id="coreStatusTitle">
+         AURORA CORE
+        </strong>
+        <small id="coreStatusDetail">
+         OVĚŘUJI LOKÁLNÍ SLUŽBY
+        </small>
+       </span>
+       <span aria-hidden="true" class="core-status-led">
+       </span>
+      </button>
+      <button aria-controls="dashboardRail" aria-expanded="false" class="iconbtn" id="toggleDashboard" title="Zobrazit přehled systému" type="button">
+       ▤
+      </button>
+      <button class="iconbtn" id="refresh" title="Zkontrolovat lokální služby">
+       ↻
+      </button>
+     </div>
+    </header>
+    <section class="view chatview" id="chatView">
+     <div class="welcome" id="welcome">
+      <div aria-label="Aurora" class="orb aurora-mark">
+       <img alt="Aurora AI" class="aurora-hero-logo" src="icon.svg"/>
+      </div>
+      <div class="eyebrow">
+       TVŮJ LOKÁLNÍ AI ASISTENT
+      </div>
+      <h1>
+       Ahoj, jsem
+       <span>
+        Aurora
+       </span>
+      </h1>
+      <p>
+       Tvá lokální AI asistentka. S čím ti dnes pomohu?
+      </p>
+      <div class="suggestions dashboard-actions">
+       <button data-action="new-chat">
+        <span>
+         ▤
+        </span>
+        <b>
+         Nový chat
+        </b>
+       </button>
+       <button data-prompt="Pomoz mi analyzovat projekt. Nejprve se zeptej na složku a pak zkontroluj strukturu a chyby.">
+        <span>
+         ⌘
+        </span>
+        <b>
+         Analýza projektu
+        </b>
+       </button>
+       <button data-prompt="Vytvoř obrázek: ">
+        <span>
+         ▧
+        </span>
+        <b>
+         Vytvořit obrázek
+        </b>
+       </button>
+       <button data-prompt="Vyhledej na internetu aktuální informace o: ">
+        <span>
+         ◎
+        </span>
+        <b>
+         Hledat na internetu
+        </b>
+       </button>
+       <button data-view="tools">
+        <span>
+         ✧
+        </span>
+        <b>
+         Více nástrojů
+        </b>
+       </button>
+      </div>
+     </div>
+     <div class="messages" id="messages"></div>
+     <div class="composer-wrap">
+      <div class="composer">
+       <div class="composer-tools">
+        <div class="work-project-control" id="workProjectControl">
+         <span class="work-project-label">
+          <svg aria-hidden="true" viewbox="0 0 24 24"><path d="M3.5 7.5A1.5 1.5 0 0 1 5 6h5l2 2h7A1.5 1.5 0 0 1 20.5 9.5v8A1.5 1.5 0 0 1 19 19H5a1.5 1.5 0 0 1-1.5-1.5z"></path></svg>
+          Projekt
+         </span>
+         <select aria-label="Pracovní projekt" id="workProjectSelect">
+          <option value="">
+           Vybrat projekt…
+          </option>
+         </select>
+        </div>
+        <button aria-label="Připojit soubory nebo kontext" class="tool" id="attachBtn" title="Připojit soubory nebo kontext" type="button">
+         <svg aria-hidden="true" focusable="false" viewbox="0 0 24 24">
+          <path d="M8.5 12.5 15 6a4 4 0 0 1 5.7 5.7l-8.2 8.2a6 6 0 0 1-8.5-8.5l8.3-8.3" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8">
+          </path>
+          <path d="m7.2 15.8 9.1-9.1" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.8">
+          </path>
+         </svg>
+        </button>
+        <div class="quick-model-wrap">
+         <button aria-expanded="false" aria-haspopup="true" class="tool" id="modelQuick">
+          ◉
+          <span id="currentModelLabel">
+           Vyber model
+          </span>
+          ▾
+         </button>
+         <div aria-label="Stažené lokální modely · výběr poskytovatele a modelu" class="quick-model-menu hidden" id="quickModelMenu" role="group">
+         </div>
+        </div>
+        <div class="effort-picker">
+         <button aria-expanded="false" aria-haspopup="menu" class="tool effort-toggle" id="effortToggle" type="button">
+          <span class="effort-caption">
+           Výkon
+          </span>
+          <b id="effortCurrentLabel">
+           Auto
+          </b>
+          <span aria-hidden="true">
+           ⌄
+          </span>
+         </button>
+         <div aria-label="Výkon odpovědi" class="effort-menu hidden" id="effortMenu" role="menu">
+          <button aria-checked="true" data-effort="adaptive" role="menuitemradio" type="button">
+           <span>
+            <b>
+             Auto
+            </b>
+            <small>
+             Podle náročnosti úkolu
+            </small>
+           </span>
+           <i>
+            ✓
+           </i>
+          </button>
+          <button aria-checked="false" data-effort="quick" role="menuitemradio" type="button">
+           <span>
+            <b>
+             Low
+            </b>
+            <small>
+             Rychlé odpovědi
+            </small>
+           </span>
+           <i>
+           </i>
+          </button>
+          <button aria-checked="false" data-effort="balanced" role="menuitemradio" type="button">
+           <span>
+            <b>
+             Medium
+            </b>
+            <small>
+             Vyvážený výkon
+            </small>
+           </span>
+           <i>
+           </i>
+          </button>
+          <button aria-checked="false" data-effort="deep" role="menuitemradio" type="button">
+           <span>
+            <b>
+             High
+            </b>
+            <small>
+             Složitější úkoly
+            </small>
+           </span>
+           <i>
+           </i>
+          </button>
+          <button aria-checked="false" data-effort="extra" role="menuitemradio" type="button">
+           <span>
+            <b>
+             Extra
+            </b>
+            <small>
+             Nejvíce prostoru pro dlouhé úkoly
+            </small>
+           </span>
+           <i>
+           </i>
+          </button>
+         </div>
+        </div>
+        <label class="provider-select-label" title="Vyber, kam se odešle zpráva">
+         <span>
+          Poskytovatel
+         </span>
+         <select aria-label="Poskytovatel modelu" id="providerSelect">
+          <option value="ollama">
+           Lokální Ollama
+          </option>
+          <option value="openai">
+           OpenAI / kompatibilní API
+          </option>
+          <option value="anthropic">
+           Anthropic Claude
+          </option>
+          <option value="gemini">
+           Google Gemini
+          </option>
+         </select>
+        </label>
+        <label class="auto-route-toggle" title="Aurora vybere nainstalovaný model podle typu úkolu">
+         <input checked="" id="autoRoute" type="checkbox"/>
+         <span>
+          Auto model
+         </span>
+        </label>
+        <button aria-expanded="false" class="tool" id="responseSettingsBtn">
+         ⚙ Nastavení odpovědi
+        </button>
+        <div class="spacer">
+        </div>
+        <span class="local-badge">
+         ● SOUKROMÉ
+        </span>
+       </div>
+       <div aria-label="Nastavení generování" class="response-settings hidden" id="responseSettings">
+        <div class="response-setting performance-mode">
+         <label for="performanceProfile">
+          Výkon modelu
+         </label>
+         <select id="performanceProfile">
+          <option selected="" value="adaptive">
+           Automaticky podle úkolu
+          </option>
+          <option value="quick">
+           Rychlý · jednoduché dotazy
+          </option>
+          <option value="balanced">
+           Vyvážený · běžná práce
+          </option>
+          <option value="deep">
+           Důkladný · složité úkoly
+          </option>
+          <option value="extra">
+           Extra · delší výstupy
+          </option>
+          <option value="manual">
+           Ruční · moje hodnoty
+          </option>
+         </select>
+         <small id="performanceHint">
+          Aurora zvolí úroveň podle složitosti zadání.
+         </small>
+        </div>
+        <div class="response-setting">
+         <label for="temperature">
+          Kreativita
+          <b id="temperatureValue">
+           0,7
+          </b>
+         </label>
+         <input id="temperature" max="1.5" min="0" step="0.1" type="range" value="0.7"/>
+        </div>
+        <div class="response-setting">
+         <label for="contextSize">
+          Kontext
+         </label>
+         <select id="contextSize">
+          <option value="2048">
+           2 048 tokenů · rychlejší
+          </option>
+          <option selected="" value="4096">
+           4 096 tokenů · vyvážené
+          </option>
+          <option value="8192">
+           8 192 tokenů · delší úkoly
+          </option>
+          <option value="16384">
+           16 384 tokenů · náročnější RAM
+          </option>
+         </select>
+        </div>
+        <div class="response-setting">
+         <label for="maxTokens">
+          Délka odpovědi
+         </label>
+         <select id="maxTokens">
+          <option value="512">
+           Krátká · 512
+          </option>
+          <option selected="" value="1024">
+           Normální · 1 024
+          </option>
+          <option value="2048">
+           Dlouhá · 2 048
+          </option>
+          <option value="4096">
+           Velmi dlouhá · 4 096
+          </option>
+         </select>
+        </div>
+        <div class="response-setting">
+         <label for="threadCount">
+          CPU vlákna
+         </label>
+         <select id="threadCount">
+          <option value="2">
+           2 · nižší zátěž
+          </option>
+          <option selected="" value="4">
+           4 · vyvážené
+          </option>
+          <option value="6">
+           6 · vyšší výkon
+          </option>
+          <option value="8">
+           8 · maximální zátěž
+          </option>
+         </select>
+        </div>
+        <p class="advanced-settings-hint">
+         Chceš jemně ovlivnit styl generování? Tyto technické volby najdeš v Nastavení → Model a odpovědi → Pokročilé parametry modelu.
+        </p>
+        <p>
+         Vyšší kontext a delší odpovědi mohou spotřebovat více RAM a zpomalit model.
+        </p>
+       </div>
+       <textarea id="prompt" placeholder="Napiš zprávu…" rows="1"></textarea>
+       <div class="composer-bottom">
+        <span id="composerHint">
+         Vyber lokální model v horní liště.
+        </span>
+        <button class="send" id="sendBtn">
+         ↑
+        </button>
+       </div>
+      </div>
+      <div class="fineprint">
+       Aurora může chybovat. Důležité změny souborů a příkazy budou vyžadovat tvoje schválení.
+      </div>
+     </div>
+    </section>
+    <aside aria-label="Přehled systému" class="dashboard-rail" id="dashboardRail">
+     <section class="dash-card system-card">
+      <div class="dash-title">
+       <span class="dash-icon">
+        ⌁
+       </span>
+       <b>
+        Stav systému
+       </b>
+       <button aria-expanded="true" aria-label="Sbalit stav systému" class="dash-minimize" type="button">
+        −
+       </button>
+      </div>
+      <div class="system-summary">
+       <div class="system-summary-row">
+        <span>
+         Lokální služba
+        </span>
+        <b id="dashStatusLabel">
+         Kontrola probíhá
+        </b>
+       </div>
+       <div class="system-summary-row">
+        <span>
+         Aktivní model
+        </span>
+        <b id="dashModelName">
+         Zatím nevybrán
+        </b>
+       </div>
+      </div>
+      <div class="dash-runtime">
+       <span class="status-dot" id="dashStatusDot">
+       </span>
+       <span id="dashStatusText">
+        Ověřuji Ollama…
+       </span>
+      </div>
+     </section>
+     <section class="dash-card checklist-card">
+      <div class="dash-title">
+       <span class="dash-icon">
+        ⌁
+       </span>
+       <b>
+        Další krok
+       </b>
+       <button aria-expanded="true" aria-label="Sbalit další krok" class="dash-minimize" type="button">
+        −
+       </button>
+      </div>
+      <p class="dashboard-note">
+       Když chat neodpovídá, nejdřív ověř Ollama a dostupnou paměť. Diagnostika ukáže stav služby, modely v paměti a naměřenou odezvu.
+      </p>
+      <button class="dash-link" data-view="performance">
+       Otevřít diagnostiku
+       <span>
+        ›
+       </span>
+      </button>
+     </section>
+     <section class="dash-card quick-card">
+      <div class="dash-title">
+       <span class="dash-icon">
+        ϟ
+       </span>
+       <b>
+        Rychlé akce
+       </b>
+       <button aria-expanded="true" aria-label="Sbalit rychlé akce" class="dash-minimize" type="button">
+        −
+       </button>
+      </div>
+      <div class="quick-grid">
+       <button data-view="projects">
+        <span>
+         ▱
+        </span>
+        Otevřít projekt
+       </button>
+       <button data-view="performance">
+        <span>
+         ↻
+        </span>
+        Diagnostika
+       </button>
+       <button data-view="models">
+        <span>
+         ⇩
+        </span>
+        Modely
+       </button>
+      </div>
+     </section>
+    </aside>
+    <section class="view subview hidden" id="agentView">
+     <div class="work-capability-note" role="note">
+      <b>
+       Co může Work bezpečně připravit:
+      </b>
+      zdrojové kódy, HTML, Markdown, JSON, CSV a TSV. Office/PDF binární export není v této verzi přímý výstup; Aurora na něj nesmí tvrdit, že jej vytvořila. Každý zápis do projektu vyžaduje tvé schválení.
+     </div>
+     <div class="page-heading">
+      <div class="eyebrow">
+       AURORA · WORK MODE
+      </div>
+      <h1>
+       Work
+       <span>
+        mode
+       </span>
+      </h1>
+      <p>
+       Vyber složku projektu a napiš, co chceš vytvořit, opravit nebo prozkoumat. Aurora si připraví postup, projde relevantní soubory a před zápisem ti ukáže změny ke schválení.
+      </p>
+      <span class="sr-only">
+       Rozšířený režim používá čtyři navazující role
+      </span>
+     </div>
+     <details class="agent-advanced-settings">
+      <summary>
+       <span>
+        Pokročilé nastavení agentů
+       </span>
+       <small>
+        Modely a role · volitelné
+       </small>
+      </summary>
+      <article class="panel agent-mode-setup">
+       <div>
+        <b>
+         Kolik agentů použít?
+        </b>
+        <small>
+         Víc agentů znamená víc paměti a několik modelových běhů za sebou.
+        </small>
+       </div>
+       <label class="sr-only" for="agentComplexity">
+        Režim agentů
+       </label>
+       <select id="agentComplexity">
+        <option value="simple">
+         Jednoduchý · hlavní + vedlejší
+        </option>
+        <option value="advanced">
+         Rozšířený · všechny 4 role
+        </option>
+       </select>
+      </article>
+      <div class="agent-role-grid">
+       <article class="panel role-card agent-role-card" data-agent-role="planner">
+        <div class="role-icon brain">
+         ✦
+        </div>
+        <div class="eyebrow">
+         ROLE 01
+        </div>
+        <h2>
+         PLÁNOVAČ
+         <span>
+          Planner
+         </span>
+        </h2>
+        <p>
+         Rozdělí zadání na ověřitelné kroky, priority a rizika.
+        </p>
+        <label for="plannerProvider">
+         Poskytovatel
+        </label>
+        <select class="agent-provider" id="plannerProvider">
+         <option value="ollama">
+          Lokální Ollama
+         </option>
+         <option value="openai">
+          OpenAI / kompatibilní
+         </option>
+         <option value="anthropic">
+          Anthropic Claude
+         </option>
+         <option value="gemini">
+          Google Gemini
+         </option>
+        </select>
+        <div class="agent-model-control" id="plannerLocalWrap">
+         <label for="plannerLocalModel">
+          Lokální model
+         </label>
+         <select class="agent-local-model" id="plannerLocalModel">
+          <option value="">
+           Nejdřív načti modely
+          </option>
+         </select>
+        </div>
+        <div class="agent-model-control hidden" id="plannerRemoteWrap">
+         <label for="plannerRemoteModel">
+          Vzdálený model
+         </label>
+         <input autocomplete="off" class="agent-remote-model" id="plannerRemoteModel" maxlength="120" placeholder="gpt-6-luna"/>
+        </div>
+        <p class="agent-provider-help" id="plannerProviderHelp">
+         Lokální zpracování přes Ollama.
+        </p>
+       </article>
+       <article class="panel role-card agent-role-card" data-agent-role="researcher">
+        <div class="role-icon brain">
+         ⌕
+        </div>
+        <div class="eyebrow">
+         ROLE 02
+        </div>
+        <h2>
+         VÝZKUMNÍK
+         <span>
+          Researcher
+         </span>
+        </h2>
+        <p>
+         Prověří kontext, hledá rozpory a označí neznámé informace.
+        </p>
+        <label for="researcherProvider">
+         Poskytovatel
+        </label>
+        <select class="agent-provider" id="researcherProvider">
+         <option value="ollama">
+          Lokální Ollama
+         </option>
+         <option value="openai">
+          OpenAI / kompatibilní
+         </option>
+         <option value="anthropic">
+          Anthropic Claude
+         </option>
+         <option value="gemini">
+          Google Gemini
+         </option>
+        </select>
+        <div class="agent-model-control" id="researcherLocalWrap">
+         <label for="researcherLocalModel">
+          Lokální model
+         </label>
+         <select class="agent-local-model" id="researcherLocalModel">
+          <option value="">
+           Nejdřív načti modely
+          </option>
+         </select>
+        </div>
+        <div class="agent-model-control hidden" id="researcherRemoteWrap">
+         <label for="researcherRemoteModel">
+          Vzdálený model
+         </label>
+         <input autocomplete="off" class="agent-remote-model" id="researcherRemoteModel" maxlength="120" placeholder="gpt-6-luna"/>
+        </div>
+        <p class="agent-provider-help" id="researcherProviderHelp">
+         Lokální zpracování přes Ollama.
+        </p>
+       </article>
+       <article class="panel role-card agent-role-card" data-agent-role="implementer">
+        <div class="role-icon hands">
+         ⌘
+        </div>
+        <div class="eyebrow">
+         ROLE 03
+        </div>
+        <h2>
+         IMPLEMENTÁTOR
+         <span>
+          Implementer
+         </span>
+        </h2>
+        <p>
+         Navrhne konkrétní změny, dotčené soubory a potřebné testy; nic sám nezapisuje.
+        </p>
+        <label for="implementerProvider">
+         Poskytovatel
+        </label>
+        <select class="agent-provider" id="implementerProvider">
+         <option value="ollama">
+          Lokální Ollama
+         </option>
+         <option value="openai">
+          OpenAI / kompatibilní
+         </option>
+         <option value="anthropic">
+          Anthropic Claude
+         </option>
+         <option value="gemini">
+          Google Gemini
+         </option>
+        </select>
+        <div class="agent-model-control" id="implementerLocalWrap">
+         <label for="implementerLocalModel">
+          Lokální model
+         </label>
+         <select class="agent-local-model" id="implementerLocalModel">
+          <option value="">
+           Nejdřív načti modely
+          </option>
+         </select>
+        </div>
+        <div class="agent-model-control hidden" id="implementerRemoteWrap">
+         <label for="implementerRemoteModel">
+          Vzdálený model
+         </label>
+         <input autocomplete="off" class="agent-remote-model" id="implementerRemoteModel" maxlength="120" placeholder="gpt-6-luna"/>
+        </div>
+        <p class="agent-provider-help" id="implementerProviderHelp">
+         Lokální zpracování přes Ollama.
+        </p>
+       </article>
+       <article class="panel role-card agent-role-card" data-agent-role="reviewer">
+        <div class="role-icon hands">
+         ✓
+        </div>
+        <div class="eyebrow">
+         ROLE 04
+        </div>
+        <h2>
+         RECENZENT
+         <span>
+          Reviewer
+         </span>
+        </h2>
+        <p>
+         Nezávisle zkontroluje návrh, bezpečnostní rizika a kvalitu testů.
+        </p>
+        <label for="reviewerProvider">
+         Poskytovatel
+        </label>
+        <select class="agent-provider" id="reviewerProvider">
+         <option value="ollama">
+          Lokální Ollama
+         </option>
+         <option value="openai">
+          OpenAI / kompatibilní
+         </option>
+         <option value="anthropic">
+          Anthropic Claude
+         </option>
+         <option value="gemini">
+          Google Gemini
+         </option>
+        </select>
+        <div class="agent-model-control" id="reviewerLocalWrap">
+         <label for="reviewerLocalModel">
+          Lokální model
+         </label>
+         <select class="agent-local-model" id="reviewerLocalModel">
+          <option value="">
+           Nejdřív načti modely
+          </option>
+         </select>
+        </div>
+        <div class="agent-model-control hidden" id="reviewerRemoteWrap">
+         <label for="reviewerRemoteModel">
+          Vzdálený model
+         </label>
+         <input autocomplete="off" class="agent-remote-model" id="reviewerRemoteModel" maxlength="120" placeholder="gpt-6-luna"/>
+        </div>
+        <p class="agent-provider-help" id="reviewerProviderHelp">
+         Lokální zpracování přes Ollama.
+        </p>
+       </article>
+      </div>
+     </details>
+     <div class="agent-grid agent-config-grid">
+      <article class="panel scope-card">
+       <div class="panel-head">
+        <h3>
+         Pracovní složka
+        </h3>
+        <span class="pill">
+         STRICT
+        </span>
+       </div>
+       <div class="toggle-row">
+        <span>
+         Přístup pouze k vybrané složce
+        </span>
+        <input checked="" disabled="" id="folderOnly" type="checkbox"/>
+       </div>
+       <div class="code-project-select-row">
+        <label for="agentProjectSelect">
+         Pracovní projekt
+        </label>
+        <select id="agentProjectSelect">
+         <option value="">
+          Vyber projekt…
+         </option>
+        </select>
+        <button class="secondary" id="chooseFolder" type="button">
+         ＋ Přidat projekt
+        </button>
+       </div>
+       <div class="path-row">
+        <span id="scopePath">
+         Zatím není vybrána žádná složka
+        </span>
+        <span class="scope-approval">
+         Přístup jen k vybrané složce
+        </span>
+       </div>
+       <div class="toggle-row">
+        <span>
+         Spouštět příkazy automaticky
+        </span>
+        <input disabled="" type="checkbox"/>
+        <span class="locked">
+         ZAMČENO
+        </span>
+       </div>
+       <p class="muted">
+        Agent může číst jen zvolený projekt. Návrhy nemění soubory a systémové příkazy se nespouštějí.
+       </p>
+       <div class="agent-run-actions">
+        <button aria-label="Spustit úlohu" class="primary" id="startAgent">
+         Spustit hlavního a vedlejšího agenta
+        </button>
+        <button class="secondary hidden" id="stopAgent" type="button">
+         ■ Zastavit analýzu
+        </button>
+       </div>
+       <p class="agent-provider-help">
+        Pro vzdálené role musí být příslušný protokol uložený v Nastavení → API a poskytovatelé.
+       </p>
+      </article>
+      <article class="panel run-card">
+       <div class="panel-head">
+        <h3>
+         Úkol a průběh
+        </h3>
+        <span class="status-chip" id="agentQueueStatus">
+         PŘIPRAVENO
+        </span>
+       </div>
+       <div class="empty-state" id="agentQueue">
+        <div class="empty-symbol">
+         ✦
+        </div>
+        <b>
+         Zatím žádné úkoly
+        </b>
+        <span>
+         Napiš, co chceš v projektu udělat. Aurora připraví plán a bezpečný návrh změn.
+        </span>
+       </div>
+       <textarea id="agentGoal" placeholder="Např. analyzuj můj Unity projekt, najdi chyby a navrhni testy bez úprav souborů…"></textarea>
+      </article>
+     </div>
+    </section>
+    <section class="view subview hidden" id="modelsView">
+     <div class="page-heading">
+      <div class="eyebrow">
+       LOKÁLNÍ MODEL MANAGEMENT
+      </div>
+      <h1>
+       Model
+       <span>
+        Hub
+       </span>
+      </h1>
+      <p>
+       Najdi, stáhni a spravuj modely přímo přes Ollama.
+      </p>
+     </div>
+     <div class="hardware-strip panel">
+      <div class="hardware-icon">
+       ⌁
+      </div>
+      <div class="hardware-info">
+       <b id="hardwareTitle">
+        Analyzuji hardware…
+       </b>
+       <span id="hardwareDesc">
+        Modely budeme doporučovat podle dostupné paměti a výkonu.
+       </span>
+      </div>
+      <button class="secondary" id="hardwareRefresh">
+       Znovu zjistit
+      </button>
+     </div>
+     <div class="model-toolbar">
+      <div class="searchbox">
+       ⌕
+       <input id="modelSearch" placeholder="Hledat model (např. qwen2.5, llama3.2)…"/>
+      </div>
+      <select id="modelFilter">
+       <option value="all">
+        Všechny modely
+       </option>
+       <option value="installed">
+        Nainstalované
+       </option>
+       <option value="recommended">
+        Doporučené pro můj PC
+       </option>
+      </select>
+      <button class="secondary" id="refreshModels">
+       ↻ Obnovit
+      </button>
+      <button class="secondary" id="browseModelLibrary">
+       Veřejná knihovna ↗
+      </button>
+      <div class="custom-model-pull">
+       <input aria-label="Název modelu Ollama" id="customModelName" placeholder="Např. qwen3:4b"/>
+       <button class="primary" id="pullCustomModel">
+        ＋ Stáhnout podle názvu
+       </button>
+      </div>
+     </div>
+     <div aria-live="polite" class="model-overview" id="modelOverview">
+      <div class="model-overview-card">
+       <span class="overview-icon">
+        ◈
+       </span>
+       <div>
+        <small>
+         Modely v knihovně
+        </small>
+        <b id="overviewCatalog">
+         —
+        </b>
+       </div>
+      </div>
+      <div class="model-overview-card">
+       <span class="overview-icon installed-icon">
+        ✓
+       </span>
+       <div>
+        <small>
+         Nainstalované lokálně
+        </small>
+        <b id="overviewInstalled">
+         —
+        </b>
+       </div>
+      </div>
+      <div class="model-overview-card">
+       <span class="overview-icon fit-icon">
+        ✦
+       </span>
+       <div>
+        <small>
+         Odhad vhodných pro PC
+        </small>
+        <b id="overviewRecommended">
+         —
+        </b>
+       </div>
+      </div>
+      <div class="overview-progress">
+       <div>
+        <span>
+         Lokální knihovna
+        </span>
+        <b id="overviewPercent">
+         0%
+        </b>
+       </div>
+       <div class="overview-track">
+        <span id="overviewBar">
+        </span>
+       </div>
+       <small>
+        Modely zůstávají na tvém zařízení v Ollama.
+       </small>
+      </div>
+     </div>
+     <div class="model-grid" id="modelGrid">
+     </div>
+     <div class="panel model-detail hidden" id="modelDetail">
+      <button class="iconbtn close-detail" id="closeDetail">
+       ×
+      </button>
+      <div id="modelDetailContent">
+      </div>
+     </div>
+     <div class="pull-status hidden" id="pullStatus">
+      <div class="spinner">
+      </div>
+      <div>
+       <b id="pullTitle">
+        Stahuji model…
+       </b>
+       <span id="pullMessage">
+        Připojuji se k Ollama.
+       </span>
+      </div>
+     </div>
+    </section>
+    <section class="view subview hidden" id="performanceView">
+     <div class="page-heading">
+      <div class="eyebrow">
+       LOCAL RUNTIME TELEMETRY
+      </div>
+      <h1>
+       Výkon
+       <span>
+        &amp; runtime
+       </span>
+      </h1>
+      <p>
+       Aktuální stav Ollama, modely načtené v paměti a dostupné systémové prostředky. Data se čtou lokálně z Ollama a Windows.
+      </p>
+     </div>
+     <div class="runtime-toolbar">
+      <div>
+       <b id="runtimeUpdated">
+        Čekám na první kontrolu…
+       </b>
+       <small id="runtimeConnection">
+        Runtime zatím nebyl načten.
+       </small>
+      </div>
+      <button class="primary" id="refreshRuntime">
+       ↻ Obnovit runtime
+      </button>
+     </div>
+     <div class="runtime-stats">
+      <article class="panel">
+       <small>
+        Volná systémová RAM
+       </small>
+       <b id="runtimeFreeRam">
+        —
+       </b>
+       <span id="runtimeTotalRam">
+        —
+       </span>
+      </article>
+      <article class="panel">
+       <small>
+        Nainstalované modely
+       </small>
+       <b id="runtimeInstalledCount">
+        —
+       </b>
+       <span>
+        V místní knihovně Ollama
+       </span>
+      </article>
+      <article class="panel">
+       <small>
+        Načtené modely
+       </small>
+       <b id="runtimeLoadedCount">
+        —
+       </b>
+       <span>
+        Aktuálně drží paměť
+       </span>
+      </article>
+      <article class="panel">
+       <small>
+        Součet velikostí načtených modelů
+       </small>
+       <b id="runtimeLoadedSize">
+        —
+       </b>
+       <span>
+        Odhad Ollama, ne přesné využití RAM
+       </span>
+      </article>
+     </div>
+     <div class="panel runtime-models">
+      <div class="panel-head">
+       <h3>
+        Modely v paměti
+       </h3>
+       <span class="pill">
+        OLLAMA /API/PS
+       </span>
+      </div>
+      <div class="runtime-model-list" id="runtimeModelList">
+       <div class="empty-state">
+        Klikni na Obnovit runtime.
+       </div>
+      </div>
+     </div>
+     <div class="panel runtime-telemetry">
+      <div class="panel-head">
+       <h3>
+        Naměřená odezva Aurory
+       </h3>
+       <span class="pill">
+        LOKÁLNÍ STATISTIKY
+       </span>
+      </div>
+      <p class="muted">
+       Měří se čas do prvního výstupu a celková doba odpovědi. Rychlost znaků za sekundu je orientační, nikoli skutečný počet tokenů.
+      </p>
+      <div class="runtime-stats telemetry-stats">
+       <article class="panel">
+        <small>
+         Dokončené odpovědi
+        </small>
+        <b id="telemetryCount">
+         0
+        </b>
+        <span>
+         Posledních 40 měření
+        </span>
+       </article>
+       <article class="panel">
+        <small>
+         Průměrná doba
+        </small>
+        <b id="telemetryAverage">
+         —
+        </b>
+        <span>
+         Od požadavku po konec
+        </span>
+       </article>
+       <article class="panel">
+        <small>
+         První výstup
+        </small>
+        <b id="telemetryFirst">
+         —
+        </b>
+        <span>
+         Průměrná odezva
+        </span>
+       </article>
+       <article class="panel">
+        <small>
+         Výstupní rychlost
+        </small>
+        <b id="telemetryChars">
+         —
+        </b>
+        <span>
+         Znaky za sekundu
+        </span>
+       </article>
+      </div>
+      <div class="runtime-model-list" id="telemetryRecent">
+       <div class="empty-state">
+        Po dokončení chatu se zde zobrazí první měření.
+       </div>
+      </div>
+      <button class="secondary" id="clearTelemetry">
+       Vymazat měření
+      </button>
+     </div>
+     <div class="panel runtime-notes">
+      <h3>
+       Jak Aurora vybírá model
+      </h3>
+      <p>
+       <b>
+        Auto model
+       </b>
+       je přepínač v chatu. Kód, Unity, logy a ladění preferují nainstalovaný model s označením coder/code. Běžné otázky preferují menší model; složité plánování může použít větší dostupný model. Pokud není vhodný kandidát, použije se ručně vybraný model. Automatické směrování nemění výchozí model.
+      </p>
+     </div>
+    </section>
+    <section aria-labelledby="connectHeading" class="view subview hidden" id="connectView">
+     <div class="page-heading connect-page-heading">
+      <div class="eyebrow">
+       AURORA · CONNECT
+      </div>
+      <h1 id="connectHeading">
+       Připojení
+       <span>
+        nástrojů
+       </span>
+      </h1>
+      <p>
+       Propoj Auroru s editory a herními nástroji. Vyber projekt, zobraz dostupné funkce a připojení nastav bezpečně.
+      </p>
+     </div>
+     <div class="connect-toolbar">
+      <div>
+       <b>
+        Vývojové nástroje
+       </b>
+       <small>
+        Stavy rozlišují hotové integrace od konektorů, které ještě nejsou implementované.
+       </small>
+      </div>
+      <span class="connect-local-badge">
+       <i>
+       </i>
+       LOKÁLNÍ PŘIPOJENÍ
+      </span>
+     </div>
+     <div class="connect-grid">
+      <article class="panel connect-card" id="connectUnityCard">
+       <div class="connect-card-head">
+        <div class="connect-brand unity">
+         <span>
+          U
+         </span>
+        </div>
+        <div class="connect-card-title">
+         <h2>
+          Unity
+         </h2>
+         <small>
+          Unity Editor · C# · projekty
+         </small>
+        </div>
+        <span class="connect-state supported">
+         PODPOROVÁNO
+        </span>
+       </div>
+       <p>
+        Statická diagnostika projektu, analýza logů a připravovaný Editor Bridge. Úpravy skriptů zůstávají pod tvým schválením.
+       </p>
+       <div class="connect-capabilities">
+        <span>
+         Audit projektu
+        </span>
+        <span>
+         Logy
+        </span>
+        <span>
+         Editor Bridge
+        </span>
+       </div>
+       <button class="connect-open" id="connectUnityBtn" type="button">
+        Nastavit Unity
+        <span>
+         →
+        </span>
+       </button>
+      </article>
+      <article class="panel connect-card" id="connectUnrealCard">
+       <div class="connect-card-head">
+        <div class="connect-brand unreal">
+         <span>
+          U
+         </span>
+        </div>
+        <div class="connect-card-title">
+         <h2>
+          Unreal Engine
+         </h2>
+         <small>
+          Blueprints · C++ · Editor
+         </small>
+        </div>
+        <span class="connect-state planned">
+         PŘIPRAVUJE SE
+        </span>
+       </div>
+       <p>
+        Samostatný Unreal Editor Bridge zatím není součástí této verze. Nezobrazuji falešný stav připojení ani neinstaluji neexistující plugin.
+       </p>
+       <div class="connect-capabilities">
+        <span>
+         Plánovaný Editor Bridge
+        </span>
+        <span>
+         Blueprint audit
+        </span>
+        <span>
+         C++ projekty
+        </span>
+       </div>
+       <button aria-expanded="false" class="connect-open secondary" id="connectUnrealInfoBtn" type="button">
+        Zobrazit informace
+        <span>
+         →
+        </span>
+       </button>
+       <div class="connect-inline-info hidden" id="connectUnrealInfo">
+        Unreal konektor bude vyžadovat vlastní plugin do Unreal Editoru a lokální bezpečný most do Aurory. V této verzi se nepovažuje za připojený.
+       </div>
+      </article>
+      <article class="panel connect-card" id="connectGodotCard">
+       <div class="connect-card-head">
+        <div class="connect-brand godot">
+         <span>
+          G
+         </span>
+        </div>
+        <div class="connect-card-title">
+         <h2>
+          Godot
+         </h2>
+         <small>
+          Godot Engine · GDScript · C#
+         </small>
+        </div>
+        <span class="connect-state supported">
+         AUDIT DOSTUPNÝ
+        </span>
+       </div>
+       <p>
+        Read-only kontrola struktury, hlavní scény, odkazovaných zdrojů a běžných problémů ve skriptech. Projekt se automaticky nespouští.
+       </p>
+       <div class="connect-capabilities">
+        <span>
+         Project audit
+        </span>
+        <span>
+         Scenes
+        </span>
+        <span>
+         Resources
+        </span>
+       </div>
+       <button class="connect-open" id="connectGodotBtn" type="button">
+        Nastavit Godot
+        <span>
+         →
+        </span>
+       </button>
+      </article>
+      <article class="panel connect-card" id="connectRobloxCard">
+       <div class="connect-card-head">
+        <div class="connect-brand roblox">
+         <span>
+          R
+         </span>
+        </div>
+        <div class="connect-card-title">
+         <h2>
+          Roblox Studio
+         </h2>
+         <small>
+          Luau · Studio Plugin
+         </small>
+        </div>
+        <span class="connect-state bridge">
+         PLUGIN BRIDGE
+        </span>
+       </div>
+       <p>
+        Aurora Bridge plugin lze nainstalovat nebo aktualizovat. Změny skriptů se nejprve zobrazí v náhledu a vyžadují potvrzení.
+       </p>
+       <div class="connect-capabilities">
+        <span>
+         Plugin Bridge
+        </span>
+        <span>
+         Luau návrhy
+        </span>
+        <span>
+         Schvalování
+        </span>
+       </div>
+       <button class="connect-open" id="connectRobloxBtn" type="button">
+        Spravovat Roblox Bridge
+        <span>
+         →
+        </span>
+       </button>
+      </article>
+      <article class="panel connect-card" id="connectVSCodeCard">
+       <div class="connect-card-head">
+        <div class="connect-brand vscode">
+         <span>
+          ⌘
+         </span>
+        </div>
+        <div class="connect-card-title">
+         <h2>
+          Visual Studio Code
+         </h2>
+         <small>
+          Externí editor
+         </small>
+        </div>
+        <span class="connect-state supported">
+         PODPOROVÁNO
+        </span>
+       </div>
+       <p>
+        Otevře vybranou projektovou složku v editoru. Aurora nepředává VS Code automatické příkazy ani skryté úpravy.
+       </p>
+       <div class="connect-capabilities">
+        <span>
+         Open project
+        </span>
+        <span>
+         Workspace
+        </span>
+       </div>
+       <button class="connect-open" id="connectVSCodeBtn" type="button">
+        Nastavit VS Code
+        <span>
+         →
+        </span>
+       </button>
+      </article>
+     </div>
+     <div class="connect-footnote">
+      <b>
+       Bezpečnost připojení
+      </b>
+      <span>
+       Každý konektor má vlastní oprávnění. Výběr projektu pouze připojí vybranou složku; zápis nebo spuštění kontrol vyžaduje samostatné schválení.
+      </span>
+      <button class="secondary" id="connectAdvancedToolsBtn" type="button">
+       Otevřít pokročilé nástroje
+      </button>
+     </div>
+    </section>
+    <section class="view subview hidden" id="toolsView">
+     <div class="page-heading">
+      <div class="eyebrow">
+       INTEGRATION REGISTRY
+      </div>
+      <h1>
+       Nástroje
+       <span>
+        &amp; integrace
+       </span>
+      </h1>
+      <p>
+       Centrální přehled funkcí Aurory. Stav se zjišťuje z lokálních služeb; položky vyžadující nastavení jsou tak výslovně označené.
+      </p>
+     </div>
+     <div class="tools-toolbar">
+      <div>
+       <b id="toolsUpdated">
+        Stav ještě nebyl ověřen
+       </b>
+       <small>
+        Lokální funkce nevyžadují placený API klíč.
+       </small>
+      </div>
+      <button class="primary" id="refreshTools">
+       ↻ Zkontrolovat vše
+      </button>
+     </div>
+     <section aria-labelledby="compatibilityTitle" class="panel compatibility-panel">
+      <div class="compatibility-head">
+       <div>
+        <div class="eyebrow">
+         KOMPATIBILITA
+        </div>
+        <h2 id="compatibilityTitle">
+         Nástroje na tomto počítači
+        </h2>
+        <p>
+         Automatická kontrola verzí a dostupnosti. Chybějící volitelné nástroje neblokují běžný chat.
+        </p>
+       </div>
+       <button class="secondary" id="refreshCompatibility" type="button">
+        ↻ Zkontrolovat znovu
+       </button>
+      </div>
+      <div class="compatibility-runtime" id="compatibilityRuntime">
+       <span>
+        Electron
+       </span>
+       <b>
+        Kontroluji prostředí…
+       </b>
+      </div>
+      <div aria-live="polite" class="compatibility-summary" id="compatibilitySummary">
+       Zjišťuji dostupné nástroje…
+      </div>
+      <div class="compatibility-grid" id="compatibilityGrid">
+       <div class="empty-state">
+        Načítám kompatibilitu vývojářských nástrojů.
+       </div>
+      </div>
+      <small class="compatibility-footnote">
+       Kontrola pouze čte verze a cesty. Nespouští projekty, editory, buildy ani příkazy z projektových složek.
+      </small>
+     </section>
+     <div class="tools-registry" id="toolsRegistry">
+      <article class="panel tool-card">
+       <div class="tool-card-head">
+        <span class="tool-card-icon">
+         ◈
+        </span>
+        <span class="tool-status checking">
+         KONTROLUJI
+        </span>
+       </div>
+       <h3>
+        Ollama · lokální AI
+       </h3>
+       <p>
+        Chat, streaming, zastavení generování, správa a stahování modelů.
+       </p>
+      </article>
+     </div>
+     <div class="panel tools-security">
+      <h3>
+       Bezpečnostní hranice
+      </h3>
+      <p>
+       Webové vyhledávání předává dotaz vyhledávači. ComfyUI běží lokálně. Projektové soubory se čtou jen z vybrané složky; změny vyžadují výslovné schválení a systémové příkazy se automaticky nespouštějí.
+      </p>
+     </div>
+     <div class="project-grid">
+      <article class="panel integration">
+       <div class="integration-logo unity">
+        U
+       </div>
+       <h2>
+        Unity diagnostika
+       </h2>
+       <p>
+        Aktuálně dostupné: statický audit projektu, kontrola vybraných logů, export nálezů a schvalované návrhy úprav. Kompilaci ani spuštění Unity Editoru tato verze sama neprovádí.
+       </p>
+       <span class="status-chip" id="unityStatus">
+        ČEKÁ NA PROJEKT
+       </span>
+       <button class="secondary" id="inspectUnity">
+        Analyzovat Unity projekt
+       </button>
+       <button class="secondary" id="auditUnity">
+        Spustit statický audit
+       </button>
+       <button class="secondary" disabled="" id="exportUnityAudit">
+        Exportovat poslední audit (.md / .json)
+       </button>
+       <button class="secondary" id="installUnityBridge">
+        Připravit Unity Editor Bridge
+       </button>
+       <small class="muted">
+        Bridge se vloží jako návrh do Assets/Editor/AuroraAI a zapíše se až po tvém schválení.
+       </small>
+       <div class="unity-report muted" id="unityReport">
+        Vyber složku projektu a spusť analýzu.
+       </div>
+       <button class="secondary" id="unityDocs">
+        Otevřít Unity dokumentaci ↗
+       </button>
+      </article>
+      <article class="panel integration godot-integration" id="godotIntegration">
+       <div class="integration-logo godot">
+        G
+       </div>
+       <h2>
+        Godot diagnostika
+       </h2>
+       <p>
+        Read-only kontrola projektu: hlavní scéna, odkazy v .tscn/.tres a základní upozornění ve skriptech GDScript. Godot ani kód se nespouštějí.
+       </p>
+       <span class="status-chip" id="godotStatus">
+        ČEKÁ NA PROJEKT
+       </span>
+       <button class="secondary" id="auditGodot">
+        Provést Godot audit
+       </button>
+       <div class="unity-report muted" id="godotReport">
+        Vyber kořen projektu obsahující project.godot a spusť kontrolu.
+       </div>
+       <small class="muted">
+        Statická kontrola nenahrazuje import projektu ani editorové chyby.
+       </small>
+      </article>
+      <article class="panel integration capcut-integration">
+       <div class="integration-logo capcut">
+        ▶
+       </div>
+       <h2>
+        CapCut · audit projektu
+       </h2>
+       <p>
+        Read-only kontrola draftu: stopy, segmenty, odkazy na média, délky a základní metadata časové osy. Média se neotevírají ani nemění.
+       </p>
+       <span class="status-chip" id="capcutStatus">
+        ČEKÁ NA PROJEKT
+       </span>
+       <button class="secondary" id="auditCapCut">
+        Analyzovat CapCut draft
+       </button>
+       <div class="unity-report muted" id="capcutReport">
+        Vyber přímo složku CapCut projektu a spusť kontrolu.
+       </div>
+      </article>
+      <article class="panel integration vscode-integration" id="vscodeIntegration">
+       <div class="integration-logo vscode">
+        ⌘
+       </div>
+       <h2>
+        Visual Studio Code
+       </h2>
+       <p>
+        Otevře právě vybranou projektovou složku v nové instanci VS Code. Aurora nepředává editoru žádné automatické úpravy ani příkazy.
+       </p>
+       <span class="status-chip" id="vscodeStatus">
+        EDITOR NENASTAVEN
+       </span>
+       <div class="settings-actions">
+        <button class="secondary" id="chooseVSCode">
+         Vybrat VS Code
+        </button>
+        <button class="primary" id="openVSCode">
+         Otevřít vybraný projekt
+        </button>
+       </div>
+       <small class="muted" id="vscodePath">
+        Vyber Code.exe / Visual Studio Code executable.
+       </small>
+      </article>
+      <article class="panel integration project-check-integration">
+       <div class="integration-logo git">
+        ⌘
+       </div>
+       <h2>
+        Projektové kontroly
+       </h2>
+       <p>
+        Spusť přednastavené kontroly Git, Node, Python, .NET, Godot nebo Unity. Žádné volné příkazy; kontroly spouštěj jen v projektech, kterým důvěřuješ.
+       </p>
+       <label for="projectCheckAction">
+        Kontrola
+       </label>
+       <select id="projectCheckAction">
+        <option value="">
+         Načítám povolené kontroly…
+        </option>
+       </select>
+       <div class="settings-actions">
+        <button class="secondary" id="chooseGodotEditor">
+         Vybrat Godot
+        </button>
+        <button class="secondary" id="chooseUnityEditor">
+         Vybrat Unity
+        </button>
+       </div>
+       <small class="muted" id="projectEditorPaths">
+        Cesty editorů zatím nejsou nastavené.
+       </small>
+       <div class="settings-actions">
+        <button class="primary" id="runProjectCheck">
+         Spustit kontrolu
+        </button>
+        <button class="secondary" disabled="" id="cancelProjectCheck">
+         Zrušit běžící kontrolu
+        </button>
+       </div>
+       <span class="status-chip" id="projectCheckStatus">
+        PŘIPRAVENO
+       </span>
+       <pre class="unity-report muted" id="projectCheckOutput">Vyber kontrolu a projektovou složku.</pre>
+      </article>
+      <article class="panel integration roblox-integration" id="robloxIntegration">
+       <div class="integration-logo roblox">
+        R
+       </div>
+       <h2>
+        Roblox Studio · Bridge
+       </h2>
+       <p>
+        Správa Aurora Bridge pluginu v Roblox Studio. Plugin se instaluje pouze po potvrzení; cizí soubor nikdy nepřepisuje.
+       </p>
+       <span class="status-chip" id="robloxStatus">
+        STAV NEZJIŠTĚN
+       </span>
+       <div class="settings-actions">
+        <button class="secondary" id="refreshRobloxBridge">
+         Obnovit stav
+        </button>
+        <button class="primary" id="installRobloxBridge">
+         Instalovat / aktualizovat
+        </button>
+       </div>
+       <button class="secondary" id="disableRobloxBridge">
+        Vypnout plugin
+       </button>
+       <div class="unity-report muted" id="robloxReport">
+        Stav pluginu se načte z profilu Roblox Studio ve Windows.
+       </div>
+      </article>
+      <article class="panel integration">
+       <div class="integration-logo folder">
+        ▧
+       </div>
+       <h2>
+        Lokální složka
+       </h2>
+       <p>
+        Vyber složku projektu. Aurora bude nejdříve pouze číst; úpravy budou připravené k potvrzení.
+       </p>
+       <div class="path-row">
+        <span id="projectPath">
+         Žádná složka není vybrána
+        </span>
+        <button class="secondary" id="projectFolder">
+         Vybrat
+        </button>
+       </div>
+      </article>
+      <article class="panel integration">
+       <div class="integration-logo git">
+        ⑂
+       </div>
+       <h2>
+        Návrhy změn &amp; zálohy
+       </h2>
+       <p>
+        Agent může připravit návrh úpravy textového souboru. Před zápisem se zobrazí potvrzení a existující soubor dostane zálohu.
+       </p>
+       <span class="status-chip">
+        SCHVÁLENÍ POVINNÉ
+       </span>
+       <label for="editPath">
+        Relativní cesta
+       </label>
+       <input id="editPath" placeholder="Assets/Scripts/Example.cs"/>
+       <label for="editContent">
+        Obsah souboru (návrh)
+       </label>
+       <textarea id="editContent" placeholder="Vlož nový obsah pro kontrolu…"></textarea>
+       <button class="secondary" id="previewEdit">
+        Zkontrolovat návrh
+       </button>
+       <div class="unity-report muted" id="editPreview">
+        Zatím žádný návrh.
+       </div>
+       <div class="rule">
+       </div>
+       <h3>
+        Balík více-souborových změn
+       </h3>
+       <p>
+        Vlož JSON pole objektů
+        <code>
+         {"path":"Assets/Scripts/Example.cs","content":"..."}
+        </code>
+        . Nejvýše 12 souborů. Všechny změny se nejprve zobrazí k revizi a zapíší se až po jednom výslovném schválení.
+       </p>
+       <textarea id="batchEditJson" placeholder='[{"path":"Assets/Scripts/Example.cs","content":"// nový obsah\n"}]' rows="7"></textarea>
+       <button class="secondary" id="previewBatchEdit">
+        Připravit a zkontrolovat celý balík
+       </button>
+       <div class="unity-report muted" id="batchEditPreview">
+        Žádný balík změn není připraven.
+       </div>
+      </article>
+     </div>
+    </section>
+    <section class="view subview hidden" id="webView">
+     <div class="page-heading">
+      <div class="eyebrow">
+       LIVE WEB SEARCH
+      </div>
+      <h1>
+       Internet
+       <span>
+        Search
+       </span>
+      </h1>
+      <p>
+       Vyhledej dokumentaci, řešení chyb a aktuální informace. Vyhledávání používá internet; dotaz se odešle vyhledávači.
+      </p>
+     </div>
+     <div class="web-search-panel panel">
+      <form class="web-search-form" id="webSearchForm">
+       <span class="web-search-icon">
+        ⌕
+       </span>
+       <input autocomplete="off" id="webSearchQuery" maxlength="240" placeholder="Hledej třeba Unity NullReferenceException…" required=""/>
+       <button class="primary" id="webSearchButton" type="submit">
+        Hledat ↗
+       </button>
+      </form>
+      <div class="web-search-meta" id="webSearchMeta">
+       Výsledky se otevřou v zabezpečeném externím prohlížeči.
+      </div>
+     </div>
+     <div class="web-results" id="webSearchResults">
+     </div>
+    </section>
+    <section class="view subview hidden" id="imagesView">
+     <div class="page-heading">
+      <div class="eyebrow">
+       LOCAL IMAGE GENERATION
+      </div>
+      <h1>
+       Vizuální
+       <span>
+        engine
+       </span>
+      </h1>
+      <p>
+       Tuto stránku otevři jen při prvním nastavení nebo změně ComfyUI workflow. Potom bude Aurora generovat obrázky přímo v chatu a nastavení si zapamatuje.
+      </p>
+     </div>
+     <div class="image-lab-grid">
+      <article class="panel image-lab-controls">
+       <div class="image-engine-status">
+        <span class="status-dot" id="comfyStatusDot">
+        </span>
+        <div>
+         <b id="comfyStatusTitle">
+          Kontroluji ComfyUI…
+         </b>
+         <small id="comfyStatusText">
+          Lokální server 127.0.0.1:8188
+         </small>
+        </div>
+        <button class="secondary" id="checkComfy">
+         Zkontrolovat
+        </button>
+       </div>
+       <div class="image-setup-note" id="imageSetupNote">
+        <div>
+         <b>
+          Jednorázová automatická příprava
+         </b>
+         <p>
+          Na jedno potvrzení Aurora nainstaluje Python, ComfyUI, kompatibilní CPU backend a ověřený model Stable Diffusion 1.5 (přibližně 4,27 GB). Node.js pro generování obrázků není potřeba.
+         </p>
+        </div>
+        <button class="secondary" id="prepareImageEngine" type="button">
+         Připravit generování obrázků
+        </button>
+       </div>
+       <div class="rule">
+       </div>
+       <label for="imagePrompt">
+        Popis obrázku
+       </label>
+       <textarea id="imagePrompt" maxlength="5000" placeholder="Cinematic fantasy floating islands above a stormy ocean, volumetric light, intricate environment concept art…" rows="5"></textarea>
+       <label for="imageNegative">
+        Negativní prompt (volitelné)
+       </label>
+       <textarea id="imageNegative" maxlength="2000" placeholder="blurry, low quality, artifacts…" rows="3"></textarea>
+       <div class="image-lab-actions">
+        <button class="secondary" id="chooseImageWorkflow">
+         Nastavit / změnit workflow ručně (.json)
+        </button>
+        <span id="imageWorkflowLabel">
+         Workflow není vybraný
+        </span>
+       </div>
+       <button class="primary" disabled="" id="generateImage">
+        ✧ Generovat obrázek
+       </button>
+       <div class="image-lab-note">
+        V ComfyUI použij Save (API Format). Aurora nahradí text v CLIP Text Encode uzlech. Před generováním zkontroluj model a rozlišení ve workflow.
+       </div>
+      </article>
+      <article class="panel image-preview-panel">
+       <div class="image-preview-heading">
+        <div>
+         <div class="eyebrow">
+          OUTPUT CANVAS
+         </div>
+         <h2>
+          Výsledek generování
+         </h2>
+        </div>
+        <span class="tag" id="imageGenerationState">
+         Připraveno
+        </span>
+       </div>
+       <div class="image-preview" id="imagePreview">
+        <div class="image-preview-placeholder">
+         <span>
+          ✧
+         </span>
+         <b>
+          Tvůj další obrázek začíná tady
+         </b>
+         <small>
+          Vyber workflow, napiš prompt a spusť generování.
+         </small>
+        </div>
+       </div>
+       <div class="image-output-list" id="imageOutputList">
+       </div>
+       <div class="image-history-heading">
+        <b>
+         Poslední generování
+        </b>
+        <button class="secondary" id="clearImageHistory">
+         Vymazat historii
+        </button>
+       </div>
+       <div class="image-history" id="imageHistory">
+        <div class="muted">
+         Zatím žádná historie.
+        </div>
+       </div>
+      </article>
+     </div>
+    </section>
+    <section class="view subview hidden" id="projectsView">
+     <div class="page-heading">
+      <div class="eyebrow">
+       TVŮJ VÝVOJOVÝ PROSTOR
+      </div>
+      <h1>
+       Projekty
+       <span>
+        &amp; integrace
+       </span>
+      </h1>
+      <p>
+       Bezpečný základ pro Unity, repozitáře a lokální pracovní složky.
+      </p>
+     </div>
+     <section class="project-spaces-area">
+      <div class="project-spaces-heading">
+       <div>
+        <h2>
+         Pracovní prostory
+        </h2>
+        <p>
+         Každý projekt má vlastní složku a samostatné chaty. Odebrání projektu nikdy nesmaže soubory na disku.
+        </p>
+       </div>
+       <button class="primary" id="createProjectSpaceBtn" type="button">
+        ＋ Nový projekt
+       </button>
+      </div>
+      <div class="project-workspace-grid" id="projectWorkspaceGrid">
+       <div class="empty-state">
+        Načítám projekty…
+       </div>
+      </div>
+     </section>
+     <article class="panel marked-projects-panel">
+      <div class="panel-head">
+       <div>
+        <h3>
+         Chaty označené jako projekty
+        </h3>
+        <p class="muted">
+         Tady jsou konverzace, které sis připnul k vývoji. Samotné projektové nástroje zůstávají níže.
+        </p>
+       </div>
+       <span class="tag" id="projectChatCount">
+        0 chatů
+       </span>
+      </div>
+      <div class="project-chat-list" id="projectChatList">
+       <div class="empty-state">
+        Zatím žádný chat není označený jako projekt. V seznamu chatů otevři ⋯ a zvol „Přidat do projektů“.
+       </div>
+      </div>
+     </article>
+     <article class="panel project-tools-shortcut">
+      <div>
+       <b>
+        Projektové nástroje
+       </b>
+       <p class="muted">
+        Skenování složek, Unity audit a schvalované návrhy změn jsou dostupné v sekci Nástroje.
+       </p>
+      </div>
+      <button class="secondary" data-view="tools" type="button">
+       Otevřít nástroje
+      </button>
+     </article>
+    </section>
+    <section class="view subview hidden" id="memoryView">
+     <div class="page-heading">
+      <div class="eyebrow">
+       HISTORIE A PRACOVNÍ FRONTa
+      </div>
+      <h1>
+       Dokončené
+       <span>
+        chaty
+       </span>
+      </h1>
+      <p>
+       Historie konverzací zůstává lokální. Volitelná sémantická dlouhodobá paměť je samostatně dostupná v Nastavení → Data a soukromí; tato sekce slouží k odkládání dokončených chatů. Nic se nemaže; můžeš je kdykoli obnovit nebo exportovat.
+      </p>
+     </div>
+     <div class="conversation-archive-toolbar">
+      <div>
+       <b id="archiveCount">
+        0 dokončených konverzací
+       </b>
+       <span>
+        Uložené lokálně v tomto profilu
+       </span>
+      </div>
+      <button class="secondary" id="memoryExport">
+       Exportovat historii
+      </button>
+     </div>
+     <div class="archive-list" id="archiveList">
+      <div class="empty-state">
+       Zatím tu nejsou žádné dokončené chaty. U konverzace v seznamu klikni na ⋯ a vyber „Označit jako dokončenou“.
+      </div>
+     </div>
+    </section>
+    <section class="view subview hidden" id="settingsView">
+     <div class="page-heading">
+      <div class="eyebrow">
+       PREFERENCE A PROPOJENÍ
+      </div>
+      <h1>
+       Nastavení
+      </h1>
+      <p>
+       Lokální spojení, výkon a bezpečnostní výchozí hodnoty.
+      </p>
+     </div>
+     <nav aria-label="Kategorie nastavení" class="settings-tabs" role="tablist">
+      <button aria-selected="true" class="settings-tab active" data-settings-category-target="appearance" data-settings-filter="appearance" role="tab" type="button">
+       Vzhled
+      </button>
+      <button aria-selected="false" class="settings-tab" data-settings-category-target="personalization" data-settings-filter="personalization" role="tab" type="button">
+       Osobní profil
+      </button>
+      <button aria-selected="false" class="settings-tab" data-settings-category-target="generation" data-settings-filter="generation" role="tab" type="button">
+       Model a odpovědi
+      </button>
+      <button aria-selected="false" class="settings-tab" data-settings-category-target="sound" data-settings-filter="sound" role="tab" type="button">
+       Zvuk a animace
+      </button>
+      <button aria-selected="false" class="settings-tab" data-settings-category-target="providers" data-settings-filter="providers" role="tab" type="button">
+       API a poskytovatelé
+      </button>
+      <button aria-selected="false" class="settings-tab" data-settings-category-target="data" data-settings-filter="data" role="tab" type="button">
+       Data a soukromí
+      </button>
+      <button aria-selected="false" class="settings-tab" data-settings-category-target="safety" data-settings-filter="safety" role="tab" type="button">
+       Bezpečnost
+      </button>
+     </nav>
+     <div class="settings-grid" data-settings-filter="appearance">
+      <article class="panel ui-preferences-card" data-settings-category="appearance">
+       <h3>
+        Vzhled a chování
+       </h3>
+       <p>
+        Rozhraní, jazyk a animace pozadí. Změny se ukládají lokálně.
+       </p>
+       <div class="preference-row">
+        <label for="uiLanguage">
+         Jazyk rozhraní
+        </label>
+        <select id="uiLanguage">
+         <option value="cs">
+          Čeština
+         </option>
+         <option value="en">
+          English
+         </option>
+        </select>
+       </div>
+       <div class="preference-row">
+        <label for="uiTheme">
+         Motiv
+        </label>
+        <select id="uiTheme">
+         <option value="aurora">
+          Polární záře · video
+         </option>
+         <option value="graphite">
+          Čistý grafit
+         </option>
+         <option value="twilight">
+          Noční soumrak
+         </option>
+        </select>
+       </div>
+       <div class="preference-row">
+        <label for="backgroundMotion">
+         Animované pozadí
+        </label>
+        <label class="switch">
+         <input checked="" id="backgroundMotion" type="checkbox"/>
+         <span class="switch-track">
+         </span>
+         <span class="switch-label">
+          Pohyb zapnutý
+         </span>
+        </label>
+       </div>
+       <div class="preference-row">
+        <label for="backgroundIntensity">
+         Síla pozadí
+        </label>
+        <input id="backgroundIntensity" max="100" min="0" step="5" type="range" value="50"/>
+        <output for="backgroundIntensity" id="backgroundIntensityValue">
+         50 %
+        </output>
+       </div>
+       <div class="preference-row">
+        <label for="reduceMotion">
+         Omezit animace rozhraní
+        </label>
+        <input id="reduceMotion" type="checkbox"/>
+       </div>
+       <div class="preference-row">
+        <label for="uiFontScale">
+         Velikost písma
+        </label>
+        <select id="uiFontScale">
+         <option value="0.9">
+          Menší
+         </option>
+         <option selected="" value="1">
+          Výchozí
+         </option>
+         <option value="1.1">
+          Větší
+         </option>
+         <option value="1.2">
+          Velké
+         </option>
+        </select>
+       </div>
+       <div class="preference-row">
+        <label for="showDashboardDefault">
+         Přehled systému při startu
+        </label>
+        <input id="showDashboardDefault" type="checkbox"/>
+       </div>
+       <p class="muted">
+        Video je uloženo přímo v aplikaci. Při přepnutí na jinou obrazovku nebo minimalizaci se pozadí pozastaví.
+       </p>
+      </article>
+      <article class="panel personalization-card" data-settings-category="personalization" hidden="">
+       <div aria-hidden="true" class="settings-card-icon">
+        ✦
+       </div>
+       <h3>
+        Tvůj profil a osobní pokyny
+       </h3>
+       <p>
+        Řekni Aurorě, jak tě má oslovovat a co má vědět o tvém stylu práce. Jméno se nebude opakovat v každé odpovědi; pokyny jsou volitelné.
+       </p>
+       <div class="preference-row">
+        <label for="displayName">
+         Jméno nebo přezdívka
+        </label>
+        <input autocomplete="nickname" id="displayName" maxlength="64" placeholder="Jak ti má Aurora říkat?" type="text"/>
+        <small class="field-help">
+         Například Sam, Alex nebo přezdívka. Toto pole může zůstat prázdné.
+        </small>
+       </div>
+       <div class="preference-row">
+        <label for="personalInstructions">
+         Krátké osobní instrukce (volitelné)
+        </label>
+        <textarea id="personalInstructions" maxlength="1600" placeholder="Např. preferuji češtinu, stručné vysvětlení a nejdřív bezpečné řešení." rows="4"></textarea>
+        <small class="field-help">
+         <span id="personalInstructionsCount">
+          0
+         </span>
+         /1600 znaků. Nezadávej hesla ani tajné údaje.
+        </small>
+       </div>
+       <button class="primary" id="savePersonalization" type="button">
+        Uložit osobní profil
+       </button>
+       <p class="muted">
+        Profil se ukládá lokálně. Při použití vzdáleného API se relevantní jméno a pokyny odešlou vybranému poskytovateli jako kontext zprávy.
+       </p>
+      </article>
+      <article class="panel sound-preferences-card" data-settings-category="sound" hidden="">
+       <div aria-hidden="true" class="settings-card-icon">
+        ♫
+       </div>
+       <h3>
+        Zvuk a animace rozhraní
+       </h3>
+       <p>
+        Malé jemné efekty při změnách sekcí a dokončení akce. Zvuk je ve výchozím nastavení vypnutý a vytváří se lokálně; žádné zvukové soubory se nestahují.
+       </p>
+       <div class="preference-row">
+        <label for="interfaceEffects">
+         Plynulé přechody rozhraní
+        </label>
+        <label class="switch">
+         <input checked="" id="interfaceEffects" type="checkbox"/>
+         <span class="switch-track">
+         </span>
+         <span class="switch-label">
+          Zapnuto
+         </span>
+        </label>
+       </div>
+       <div class="preference-row">
+        <label for="soundEffects">
+         Jemné zvuky
+        </label>
+        <label class="switch">
+         <input id="soundEffects" type="checkbox"/>
+         <span class="switch-track">
+         </span>
+         <span class="switch-label">
+          Vypnuto
+         </span>
+        </label>
+       </div>
+       <div class="preference-row">
+        <label for="soundVolume">
+         Hlasitost zvuků
+        </label>
+        <input id="soundVolume" max="60" min="0" step="5" type="range" value="25"/>
+        <output for="soundVolume" id="soundVolumeValue">
+         25 %
+        </output>
+       </div>
+       <div class="settings-actions">
+        <button class="secondary" id="previewSound" type="button">
+         Přehrát ukázku
+        </button>
+        <button class="secondary" id="resetUiEffects" type="button">
+         Výchozí nastavení
+        </button>
+       </div>
+       <p class="muted">
+        Respektujeme „Omezit animace“ v nastavení vzhledu. Zvuky se přehrají jen po tvém zapnutí.
+       </p>
+      </article>
+      <article class="panel generation-preferences-card" data-settings-category="generation" hidden="">
+       <h3>
+        Model a odpovědi
+       </h3>
+       <p>
+        Zde nastavíš jazyk, délku a chování odpovědí. Většinou stačí výchozí hodnoty; jemné ladění je níže.
+       </p>
+       <div class="preference-row">
+        <label for="streamResponses">
+         Průběžné zobrazování odpovědi
+        </label>
+        <input checked="" id="streamResponses" type="checkbox"/>
+       </div>
+       <div class="preference-row">
+        <label for="generationLanguage">
+         Jazyk odpovědí
+        </label>
+        <select id="generationLanguage">
+         <option value="auto">
+          Automaticky podle dotazu
+         </option>
+         <option value="cs">
+          Čeština
+         </option>
+         <option value="en">
+          English
+         </option>
+        </select>
+       </div>
+       <div class="preference-row">
+        <label for="defaultPerformanceProfile">
+         Výchozí profil výkonu
+        </label>
+        <select id="defaultPerformanceProfile">
+         <option value="adaptive">
+          Automaticky podle úkolu
+         </option>
+         <option value="quick">
+          Rychlý
+         </option>
+         <option value="balanced">
+          Vyvážený
+         </option>
+         <option value="deep">
+          Důkladný
+         </option>
+         <option value="extra">
+          Extra
+         </option>
+         <option value="manual">
+          Ruční
+         </option>
+        </select>
+       </div>
+       <div class="preference-row">
+        <label for="systemPrompt">
+         Vlastní systémové instrukce
+        </label>
+        <textarea id="systemPrompt" maxlength="6000" placeholder="Jak má Aurora odpovídat? (volitelné)" rows="4"></textarea>
+       </div>
+       <div class="preference-row">
+        <label for="stopSequences">
+         Stop sekvence
+        </label>
+        <input id="stopSequences" maxlength="300" placeholder="Volitelné, odděluj | znakem" type="text"/>
+       </div>
+       <details class="advanced-generation">
+        <summary>
+         Pokročilé parametry modelu
+         <span class="muted">
+          · běžně není třeba měnit
+         </span>
+        </summary>
+        <p class="muted">
+         Parametry se před odesláním omezí na bezpečné rozsahy. Dostupnost se liší podle poskytovatele a modelu.
+        </p>
+        <div class="preference-row">
+         <label for="settingsTemperature">
+          Kreativita
+          <output id="settingsTemperatureValue">
+           0,7
+          </output>
+         </label>
+         <input id="settingsTemperature" max="2" min="0" step="0.1" type="range" value="0.7"/>
+        </div>
+        <div class="preference-row">
+         <label for="settingsTopP">
+          Rozmanitost slov (Top‑P)
+          <output id="settingsTopPValue">
+           0,9
+          </output>
+         </label>
+         <input id="settingsTopP" max="1" min="0.05" step="0.05" type="range" value="0.9"/>
+         <small class="field-help">
+          Nižší hodnota drží odpověď více při zemi; vyšší dovolí širší výběr slov. Výchozí hodnota je vhodná pro většinu úkolů.
+         </small>
+        </div>
+        <div class="preference-row">
+         <label for="settingsTopK">
+          Šířka výběru (Top‑K)
+         </label>
+         <select id="settingsTopK">
+          <option value="20">
+           20 · soustředěné
+          </option>
+          <option selected="" value="40">
+           40 · vyvážené
+          </option>
+          <option value="80">
+           80 · rozmanitější
+          </option>
+          <option value="100">
+           100 · nejširší výběr
+          </option>
+         </select>
+         <small class="field-help">
+          Kolik kandidátních možností model zvažuje. Obvykle není třeba měnit.
+         </small>
+        </div>
+        <div class="preference-row">
+         <label for="settingsRepeatPenalty">
+          Omezení opakování
+          <output id="settingsRepeatPenaltyValue">
+           1,1
+          </output>
+         </label>
+         <input id="settingsRepeatPenalty" max="2" min="0.5" step="0.05" type="range" value="1.1"/>
+         <small class="field-help">
+          Pomáhá omezit opakování stejných slov a vět. Příliš vysoká hodnota může text zhoršit.
+         </small>
+        </div>
+        <div class="preference-row">
+         <label for="settingsSeed">
+          Pevný náhodný základ (Seed)
+         </label>
+         <input id="settingsSeed" max="2147483647" min="0" placeholder="Náhodný" type="number"/>
+         <small class="field-help">
+          Vyplň jen tehdy, když chceš opakovat podobné generování. Prázdné pole znamená náhodný výběr.
+         </small>
+        </div>
+        <div class="preference-row">
+         <label for="settingsContextSize">
+          Kontext
+         </label>
+         <select id="settingsContextSize">
+          <option value="2048">
+           2 048 tokenů · rychlejší
+          </option>
+          <option selected="" value="4096">
+           4 096 tokenů · vyvážené
+          </option>
+          <option value="8192">
+           8 192 tokenů · delší úkoly
+          </option>
+          <option value="16384">
+           16 384 tokenů · náročnější RAM
+          </option>
+         </select>
+        </div>
+        <div class="preference-row">
+         <label for="settingsMaxTokens">
+          Délka odpovědi
+         </label>
+         <select id="settingsMaxTokens">
+          <option value="512">
+           Krátká · 512
+          </option>
+          <option selected="" value="1024">
+           Normální · 1 024
+          </option>
+          <option value="2048">
+           Dlouhá · 2 048
+          </option>
+          <option value="4096">
+           Velmi dlouhá · 4 096
+          </option>
+         </select>
+        </div>
+        <div class="preference-row">
+         <label for="settingsThreadCount">
+          CPU vlákna
+         </label>
+         <select id="settingsThreadCount">
+          <option value="2">
+           2 · nižší zátěž
+          </option>
+          <option selected="" value="4">
+           4 · vyvážené
+          </option>
+          <option value="6">
+           6 · vyšší výkon
+          </option>
+          <option value="8">
+           8 · vyšší zátěž
+          </option>
+         </select>
+        </div>
+       </details>
+       <div class="preference-row">
+        <label for="keepAlive">
+         Udržet model v paměti
+        </label>
+        <select id="keepAlive">
+         <option value="0">
+          Vypnout po odpovědi
+         </option>
+         <option value="1m">
+          1 minuta
+         </option>
+         <option value="5m">
+          5 minut
+         </option>
+         <option selected="" value="10m">
+          10 minut
+         </option>
+         <option value="30m">
+          30 minut
+         </option>
+         <option value="1h">
+          1 hodina
+         </option>
+        </select>
+       </div>
+       <button class="secondary" id="saveGenerationPrefs">
+        Uložit nastavení generování
+       </button>
+       <p class="muted" id="generationPrefsStatus">
+        Nastavení je uloženo lokálně.
+       </p>
+      </article>
+      <article class="panel api-provider-card" data-settings-category="providers" hidden="">
+       <h3>
+        API poskytovatelé
+        <span class="tag">
+         VOLITELNÉ
+        </span>
+       </h3>
+       <p>
+        Podporuje OpenAI-kompatibilní API, nativní Anthropic Claude a Google Gemini. Vzdálené zprávy opouštějí počítač a účtování se řídí poskytovatelem.
+       </p>
+       <label for="remoteProtocol">
+        Protokol API
+       </label>
+       <select id="remoteProtocol">
+        <option value="openai">
+         OpenAI kompatibilní
+        </option>
+        <option value="anthropic">
+         Anthropic Claude
+        </option>
+        <option value="gemini">
+         Google Gemini
+        </option>
+       </select>
+       <label for="openAILabel">
+        Název poskytovatele
+       </label>
+       <input id="openAILabel" maxlength="60" placeholder="OpenRouter, Groq…" value="OpenAI"/>
+       <label for="openAIEndpoint">
+        HTTPS API endpoint
+       </label>
+       <input id="openAIEndpoint" maxlength="500" placeholder="https://api.openai.com/v1" value="https://api.openai.com/v1"/>
+       <small>
+        Endpoint se musí shodovat s vybraným protokolem. Klíč zůstává v šifrovaném úložišti hlavního procesu.
+       </small>
+       <label for="openAIKey">
+        API klíč
+       </label>
+       <input autocomplete="new-password" id="openAIKey" maxlength="500" placeholder="API klíč od vybraného poskytovatele" type="password"/>
+       <small>
+        Klíč se ukládá zašifrovaný systémovým úložištěm. Nezobrazuje se zpět.
+       </small>
+       <label for="openAIModel">
+        Model
+       </label>
+       <input id="openAIModel" maxlength="120" placeholder="gpt-6-luna" value="gpt-6-luna"/>
+       <div class="settings-actions">
+        <button class="primary" id="saveOpenAI">
+         Bezpečně uložit
+        </button>
+        <button class="secondary" id="testOpenAI">
+         Otestovat spojení
+        </button>
+        <button class="secondary" id="clearOpenAI">
+         Odebrat klíč
+        </button>
+       </div>
+       <p class="muted" id="openAIStatus">
+        Kontroluji zabezpečené úložiště…
+       </p>
+      </article>
+      <article class="panel" data-settings-category="providers" hidden="">
+       <h3>
+        Ollama
+       </h3>
+       <p>
+        Výchozí adresa lokálního serveru
+       </p>
+       <code>
+        http://127.0.0.1:11434
+       </code>
+       <div class="rule">
+       </div>
+       <button class="primary" id="ollamaDownload">
+        Stáhnout Ollama ↗
+       </button>
+       <button class="secondary" id="testOllama">
+        Otestovat spojení
+       </button>
+       <p class="muted" id="ollamaDiagnostic">
+       </p>
+      </article>
+      <article class="panel" data-settings-category="data" hidden="">
+       <h3>
+        Záloha a přenos
+       </h3>
+       <p>
+        Exportuj konverzace a preference do přenosného JSON souboru. Import sloučí zálohu s aktuální historií; zdrojové projektové soubory se nikdy nepřibalují.
+       </p>
+       <div class="settings-actions">
+        <button class="primary" id="exportWorkspace">
+         Exportovat zálohu
+        </button>
+        <button class="secondary" id="importWorkspace">
+         Importovat zálohu
+        </button>
+       </div>
+       <p class="muted" id="workspaceBackupStatus">
+        Záloha se vytváří pouze na tvůj pokyn.
+       </p>
+      </article>
+      <article class="panel" data-settings-category="safety" hidden="">
+       <h3>
+        Bezpečnost
+       </h3>
+       <div class="toggle-row">
+        <span>
+         Potvrdit úpravy souborů
+        </span>
+        <input checked="" disabled="" type="checkbox"/>
+       </div>
+       <div class="toggle-row">
+        <span>
+         Potvrdit systémové příkazy
+        </span>
+        <input checked="" disabled="" type="checkbox"/>
+       </div>
+       <div class="toggle-row">
+        <span>
+         Výchozí přístup pouze ke složce
+        </span>
+        <input checked="" disabled="" type="checkbox"/>
+       </div>
+       <p class="muted">
+        Bezpečnostní pravidla jsou v této verzi pevně nastavena. Nelze je vypnout omylem.
+       </p>
+      </article>
+      <article class="panel local-memory-panel" data-settings-category="data" hidden="">
+       <h3>
+        Volitelná lokální dlouhodobá paměť
+       </h3>
+       <p>
+        Ukládej jen poznámky, které chceš, aby si Aurora pamatovala. Vyhledávání používá embedding model přes lokální Ollamu; poznámky se neposílají do cloudu a automaticky se neukládá celý chat. Paměť je oddělená od běžné zálohy workspace.
+       </p>
+       <div class="preference-row">
+        <label for="memoryEnabled">
+         Používat lokální paměť
+        </label>
+        <label class="switch">
+         <input id="memoryEnabled" type="checkbox"/>
+         <span class="switch-track">
+         </span>
+         <span class="switch-label">
+          Vypnuto ve výchozím stavu
+         </span>
+        </label>
+       </div>
+       <div class="preference-row">
+        <label for="memoryEmbeddingModel">
+         Lokální embedding model
+        </label>
+        <input autocomplete="off" id="memoryEmbeddingModel" maxlength="120" spellcheck="false" type="text" value="nomic-embed-text"/>
+        <small>
+         Například
+         <code>
+          nomic-embed-text
+         </code>
+         . Musí být stažený v Ollamě. Aurora podporuje současné /api/embed i starší /api/embeddings.
+        </small>
+       </div>
+       <div class="settings-actions">
+        <button class="secondary" id="checkMemoryModel">
+         Ověřit embedding model
+        </button>
+        <button class="secondary" id="refreshMemory">
+         Obnovit poznámky
+        </button>
+       </div>
+       <p class="muted" id="memoryStatus">
+        Lokální paměť je vypnutá.
+       </p>
+       <div class="preference-row">
+        <label for="memoryTitle">
+         Název poznámky
+        </label>
+        <input id="memoryTitle" maxlength="100" placeholder="Např. Můj styl práce"/>
+       </div>
+       <label for="memoryDraft">
+        Co si má Aurora pamatovat?
+       </label>
+       <textarea id="memoryDraft" maxlength="2200" placeholder="Např. Pracuji na projektu Aurora, preferuji češtinu a změny chci před zápisem vždy zkontrolovat." rows="3"></textarea>
+       <div class="settings-actions">
+        <button class="primary" id="saveMemory">
+         Uložit lokální poznámku
+        </button>
+        <button class="secondary" id="exportMemory">
+         Exportovat poznámky
+        </button>
+        <button class="secondary" id="importMemory">
+         Importovat poznámky
+        </button>
+        <button class="secondary" id="clearMemory">
+         Smazat všechny poznámky
+        </button>
+       </div>
+       <div aria-live="polite" class="local-memory-list" id="localMemoryList">
+        <p class="muted">
+         Žádné poznámky nejsou načtené.
+        </p>
+       </div>
+       <div class="rule">
+       </div>
+       <p class="muted">
+        Poznámky se používají jen při chatu s lokální Ollamou. Při výběru vzdáleného poskytovatele se do požadavku nepřipojují.
+       </p>
+       <button class="secondary" id="openMemorySettings">
+        Spravovat historii chatů
+       </button>
+      </article>
+     </div>
+    </section>
+   </main>
+  </div>
+  <div aria-describedby="guideSubtitle" aria-labelledby="guideTitle" aria-modal="true" class="guide-modal hidden" id="guideModal" role="dialog">
+   <div class="guide-backdrop" data-close-guide="true">
+   </div>
+   <section class="guide-shell">
+    <header class="guide-header">
+     <div class="guide-brand">
+      <img alt="" src="icon.svg"/>
+      <div>
+       <span class="eyebrow">
+        AURORA · PRŮVODCE
+       </span>
+       <h2 id="guideTitle">
+        Všechno důležité, bez složitostí
+       </h2>
+       <p id="guideSubtitle">
+        Krátký vizuální průvodce pracovním prostorem a soukromím.
+       </p>
+      </div>
+     </div>
+     <button aria-label="Zavřít průvodce" class="iconbtn" id="closeGuide" type="button">
+      ×
+     </button>
+    </header>
+    <div class="guide-hero">
+     <div aria-hidden="true" class="guide-hero-art">
+      <svg role="img" viewbox="0 0 320 170">
+       <defs>
+        <lineargradient id="guideGlow" x1="0" x2="1">
+         <stop stop-color="#8f7bff">
+         </stop>
+         <stop offset="1" stop-color="#45d9e6">
+         </stop>
+        </lineargradient>
+        <radialgradient id="guideOrb">
+         <stop stop-color="#a89aff" stop-opacity=".8">
+         </stop>
+         <stop offset="1" stop-color="#46d7e8" stop-opacity="0">
+         </stop>
+        </radialgradient>
+       </defs>
+       <ellipse cx="160" cy="130" fill="url(#guideOrb)" rx="120" ry="25">
+       </ellipse>
+       <path d="M28 105 Q78 30 132 88 T292 65" fill="none" stroke="url(#guideGlow)" stroke-linecap="round" stroke-width="2">
+       </path>
+       <path d="M30 127 Q90 72 142 116 T290 96" fill="none" stroke="#91a0ff" stroke-opacity=".5" stroke-width="1.5">
+       </path>
+       <rect fill="#121827" height="85" rx="15" stroke="#7771c4" width="144" x="88" y="35">
+       </rect>
+       <rect fill="#9286e8" fill-opacity=".65" height="9" rx="4.5" width="120" x="100" y="48">
+       </rect>
+       <rect fill="#67738d" height="6" rx="3" width="72" x="100" y="65">
+       </rect>
+       <rect fill="#67738d" height="6" rx="3" width="105" x="100" y="78">
+       </rect>
+       <rect fill="#8d7df0" height="12" rx="6" width="48" x="100" y="96">
+       </rect>
+       <circle cx="247" cy="36" fill="#1a2334" r="14" stroke="#51d4df">
+       </circle>
+       <path d="M241 36l4 4 8-9" fill="none" stroke="#70e1df" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+       </path>
+       <circle cx="64" cy="56" fill="#b7a3ff" r="4">
+       </circle>
+       <circle cx="267" cy="128" fill="#58d8e7" r="3">
+       </circle>
+      </svg>
+     </div>
+     <div>
+      <span class="guide-kicker">
+       ZAČNI JEDNODUŠE
+      </span>
+      <h3>
+       Jedno místo pro chat, modely i projekty.
+      </h3>
+      <p>
+       Nemusíš znát technické parametry. Začni chatem a pokročilé nástroje otevři až tehdy, když je potřebuješ.
+      </p>
+      <button class="primary" data-guide-view="chat" type="button">
+       Otevřít hlavní chat
+      </button>
+     </div>
+    </div>
+    <div class="guide-cards">
+     <article class="guide-card">
+      <div aria-hidden="true" class="guide-art chat-art">
+       <svg viewbox="0 0 100 65">
+        <rect height="40" rx="9" width="66" x="8" y="7">
+        </rect>
+        <path d="M23 21h38M23 30h28" stroke="#9c91ed" stroke-linecap="round" stroke-width="4">
+        </path>
+        <path d="M32 47l-7 10 18-10" fill="#292544">
+        </path>
+        <rect fill="#182c3a" height="23" rx="7" stroke="#49cbd7" width="48" x="44" y="34">
+        </rect>
+        <path d="M54 45h28" stroke="#55d5df" stroke-linecap="round" stroke-width="3">
+        </path>
+       </svg>
+      </div>
+      <h3>
+       Chat
+      </h3>
+      <p>
+       Piš normálně. Aurora využije vybraný model a průběžně ukazuje odpověď. Technické volby nech na automatickém profilu.
+      </p>
+      <button class="guide-link" data-guide-view="chat" type="button">
+       Přejít do chatu
+       <span>
+        ↗
+       </span>
+      </button>
+     </article>
+     <article class="guide-card">
+      <div aria-hidden="true" class="guide-art model-art">
+       <svg viewbox="0 0 100 65">
+        <path d="M50 5l25 14v27L50 60 25 46V19z" fill="#27203b" stroke="#9f8cef" stroke-width="2">
+        </path>
+        <path d="M50 5v27m25-13L50 32 25 19m25 13v28" fill="none" stroke="#7fdfe6" stroke-width="2">
+        </path>
+        <circle cx="50" cy="32" fill="#91e4eb" fill-opacity=".8" r="7">
+        </circle>
+       </svg>
+      </div>
+      <h3>
+       Modely
+      </h3>
+      <p>
+       V chatu se vybírají stažené modely. V knihovně můžeš jiné stáhnout, zobrazit jejich nároky nebo je odebrat.
+      </p>
+      <button class="guide-link" data-guide-view="models" type="button">
+       Otevřít knihovnu modelů
+       <span>
+        ↗
+       </span>
+      </button>
+     </article>
+     <article class="guide-card">
+      <div aria-hidden="true" class="guide-art agent-art">
+       <svg viewbox="0 0 100 65">
+        <rect fill="#27203b" height="20" rx="7" stroke="#a491f7" width="32" x="34" y="4">
+        </rect>
+        <rect fill="#182c3a" height="17" rx="6" stroke="#4dcdd8" width="32" x="7" y="42">
+        </rect>
+        <rect fill="#182c3a" height="17" rx="6" stroke="#4dcdd8" width="32" x="61" y="42">
+        </rect>
+        <path d="M50 24v8M23 32h54M23 32v10m54-10v10" fill="none" stroke="#8e82dd" stroke-width="2">
+        </path>
+       </svg>
+      </div>
+      <h3>
+       Code
+      </h3>
+      <p>
+       Pracuj s projektem v samostatném prostoru. Aurora analyzuje vybranou složku a připraví změny ke schválení.
+      </p>
+      <button class="guide-link" data-guide-view="agent" type="button">
+       Přejít do Code
+       <span>
+        ↗
+       </span>
+      </button>
+     </article>
+     <article class="guide-card">
+      <div aria-hidden="true" class="guide-art privacy-art">
+       <svg viewbox="0 0 100 65">
+        <path d="M50 5l25 9v18c0 14-10 23-25 29C35 55 25 46 25 32V14z" fill="#172a35" stroke="#48cfda" stroke-width="2">
+        </path>
+        <path d="M38 32l8 8 17-19" fill="none" stroke="#90e6e8" stroke-linecap="round" stroke-linejoin="round" stroke-width="4">
+        </path>
+       </svg>
+      </div>
+      <h3>
+       Soukromí
+      </h3>
+      <p>
+       Lokální Ollama zůstává na tvém počítači. Vzdálené API posílá zprávy vybranému poskytovateli. Klíče jsou uloženy odděleně.
+      </p>
+      <button class="guide-link" data-guide-category="providers" type="button">
+       Nastavení připojení
+       <span>
+        ↗
+       </span>
+      </button>
+     </article>
+    </div>
+    <footer class="guide-footer">
+     <div>
+      <b>
+       Chceš osobní nastavení?
+      </b>
+      <span>
+       Jméno, přezdívku a krátké vlastní pokyny můžeš přidat kdykoliv.
+      </span>
+     </div>
+     <button class="secondary" data-guide-category="personalization" type="button">
+      Nastavit osobní profil
+     </button>
+    </footer>
+   </section>
+  </div>
+  <div aria-labelledby="paletteTitle" aria-modal="true" class="command-palette hidden" id="commandPalette" role="dialog">
+   <div class="palette-backdrop" data-close-palette="true">
+   </div>
+   <section class="palette-shell">
+    <div class="palette-topline">
+     <div class="palette-mark">
+      <span>
+       ✧
+      </span>
+     </div>
+     <div class="palette-heading">
+      <strong id="paletteTitle">
+       Rychlé akce
+      </strong>
+      <small>
+       Vyhledej funkci nebo otevři část Aurory.
+      </small>
+     </div>
+     <button aria-label="Zavřít konzoli" class="palette-close" id="closePalette">
+      ×
+     </button>
+    </div>
+    <label class="palette-search">
+     <span>
+      ⌕
+     </span>
+     <input aria-label="Filtrovat rychlé akce" autocomplete="off" id="paletteSearch" placeholder="Hledej schopnost nebo akci…" type="text"/>
+     <kbd>
+      ESC
+     </kbd>
+    </label>
+    <div class="palette-section-label">
+     NAVIGACE A NÁSTROJE
+    </div>
+    <div class="palette-items" id="paletteItems">
+     <button class="palette-item is-active" data-command="chat" data-search="chat konverzace zpráva domů">
+      <span class="palette-icon cyan">
+       ◈
+      </span>
+      <span>
+       <b>
+        Pokračovat v chatu
+       </b>
+       <small>
+        Vrátit se k hlavní konverzaci
+       </small>
+      </span>
+      <kbd>
+       ↵
+      </kbd>
+     </button>
+     <button class="palette-item" data-command="image" data-search="obrázek obraz fotka ilustrace wallpaper generování comfyui image art">
+      <span class="palette-icon violet">
+       ✧
+      </span>
+      <span>
+       <b>
+        Vytvořit obrázek
+       </b>
+       <small>
+        Zadat vizuální nápad přímo do chatu
+       </small>
+      </span>
+      <kbd>
+       IMG
+      </kbd>
+     </button>
+     <button class="palette-item" data-command="web" data-search="internet web hledání výzkum vyhledávání zdroje research">
+      <span class="palette-icon blue">
+       ⌕
+      </span>
+      <span>
+       <b>
+        Prozkoumat web
+       </b>
+       <small>
+        Vyhledat zdroje a předat je lokálnímu modelu
+       </small>
+      </span>
+      <kbd>
+       WEB
+      </kbd>
+     </button>
+     <button class="palette-item" data-command="connect" data-search="connect připojit propojit unity unreal engine godot roblox studio vscode blender editor bridge plugin">
+      <span class="palette-icon teal">
+       <svg aria-hidden="true" viewbox="0 0 24 24">
+        <path d="M8 7V4m8 3V4M7 7h10v4a5 5 0 0 1-10 0V7Zm5 9v4m-4 0h8">
+        </path>
+       </svg>
+      </span>
+      <span>
+       <b>
+        Connect
+       </b>
+       <small>
+        Připojit Unity, Unreal, Godot, Roblox a další nástroje
+       </small>
+      </span>
+      <kbd>
+       ↗
+      </kbd>
+     </button>
+     <button class="palette-item" data-command="project" data-search="projekt unity analyzovat audit chyba repo codebase project context">
+      <span class="palette-icon blue">
+       ▦
+      </span>
+      <span>
+       <b>
+        Analyzovat projekt
+       </b>
+       <small>
+        Vybereš složku jednou; analýza potom běží z chatu
+       </small>
+      </span>
+      <kbd>
+       /project
+      </kbd>
+     </button>
+     <button class="palette-item" data-command="models" data-search="model hub modely stáhnout ollama">
+      <span class="palette-icon purple">
+       ◉
+      </span>
+      <span>
+       <b>
+        Model Hub
+       </b>
+       <small>
+        Vybrat, stáhnout nebo spravovat lokální modely
+       </small>
+      </span>
+     </button>
+     <button class="palette-item" data-command="runtime" data-search="výkon runtime ram cpu diagnostika">
+      <span class="palette-icon cyan">
+       ⌁
+      </span>
+      <span>
+       <b>
+        Výkon a runtime
+       </b>
+       <small>
+        Stav Ollama, běžící modely a paměť
+       </small>
+      </span>
+     </button>
+     <button class="palette-item" data-command="projects" data-search="projekty unity soubory audit code">
+      <span class="palette-icon blue">
+       ▦
+      </span>
+      <span>
+       <b>
+        Projektové nástroje
+       </b>
+       <small>
+        Unity audit, skenování a návrhy změn
+       </small>
+      </span>
+     </button>
+     <button class="palette-item" data-command="settings" data-search="nastavení preference bezpečnost záloha historie">
+      <span class="palette-icon teal">
+       ⚙
+      </span>
+      <span>
+       <b>
+        Nastavení a záloha
+       </b>
+       <small>
+        Lokální preference, import a export workspace
+       </small>
+      </span>
+     </button>
+    </div>
+    <div class="palette-empty hidden" id="paletteEmpty">
+     Žádná odpovídající akce. Zkus jiné slovo nebo pokračuj v chatu.
+    </div>
+    <div class="palette-footer">
+     <span>
+      <kbd>
+       ↑
+      </kbd>
+      <kbd>
+       ↓
+      </kbd>
+      výběr
+     </span>
+     <span>
+      <kbd>
+       ENTER
+      </kbd>
+      spustit
+     </span>
+     <span>
+      <kbd>
+       CTRL K
+      </kbd>
+      konzole
+     </span>
+     <span class="palette-local">
+      <i>
+      </i>
+      LOKÁLNÍ JÁDRO
+     </span>
+    </div>
+   </section>
+  </div>
+  <div class="toast" id="toast">
+  </div>
+  <script src="intent-router.js">
+  </script>
+  <script src="project-context.js">
+  </script>
+  <script src="performance-profile.js">
+  </script>
+  <script src="context-budget.js">
+  </script>
+  <script src="performance-telemetry.js">
+  </script>
+  <script src="external-context-budget.js">
+  </script>
+  <script src="model-router.js">
+  </script>
+  <script src="agent-config.js">
+  </script>
+  <script src="agent-change-proposals.js">
+  </script>
+  <script src="ui-preferences.js">
+  </script>
+  <script src="session-safety.js">
+  </script>
+  <script src="workspace-persistence.js">
+  </script>
+  <script src="user-profile.js">
+  </script>
+  <script src="app.js">
+  </script>
+ </body>
+</html>

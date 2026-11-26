@@ -1,0 +1,287 @@
+[
+ {
+  "id": "GS-201",
+  "request": "Per-game manual clip length presets 15/30/60/120 seconds and custom range",
+  "status": "SOURCE_TESTED_NOT_LIVE_VERIFIED"
+ },
+ {
+  "id": "GS-202",
+  "request": "Opt-in continuous session capture with disk budget and explicit stop on game exit",
+  "status": "SOURCE_TESTED_NOT_LIVE_VERIFIED"
+ },
+ {
+  "id": "GS-203",
+  "request": "Timeline with manual bookmarks and real recording timestamps",
+  "status": "SOURCE_TESTED_NOT_LIVE_VERIFIED"
+ },
+ {
+  "id": "GS-204",
+  "request": "Clip trim, split, merge and crop while preserving originals",
+  "status": "SOURCE_TESTED_NOT_LIVE_VERIFIED"
+ },
+ {
+  "id": "GS-205",
+  "request": "Clip labels, favorites, folders, search and thumbnails per game",
+  "status": "SOURCE_TESTED_NOT_LIVE_VERIFIED"
+ },
+ {
+  "id": "GS-206",
+  "request": "Offline voice command to save clip, explicit microphone permission and OFF by default",
+  "status": "SOURCE_TESTED_NOT_LIVE_VERIFIED"
+ },
+ {
+  "id": "GS-207",
+  "request": "Separate audio tracks, adjustable game/mic levels and optional mic mute",
+  "status": "SOURCE_TESTED_NOT_LIVE_VERIFIED"
+ },
+ {
+  "id": "GS-208",
+  "request": "Pre/post-roll highlights using only supported game events or manually configured visible signals",
+  "status": "PARTIAL"
+ },
+ {
+  "id": "GS-209",
+  "request": "Export presets for Discord, landscape and vertical video, no automatic upload",
+  "status": "SOURCE_TESTED_NOT_LIVE_VERIFIED"
+ },
+ {
+  "id": "GS-210",
+  "request": "Recording health: dropped frames, disk pressure, encoder availability and real overhead",
+  "status": "PARTIAL"
+ },
+ {
+  "id": "GS-211",
+  "request": "Manual montage builder with timeline and captions",
+  "status": "SOURCE_TESTED_NOT_LIVE_VERIFIED"
+ },
+ {
+  "id": "GS-212",
+  "request": "Optional clip-sharing workflow using exported files, local-first by default",
+  "status": "SOURCE_TESTED_NOT_LIVE_VERIFIED"
+ },
+ {
+  "id": "GS-213",
+  "request": "Universal configurable timer hub: countdowns, cooldowns, splits, multiple timers",
+  "status": "SOURCE_TESTED_NOT_LIVE_VERIFIED"
+ },
+ {
+  "id": "GS-214",
+  "request": "Manual boss attempt counter with attempts, clears and elapsed time",
+  "status": "SOURCE_TESTED_NOT_LIVE_VERIFIED"
+ },
+ {
+  "id": "GS-215",
+  "request": "Manual loot/drop log and farming route checklist per game",
+  "status": "SOURCE_TESTED_NOT_LIVE_VERIFIED"
+ },
+ {
+  "id": "GS-216",
+  "request": "Daily/weekly quest tracker, resets set by user",
+  "status": "SOURCE_TESTED_NOT_LIVE_VERIFIED"
+ },
+ {
+  "id": "GS-217",
+  "request": "Build/loadout planner with notes and equipment slots, no game memory reads",
+  "status": "SOURCE_TESTED_NOT_LIVE_VERIFIED"
+ },
+ {
+  "id": "GS-218",
+  "request": "Crafting/material calculator with user-entered recipes",
+  "status": "SOURCE_TESTED_NOT_LIVE_VERIFIED"
+ },
+ {
+  "id": "GS-219",
+  "request": "Pity/drop probability calculator from user-entered published probabilities",
+  "status": "SOURCE_TESTED_NOT_LIVE_VERIFIED"
+ },
+ {
+  "id": "GS-220",
+  "request": "Personal route/map notes on user-imported screenshots",
+  "status": "SOURCE_TESTED_NOT_LIVE_VERIFIED"
+ },
+ {
+  "id": "GS-221",
+  "request": "Personal achievement tracker and progress journal",
+  "status": "SOURCE_TESTED_NOT_LIVE_VERIFIED"
+ },
+ {
+  "id": "GS-222",
+  "request": "Manual damage/DPS calculator using user-entered observations",
+  "status": "SOURCE_TESTED_NOT_LIVE_VERIFIED"
+ },
+ {
+  "id": "GS-223",
+  "request": "Session goals and break reminders",
+  "status": "SOURCE_TESTED_NOT_LIVE_VERIFIED"
+ },
+ {
+  "id": "GS-224",
+  "request": "Game-specific quick reference cards and user-created guides",
+  "status": "SOURCE_TESTED_NOT_LIVE_VERIFIED"
+ },
+ {
+  "id": "GS-225",
+  "request": "Window pinning / picture-in-picture reference viewer, no focus theft",
+  "status": "PARTIAL"
+ },
+ {
+  "id": "GS-226",
+  "request": "Screen magnifier and accessible cursor visibility with explicit opt-in",
+  "status": "PARTIAL"
+ },
+ {
+  "id": "GS-227",
+  "request": "On-demand screenshot text reading or local OCR, privacy and performance controls",
+  "status": "SOURCE_TESTED_NOT_LIVE_VERIFIED"
+ },
+ {
+  "id": "GS-228",
+  "request": "Configurable counters and local session milestones",
+  "status": "SOURCE_TESTED_NOT_LIVE_VERIFIED"
+ },
+ {
+  "id": "GS-229",
+  "request": "Practice tools: manual reaction, timing and accuracy drills in separate window",
+  "status": "SOURCE_TESTED_NOT_LIVE_VERIFIED"
+ },
+ {
+  "id": "GS-230",
+  "request": "Manual resource/energy tracker with configurable regeneration timer",
+  "status": "SOURCE_TESTED_NOT_LIVE_VERIFIED"
+ },
+ {
+  "id": "GS-231",
+  "request": "TinyTask-style finite local/offline record and playback with explicit consent",
+  "status": "SOURCE_TESTED_NOT_LIVE_VERIFIED"
+ },
+ {
+  "id": "GS-232",
+  "request": "Timeline editing, pause, speed, repeat limit and emergency stop",
+  "status": "SOURCE_TESTED_NOT_LIVE_VERIFIED"
+ },
+ {
+  "id": "GS-233",
+  "request": "Per-game profile binding and hotkey conflict detection",
+  "status": "SOURCE_TESTED_NOT_LIVE_VERIFIED"
+ },
+ {
+  "id": "GS-234",
+  "request": "Macro dry run and input timeline inspection without sending inputs",
+  "status": "SOURCE_TESTED_NOT_LIVE_VERIFIED"
+ },
+ {
+  "id": "GS-235",
+  "request": "Reusable action templates with bounded execution and safe cancellation",
+  "status": "SOURCE_TESTED_NOT_LIVE_VERIFIED"
+ },
+ {
+  "id": "GS-236",
+  "request": "Custom widget layouts and per-game saved positions",
+  "status": "SOURCE_TESTED_NOT_LIVE_VERIFIED"
+ },
+ {
+  "id": "GS-237",
+  "request": "Notes, quest checklist and timer widgets with click-through mode",
+  "status": "SOURCE_TESTED_NOT_LIVE_VERIFIED"
+ },
+ {
+  "id": "GS-238",
+  "request": "Recording indicator, clip saved toast and optional quiet notification mode",
+  "status": "SOURCE_TESTED_NOT_LIVE_VERIFIED"
+ },
+ {
+  "id": "GS-239",
+  "request": "Compact hotkey reference and manual session marker widget",
+  "status": "SOURCE_TESTED_NOT_LIVE_VERIFIED"
+ },
+ {
+  "id": "GS-240",
+  "request": "Optional screenshot reference pin, configurable opacity and no focus change",
+  "status": "PARTIAL"
+ },
+ {
+  "id": "GS-241",
+  "request": "Unified library and tags/favorites, launcher metadata from documented sources",
+  "status": "SOURCE_TESTED_NOT_LIVE_VERIFIED"
+ },
+ {
+  "id": "GS-242",
+  "request": "Per-game hub combining settings, clips, notes and progress",
+  "status": "SOURCE_TESTED_NOT_LIVE_VERIFIED"
+ },
+ {
+  "id": "GS-243",
+  "request": "Playtime dashboard, sessions, manual ratings and last played",
+  "status": "SOURCE_TESTED_NOT_LIVE_VERIFIED"
+ },
+ {
+  "id": "GS-244",
+  "request": "Game collections, backlog and completion tracking",
+  "status": "SOURCE_TESTED_NOT_LIVE_VERIFIED"
+ },
+ {
+  "id": "GS-245",
+  "request": "User-selected save backup history and verified restore preview",
+  "status": "SOURCE_TESTED_NOT_LIVE_VERIFIED"
+ },
+ {
+  "id": "GS-246",
+  "request": "Launch checklist and user-selected per-game workspace/profile",
+  "status": "SOURCE_TESTED_NOT_LIVE_VERIFIED"
+ },
+ {
+  "id": "GS-247",
+  "request": "Capture + FrameGen coexistence measurement, not assumed free",
+  "status": "PARTIAL"
+ },
+ {
+  "id": "GS-248",
+  "request": "Measured per-game overhead budget across recording, overlay and GPU output",
+  "status": "SOURCE_TESTED_NOT_LIVE_VERIFIED"
+ },
+ {
+  "id": "GS-249",
+  "request": "Hardware-adaptive low-end RX 580 presets and recommendation explanations",
+  "status": "SOURCE_TESTED_NOT_LIVE_VERIFIED"
+ },
+ {
+  "id": "GS-250",
+  "request": "Optional pause of nonessential animations/analysis on GPU pressure",
+  "status": "SOURCE_TESTED_NOT_LIVE_VERIFIED"
+ },
+ {
+  "id": "GS-251",
+  "request": "Comparison of recording on/off using real game FPS and 1% lows",
+  "status": "SOURCE_TESTED_NOT_LIVE_VERIFIED"
+ },
+ {
+  "id": "GS-252",
+  "request": "Capability registry: supported, experimental, unsupported and per-game restrictions",
+  "status": "PARTIAL"
+ },
+ {
+  "id": "GS-253",
+  "request": "Local-first permission center for audio, capture, optional OCR and sharing",
+  "status": "SOURCE_TESTED_NOT_LIVE_VERIFIED"
+ },
+ {
+  "id": "GS-254",
+  "request": "Global shortcut map and conflict warnings across new tools",
+  "status": "SOURCE_TESTED_NOT_LIVE_VERIFIED"
+ },
+ {
+  "id": "GS-255",
+  "request": "Plugin-style internal feature registry with versioned configuration, no arbitrary script execution",
+  "status": "SOURCE_TESTED_NOT_LIVE_VERIFIED"
+ },
+ {
+  "id": "GS-256",
+  "request": "Recovery/export of user profiles, clips metadata and utility data",
+  "status": "SOURCE_TESTED_NOT_LIVE_VERIFIED"
+ },
+ {
+  "id": "GS-257",
+  "request": "Low-overhead test suite and true hidden app screenshots for every new workspace",
+  "status": "PARTIAL"
+ }
+]

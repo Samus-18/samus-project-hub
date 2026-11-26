@@ -1,0 +1,26 @@
+[
+  {
+    "name": "Thalvoryn-JAVA-Nether1024-V86-STAGE3-TEST.zip",
+    "bytes": 31098919,
+    "sha256": "d6e6dc5f6d52fc5eb7cb85b7b6d7668f99ad41d90b079edf5a6f1a4e6277d36c",
+    "status": "LICENSE_REVIEW_NOT_YET_PUBLIC"
+  },
+  {
+    "name": "Thalvoryn-JAVA-Nether2032-V86-STAGE3-TEST.zip",
+    "bytes": 31098960,
+    "sha256": "b69e8096c7603c7b13304fcd7826353d85f652b567f71ea651fd16a91e337045",
+    "status": "LICENSE_REVIEW_NOT_YET_PUBLIC"
+  },
+  {
+    "name": "Thalvoryn-RUST-Nether1024-V86-STAGE3-TEST.zip",
+    "bytes": 31112093,
+    "sha256": "ede8ce0ebe3fd5e77fab820e47c89a3a148475b466e47491c0a09e6d27f5e684",
+    "status": "LICENSE_REVIEW_NOT_YET_PUBLIC"
+  },
+  {
+    "name": "Thalvoryn-RUST-Nether2032-V86-STAGE3-TEST.zip",
+    "bytes": 31112153,
+    "sha256": "fe058605550f3c7f5f17566b5fc3cb2e20fc94ca62c82d29c25cc7d6459d265d",
+    "status": "LICENSE_REVIEW_NOT_YET_PUBLIC"
+  }
+]

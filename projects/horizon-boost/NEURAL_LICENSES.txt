@@ -1,0 +1,16 @@
+NEURAL SCALER RIGHTS AND SOURCE ATTRIBUTION (development-only)
+CuNNy veryfast:
+ Source: user-local engines/Magpie/effects/CuNNy2/CuNNy-veryfast-NVL.hlsl
+ Original CuNNy neural weights: https://github.com/funnyplanter/CuNNy
+ Adapted native 4-pass GPU shaders: shaders/native/HB_CuNNyVeryFastPass1..4.hlsl
+FSRCNNX x2 8-0-4-1:
+ Source: user-local engines/Magpie/effects/FSRCNNX/FSRCNNX.hlsl
+ Original FSRCNNX algorithm/weights: https://github.com/igv/FSRCNN-TensorFlow
+ Adapted native 6-pass GPU shaders: shaders/native/HB_FSRCNNXPass1..6.hlsl
+Magpie project upstream: https://github.com/Blinue/Magpie
+Both have been adapted as derivative shaders from a GPLv3 Magpie collection.
+Included GNU GPLv3 terms: engines/Magpie/LICENSE-GPLv3.txt
+Corresponding generated HLSL source and compiler inputs accompany development candidates.
+Software combining/distributing GPLv3 derivatives needs a verified compatible
+whole-application license/source distribution and notices; no public release
+should occur until licensing and actual game validation have been reviewed.

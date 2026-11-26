@@ -1,0 +1,44 @@
+/* Center the first-turn experience like modern assistant chats.
+   Conversation history keeps its scrollable message column and bottom composer. */
+.chatview:has(#messages:empty){
+  justify-content:center!important;
+  padding-top:clamp(32px,6vh,60px)!important;
+  padding-bottom:clamp(12px,2vh,24px)!important;
+}
+.chatview:has(#messages:empty) .welcome{
+  flex:0 0 auto!important;
+  margin:0 auto 18px!important;
+  transform:translateY(clamp(0px,1vh,10px))!important;
+}
+.chatview:has(#messages:empty) .messages{
+  flex:0 0 0!important;
+  width:0!important;
+  height:0!important;
+  min-height:0!important;
+  margin:0!important;
+  padding:0!important;
+  overflow:hidden!important;
+}
+.chatview:has(#messages:empty) .composer-wrap{
+  flex:0 0 auto!important;
+  margin:0 auto!important;
+}
+
+/* A very short conversation sits just above the composer; long histories
+   retain normal top-to-bottom reading and native scrolling. */
+.messages:has(.message):not(:has(.message:nth-child(3))) .message:first-child{
+  margin-top:auto!important;
+}
+
+@media(max-height:720px){
+  .chatview:has(#messages:empty){
+    padding-top:18px!important;
+    padding-bottom:10px!important;
+  }
+  .chatview:has(#messages:empty) .welcome{margin-bottom:12px!important;transform:none!important}
+  .chatview:has(#messages:empty) .welcome .suggestions{margin-top:14px!important}
+}
+@media(max-width:720px){
+  .chatview:has(#messages:empty){padding-top:clamp(18px,4vh,34px)!important;padding-bottom:14px!important}
+  .chatview:has(#messages:empty) .welcome{margin-bottom:14px!important}
+}

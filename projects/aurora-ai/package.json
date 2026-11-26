@@ -1,0 +1,54 @@
+{
+  "name": "aurora-local-ai",
+  "version": "0.8.6",
+  "description": "Aurora AI — local-first desktop assistant with per-agent provider/model routing, encrypted multi-provider profiles, Codex-style work mode, task routing, persistent Ollama model selection, guarded project edits, automatic local ComfyUI image-engine setup, and integrated project tools.",
+  "main": "src/main.js",
+  "scripts": {
+    "start": "electron .",
+    "check": "node scripts/check-syntax.js",
+    "dist": "npm run check && npm test && npm run release:preflight && electron-builder --win nsis",
+    "test": "node --test",
+    "release:preflight": "node scripts/release-preflight.js",
+    "smoke:local": "node scripts/runtime-smoke.js"
+  },
+  "devDependencies": {
+    "electron": "45.1.0",
+    "electron-builder": "26.18.1"
+  },
+  "build": {
+    "appId": "studio.aurora.localai",
+    "productName": "Aurora AI",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "src/**/*",
+      "integrations/**/*",
+      "package.json",
+      "README.md",
+      "ROADMAP-CZ.md",
+      "RELEASE-CHECKLIST-CZ.md",
+      "CHANGELOG-v0.8.6.md",
+      "AUDIT-CZ-v0.8.6.md",
+      "README-CZ-START.md"
+    ],
+    "win": {
+      "target": "nsis",
+      "artifactName": "Aurora-AI-Setup-${version}.${ext}",
+      "icon": "src/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
+    },
+    "artifactName": "Aurora-AI-Setup-${version}.${ext}",
+    "extraResources": [
+      {
+        "from": "scripts/prepare-image-engine.ps1",
+        "to": "scripts/prepare-image-engine.ps1"
+      }
+    ]
+  }
+}

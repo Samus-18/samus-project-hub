@@ -1,0 +1,11 @@
+TREK, copyright hotsuop (2024). MIT. Creators: Hotsu0p (builder), Hugger (main developer).
+Source: https://modrinth.com/datapack/trek
+Original Trek project also credits Villages Revamped, qraftyfied: STRUCTURES and Enders Host for modified structures. Their licenses/permissions should be checked individually before public distribution.
+
+The JJThunder/ThunderFusion base was provided by the user. Its uploaded SOURCE_LICENSE_TO_THE_MAX.txt is retained, but check rights to all individual assets and original sources before release.
+
+Original built-in new structures under thalvoryn: added here, no uploaded reference JAR contents copied.
+Reference only: Underground Villages (MIT), Abridged (MIT), Explorify (ARR), Hellish Trials (ARR).
+
+Source code patch for old Horizon engines to load datapack structure NBT:
+https://github.com/horizon-rust/horizon/commit/694d953496b7082dcbc0761779a05168ff444d55

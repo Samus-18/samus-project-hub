@@ -1,0 +1,27 @@
+{
+  "generated_at": "2026-11-26T22:55:20.791574",
+  "name": "Samus Projects",
+  "projects": [
+    {
+      "slug": "aurora-ai",
+      "version": "0.8.6",
+      "tag": "aurora-ai-v0.8.6",
+      "status": "Windows installer — verification required"
+    },
+    {
+      "slug": "horizon-boost",
+      "version": "V134",
+      "tag": "horizon-boost-v134-dev",
+      "status": "Developer preview; 555 Rust tests"
+    },
+    {
+      "slug": "thalvoryn",
+      "version": "V86 Stage 3",
+      "tag": "thalvoryn-v86-stage3-review",
+      "status": "Test packs — licensing review pending"
+    }
+  ],
+  "no_private_data": true,
+  "bundled_magpie_in_source": false,
+  "release_policy": "Latest verified versions as tagged GitHub Releases; development builds as pre-release; never claim untested gameplay is certified."
+}

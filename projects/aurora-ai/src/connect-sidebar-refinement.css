@@ -1,0 +1,205 @@
+/* Aurora navigation, sidebar, chat actions and Connect hub refinement. */
+:root{--aurora-sidebar-width:272px;--aurora-ease:cubic-bezier(.2,.7,.2,1)}
+.app{isolation:isolate}
+.sidebar{width:var(--aurora-sidebar-width)!important;min-width:var(--aurora-sidebar-width)!important;flex:0 0 var(--aurora-sidebar-width)!important;overflow-x:hidden!important;overflow-y:auto!important;padding:18px 15px 13px!important;transition:width .22s var(--aurora-ease),min-width .22s var(--aurora-ease),flex-basis .22s var(--aurora-ease),padding .22s var(--aurora-ease),opacity .16s ease,transform .22s var(--aurora-ease)!important;scrollbar-width:thin;scrollbar-color:rgba(157,174,204,.28) transparent}
+.app.sidebar-collapsed .sidebar{width:0!important;min-width:0!important;max-width:0!important;flex:0 0 0!important;padding-left:0!important;padding-right:0!important;border-right:0!important;opacity:0!important;transform:translateX(-10px)!important;overflow:hidden!important;pointer-events:none!important}
+.sidebar-toggle{width:34px;height:34px;flex:0 0 34px;display:inline-grid;place-items:center;border:1px solid rgba(180,194,221,.13);border-radius:9px;background:rgba(255,255,255,.035);color:#aebbd0;transition:background .16s,border-color .16s,color .16s}
+.sidebar-toggle:hover{background:rgba(150,128,232,.13);border-color:rgba(172,150,245,.34);color:#fff}
+.sidebar-toggle:focus-visible{outline:2px solid #a994f3;outline-offset:2px}
+.sidebar-toggle svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.65;stroke-linecap:round;stroke-linejoin:round}
+/* Four distinct top-bar zones keep Chat/Work away from service controls. */
+.topbar{height:62px!important;min-height:62px!important;padding:0 20px!important;display:grid!important;grid-template-columns:auto minmax(115px,1fr) auto auto!important;align-items:center!important;column-gap:clamp(10px,1.35vw,20px)!important;justify-content:initial!important}
+.topbar-location{min-width:0;overflow:hidden;display:flex;align-items:center;gap:9px;white-space:nowrap}
+.topbar-location b{overflow:hidden;text-overflow:ellipsis}
+.chat-work-switch{position:static!important;left:auto!important;top:auto!important;transform:none!important;justify-self:center;margin:0 clamp(16px,2.6vw,38px) 0 0!important;white-space:nowrap;box-shadow:0 5px 22px rgba(0,0,0,.16)}
+.top-actions{position:relative;justify-self:end;display:flex!important;align-items:center;justify-content:flex-end;gap:9px!important;min-width:0;white-space:nowrap}
+.top-actions .ollama-controls{display:flex;align-items:center;gap:5px;margin-right:1px}
+.top-actions .core-status{max-width:210px}
+/* A coherent, low-noise left panel. */
+.sidebar .brand{min-height:48px;height:auto;padding:2px 5px 15px!important;margin-bottom:1px;border-bottom:1px solid rgba(159,178,208,.12)}
+.sidebar .brand b{letter-spacing:1.6px!important;font-size:13px!important}
+.sidebar .brand small{letter-spacing:.35px!important;font:10px/1.4 Inter,Segoe UI,sans-serif!important;color:#8c98ad!important}
+.sidebar .newchat{height:42px!important;margin:13px 0 12px!important;border-radius:11px!important;background:rgba(255,255,255,.045)!important;border:1px solid rgba(168,153,220,.17)!important;box-shadow:none!important;color:#edf0fa!important;font-weight:650!important;letter-spacing:0!important}
+.sidebar .newchat:hover{background:rgba(153,129,233,.13)!important;border-color:rgba(172,150,245,.38)!important}
+.sidebar-search{margin:0 0 13px!important;min-height:38px!important;border-radius:10px!important;background:rgba(3,7,15,.48)!important;border:1px solid rgba(164,183,216,.13)!important}
+.sidebar-search:focus-within{border-color:rgba(172,150,245,.42)!important;box-shadow:0 0 0 3px rgba(151,129,233,.08)!important}
+.sidebar-search input{min-width:0;font-size:11px!important}
+#mainNavigation{display:grid;gap:4px;margin:0 0 13px;padding:0 0 13px;border-bottom:1px solid rgba(159,178,208,.1)}
+#mainNavigation .nav{height:36px!important;min-height:36px!important;padding:0 10px!important;gap:11px!important;border-radius:9px!important;font-size:11px!important;color:#aab6c9!important}
+#mainNavigation .nav i{width:18px!important;height:18px!important;display:grid!important;place-items:center!important;margin:0!important;color:#9daac0!important}
+#mainNavigation .nav i svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.65;stroke-linecap:round;stroke-linejoin:round}
+#mainNavigation .nav:hover{background:rgba(255,255,255,.05)!important;color:#f3f4fa!important}
+#mainNavigation .nav.active{background:rgba(151,128,232,.14)!important;border-color:rgba(170,148,243,.19)!important;color:#fff!important}
+#mainNavigation .nav.active i{color:#c5b5ff!important}
+.sidebar-collection-section{padding:7px 0 6px!important;gap:3px!important}
+.sidebar-collection-heading{min-height:29px!important;padding:0 7px!important;letter-spacing:.105em!important;font-size:9px!important;color:#9caac0!important}
+.sidebar-heading-label,.sidebar-collection-title{display:inline-flex;align-items:center;gap:8px}
+.sidebar-heading-label svg,.sidebar-collection-title svg{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;opacity:.78}
+.sidebar-collection-title{font-size:9px!important;letter-spacing:.105em!important}
+.sidebar-add{width:27px!important;height:27px!important;display:grid!important;place-items:center!important;border:1px solid rgba(166,184,215,.14)!important;border-radius:8px!important;background:rgba(255,255,255,.045)!important;color:#d0c6f7!important;font-size:17px!important;transition:.16s}
+.sidebar-add:hover{border-color:rgba(177,153,246,.42)!important;background:rgba(151,128,232,.15)!important}
+.sidebar-collection{max-height:132px!important;gap:3px!important;padding:0 3px!important}
+.sidebar-collection-empty{padding:5px 9px!important;color:rgba(171,184,207,.58)!important;font-size:10px!important;line-height:1.45!important}
+.sidebar-collection-row{min-height:31px!important;padding:0 3px!important;border-radius:8px!important}
+.sidebar-collection-open{height:31px!important;font-size:11px!important;color:#d0d7e5!important}
+.sidebar-collection-remove{width:27px!important;min-width:27px!important;height:27px!important;display:grid!important;place-items:center!important;font-size:13px!important;opacity:.7}
+.project-sidebar-dot{width:6px!important;height:6px!important;margin-left:4px;flex:0 0 6px}
+.project-sidebar-row .sidebar-collection-open{padding-left:4px!important}
+.project-sidebar-row .sidebar-collection-remove{font-size:0!important}
+.project-sidebar-row .sidebar-collection-remove::before{content:'⋯';font-size:15px;line-height:1}
+.sidebar-view-all{height:27px!important;margin:2px 8px 0!important;padding:0 3px!important;color:#94a4bf!important;font-size:10px!important}
+.history-title{margin:9px 7px 7px!important;min-height:26px}
+.history-title .iconbtn{width:27px!important;height:27px!important}
+.history-filters{margin:0 2px 5px!important;padding:3px!important;border-radius:9px!important;background:rgba(255,255,255,.035)!important}
+.history-filter{min-height:27px!important;padding:0 10px!important;font-size:10px!important;border-radius:7px!important}
+.history{padding:1px 1px 6px!important;gap:2px!important;min-height:38px}
+.history-row{min-height:34px!important;padding:1px 2px;border-radius:8px!important}
+.history-row>button:first-child{height:32px!important;min-height:32px!important;padding:0 9px!important;font-size:11px!important;color:#c4ccdb!important;border-radius:7px!important}
+.history-more{width:30px!important;min-width:30px!important;height:29px!important;flex:0 0 30px!important;display:grid!important;place-items:center!important;border:1px solid transparent!important;border-radius:8px!important;background:transparent!important;color:#95a1b5!important;opacity:.32!important;transition:opacity .14s,background .14s,border-color .14s!important;font-size:0!important}
+.history-more svg{width:15px;height:15px;fill:currentColor;stroke:none}
+.history-row:hover .history-more,.history-more:focus-visible,.history-more[aria-expanded="true"]{opacity:1!important;background:rgba(255,255,255,.07)!important;border-color:rgba(170,185,212,.12)!important;color:#e0d9ff!important}
+.history-action-menu{right:3px!important;top:calc(100% - 1px)!important;min-width:205px!important;padding:6px!important;border-radius:11px!important;border:1px solid rgba(164,181,211,.19)!important;background:rgba(14,20,33,.98)!important;box-shadow:0 15px 42px rgba(0,0,0,.42)!important;backdrop-filter:blur(18px)!important}
+.history-action-menu button{min-height:32px!important;padding:7px 10px!important;border:0!important;border-radius:7px!important;background:transparent!important;color:#d8dfed!important;text-align:left!important;font-size:11px!important}
+.history-action-menu button:hover{background:rgba(148,129,220,.14)!important}
+.history-action-menu button.danger{color:#ff9eac!important}
+.sidebar-bottom{padding-top:8px!important}
+.sidebar-bottom .status-line{padding:10px 8px!important;font-size:10px!important}
+.sidebar-bottom .profile{padding:10px 4px 0!important}
+/* Work uses a single readable project selector. Add-project lives in the sidebar. */
+.work-project-control{display:none;align-items:center;gap:10px;min-width:0;max-width:230px;height:34px;padding:0 10px!important;border:1px solid rgba(170,151,230,.19)!important;border-radius:9px!important;background:rgba(126,103,194,.10)!important;color:#bdc7da!important}
+.main[data-mode="work"] .work-project-control{display:flex!important}
+.work-project-label{font-size:10px;font-weight:650;color:#a99bdb;flex:0 0 auto}
+.work-project-control select{min-width:0;max-width:160px;height:30px!important;padding:0 4px!important;background:transparent!important;border:0!important;outline:0!important;color:#eef0f8!important;font-size:10.5px!important}
+.work-project-control select option{background:#141b2a;color:#edf0f8}
+/* Connect hub */
+#connectView{max-width:1220px;margin:0 auto;width:100%;padding-left:clamp(20px,4vw,54px)!important;padding-right:clamp(20px,4vw,54px)!important}
+.connect-page-heading{max-width:1080px!important;margin-bottom:20px!important}
+.connect-page-heading h1{font-size:clamp(26px,3vw,35px)!important}
+.connect-toolbar{max-width:1080px;margin:0 auto 14px;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px 14px;border:1px solid rgba(164,184,216,.13);border-radius:12px;background:rgba(11,18,32,.54);backdrop-filter:blur(14px)}
+.connect-toolbar b{display:block;font-size:12px;color:#e9edf6}
+.connect-toolbar small{display:block;margin-top:4px;color:#94a2b9;font-size:10px;line-height:1.5}
+.connect-local-badge{display:flex;align-items:center;gap:7px;white-space:nowrap;color:#a8b8ca;font:8px 'DM Mono',monospace;letter-spacing:.08em}
+.connect-local-badge i{width:6px;height:6px;border-radius:50%;background:#69dab3;box-shadow:0 0 9px #69dab377}
+.connect-grid{max-width:1080px;margin:0 auto;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.connect-card{min-width:0;padding:17px!important;border-radius:14px!important;background:linear-gradient(145deg,rgba(13,23,40,.86),rgba(8,15,28,.78))!important;border-color:rgba(152,177,214,.15)!important;backdrop-filter:blur(18px)!important;display:flex;flex-direction:column;gap:11px}
+.connect-card:hover{border-color:rgba(166,145,239,.35)!important;transform:translateY(-1px);transition:transform .16s,border-color .16s}
+.connect-card-head{display:flex;align-items:center;gap:11px;min-width:0}
+.connect-brand{width:39px;height:39px;flex:0 0 39px;display:grid;place-items:center;border-radius:11px;border:1px solid rgba(169,185,217,.17);background:rgba(255,255,255,.055);color:#d8dded;font-weight:800;font-size:17px}
+.connect-brand.unity{background:rgba(255,255,255,.06);color:#fff}
+.connect-brand.unreal{background:rgba(20,22,29,.85);color:#e0e5ef}
+.connect-brand.godot{background:rgba(78,129,207,.14);color:#9ec6ff}
+.connect-brand.roblox{background:rgba(255,255,255,.06);color:#fff}
+.connect-brand.vscode{background:rgba(54,146,222,.15);color:#8ccaff}
+.connect-card-title{min-width:0;flex:1}
+.connect-card-title h2{font-size:14px;margin:0;color:#f0f3fa}
+.connect-card-title small{display:block;margin-top:4px;color:#8e9cb4;font-size:10px}
+.connect-state{flex:0 0 auto;padding:5px 7px;border-radius:6px;font:8px 'DM Mono',monospace;letter-spacing:.045em;white-space:nowrap}
+.connect-state.supported{color:#7fdfbb;background:rgba(56,159,120,.11);border:1px solid rgba(83,191,152,.21)}
+.connect-state.bridge{color:#b8a8fa;background:rgba(146,119,224,.12);border:1px solid rgba(166,145,239,.23)}
+.connect-state.planned{color:#d8bc89;background:rgba(182,137,67,.1);border:1px solid rgba(198,156,89,.2)}
+.connect-card>p{margin:0!important;min-height:50px;color:#a6b2c6!important;font-size:11px!important;line-height:1.65!important}
+.connect-capabilities{display:flex;gap:6px;flex-wrap:wrap;margin-top:auto}
+.connect-capabilities span{padding:5px 7px;border:1px solid rgba(161,181,211,.12);border-radius:6px;background:rgba(255,255,255,.025);color:#9eabc0;font-size:9px}
+.connect-open{width:100%;min-height:35px;margin-top:2px;border:1px solid rgba(162,143,237,.24);border-radius:9px;background:rgba(137,112,218,.14);color:#e2dcff;font-size:10.5px;font-weight:650;text-align:left;padding:0 11px;display:flex;align-items:center;justify-content:space-between}
+.connect-open:hover{background:rgba(137,112,218,.23);border-color:rgba(178,155,255,.45)}
+.connect-open.secondary{background:rgba(255,255,255,.035);color:#c3cede;border-color:rgba(161,181,211,.16)}
+.connect-open.secondary:hover{background:rgba(255,255,255,.07)}
+.connect-inline-info{margin-top:0;padding:10px 11px;border-left:2px solid #ad94f4;border-radius:0 8px 8px 0;background:rgba(157,135,235,.09);color:#b6c1d4;font-size:10px;line-height:1.6}
+.connect-footnote{max-width:1080px;margin:14px auto 0;padding:12px 14px;display:flex;align-items:center;gap:12px;border:1px solid rgba(164,184,216,.12);border-radius:11px;background:rgba(8,14,26,.52)}
+.connect-footnote b{font-size:10px;color:#cdd6e5;white-space:nowrap}
+.connect-footnote span{flex:1;color:#8998ae;font-size:9.5px;line-height:1.5}
+.connect-footnote .secondary{min-height:29px;padding:0 9px;white-space:nowrap}
+.connect-target-highlight{outline:2px solid rgba(175,151,247,.65)!important;outline-offset:3px!important;transition:outline-color .3s}
+/* Responsive layout */
+@media(max-width:1180px){.topbar{column-gap:10px!important;padding-inline:14px!important}.chat-work-switch{margin-right:8px!important}.top-actions{gap:6px!important}.top-actions .core-status{max-width:160px}.sidebar{width:248px!important;min-width:248px!important;flex-basis:248px!important}}
+@media(max-width:930px){.topbar{grid-template-columns:auto minmax(0,1fr) auto!important}.topbar-location .crumb,.topbar-location .slash{display:none}.chat-work-switch{grid-column:3;grid-row:1;margin:0!important}.top-actions{grid-column:1/-1;grid-row:2;display:none!important}.topbar{height:58px!important;min-height:58px!important;grid-template-rows:1fr!important}.connect-grid{grid-template-columns:1fr}}
+@media(max-width:700px){.sidebar{width:230px!important;min-width:230px!important;flex-basis:230px!important}.connect-toolbar{align-items:flex-start;flex-direction:column}.connect-footnote{align-items:flex-start;flex-direction:column}.connect-footnote .secondary{width:100%}}
+
+/* Final navigation pass — give the sidebar real space, a persistent collapse control,
+   and keep Chat / Work visibly separated from runtime buttons. */
+:root{
+  --sidebar-width:260px;
+  --aurora-sidebar-width:260px;
+}
+.app{grid-template-columns:var(--sidebar-width) minmax(0,1fr)!important;}
+.app.sidebar-collapsed{grid-template-columns:0 minmax(0,1fr)!important;}
+.app.sidebar-collapsed .sidebar{width:0!important;min-width:0!important;max-width:0!important;flex-basis:0!important;padding-left:0!important;padding-right:0!important;border:0!important;}
+.app:not(.sidebar-collapsed) .sidebar{width:var(--sidebar-width)!important;min-width:var(--sidebar-width)!important;max-width:var(--sidebar-width)!important;flex-basis:var(--sidebar-width)!important;}
+.sidebar-toggle{display:inline-grid!important;visibility:visible!important;opacity:1!important;position:relative!important;z-index:12!important;place-items:center!important;cursor:pointer!important;}
+.sidebar-toggle[aria-expanded="false"]{background:rgba(153,129,233,.14)!important;border-color:rgba(172,150,245,.34)!important;color:#d8ceff!important;}
+.topbar{
+  display:grid!important;
+  grid-template-columns:34px minmax(110px,1fr) 184px auto!important;
+  grid-template-rows:1fr!important;
+  align-items:center!important;
+  column-gap:clamp(16px,1.8vw,26px)!important;
+  padding-inline:18px!important;
+  height:62px!important;
+  min-height:62px!important;
+}
+.topbar>.sidebar-toggle{grid-column:1;grid-row:1;justify-self:start;}
+.topbar>.topbar-location{grid-column:2;grid-row:1;min-width:0;}
+.topbar>.chat-work-switch{grid-column:3;grid-row:1;justify-self:center;margin:0!important;position:static!important;transform:none!important;min-width:176px;}
+.topbar>.top-actions{grid-column:4;grid-row:1;justify-self:end;gap:8px!important;}
+.topbar .chat-work-switch{box-shadow:0 5px 22px rgba(0,0,0,.16);}
+.topbar .chat-work-tab{min-width:82px!important;}
+/* Keep the full navigation visible; sidebar collapse is the one supported hide control. */
+.sidebar #mainNavigation{display:grid!important;visibility:visible!important;opacity:1!important;max-height:none!important;overflow:visible!important;}
+.sidebar.navigation-hidden #mainNavigation{display:grid!important;}
+.sidebar{gap:7px!important;padding:15px 13px 11px!important;}
+.sidebar .brand{padding:2px 5px 12px!important;}
+.sidebar .newchat{margin:10px 0 8px!important;}
+.sidebar-search{margin-bottom:8px!important;}
+#mainNavigation{gap:3px!important;margin-bottom:7px!important;padding-bottom:9px!important;}
+#mainNavigation .nav{height:34px!important;min-height:34px!important;padding:0 9px!important;gap:10px!important;font-size:11px!important;}
+#mainNavigation .nav i{width:20px!important;height:20px!important;}
+#mainNavigation .nav i svg{width:17px!important;height:17px!important;}
+.sidebar-collection-section{padding:4px 0 4px!important;}
+.sidebar-collection-heading{padding-inline:6px!important;}
+.sidebar-collection-empty{max-width:100%;}
+.history-title{margin-top:6px!important;}
+.sidebar-bottom{margin-top:auto!important;}
+/* Clear work project picker: one folder glyph + one select. Project creation remains in the sidebar. */
+.work-project-control{height:34px!important;max-width:220px!important;min-width:0!important;padding:0 10px!important;gap:8px!important;background:rgba(11,16,29,.52)!important;border:1px solid rgba(172,158,220,.19)!important;border-radius:9px!important;}
+.work-project-label{display:inline-flex!important;align-items:center!important;gap:6px!important;font-size:10px!important;color:#b6a9e9!important;}
+.work-project-label svg{width:15px!important;height:15px!important;fill:none!important;stroke:currentColor!important;stroke-width:1.6!important;stroke-linecap:round!important;stroke-linejoin:round!important;}
+#workProjectControl>button,.work-project-add,#workAddProjectBtn{display:none!important;}
+#workProjectControl::before,#workProjectControl::after{content:none!important;display:none!important;}
+.work-project-control select{max-width:150px!important;min-width:100px!important;}
+#attachBtn{width:34px!important;min-width:34px!important;height:34px!important;border-radius:9px!important;background:rgba(255,255,255,.045)!important;border:1px solid rgba(177,190,216,.16)!important;color:#c4cde0!important;}
+#attachBtn:hover{background:rgba(164,144,234,.13)!important;border-color:rgba(177,153,246,.38)!important;color:#eee9ff!important;}
+#attachBtn svg{width:16px!important;height:16px!important;}
+/* Conversation action control: a compact, intentional settings glyph with a proper hit target. */
+.history-row{position:relative!important;}
+.history-more{opacity:.68!important;width:30px!important;min-width:30px!important;height:30px!important;border:1px solid rgba(164,180,210,.10)!important;border-radius:9px!important;background:rgba(255,255,255,.025)!important;color:#aab5c9!important;}
+.history-more svg{width:16px!important;height:16px!important;fill:none!important;stroke:currentColor!important;stroke-width:1.65!important;stroke-linecap:round!important;stroke-linejoin:round!important;}
+.history-row:hover .history-more,.history-more:focus-visible,.history-more[aria-expanded="true"]{opacity:1!important;background:rgba(153,129,233,.14)!important;border-color:rgba(174,151,246,.3)!important;color:#e4dcff!important;}
+.history-more:focus-visible{outline:2px solid rgba(177,153,246,.65)!important;outline-offset:2px!important;}
+.history-action-menu{z-index:90!important;}
+/* The Quick Actions palette contains Connect instead of the old project-context action. */
+.palette-item[data-command="connect"] .palette-icon{display:grid;place-items:center;}
+.palette-item[data-command="connect"] .palette-icon svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;}
+/* Smaller desktop widths retain every top-level control without overlap. */
+@media(max-width:1240px){
+  .topbar{grid-template-columns:34px minmax(80px,1fr) 164px auto!important;column-gap:12px!important;padding-inline:12px!important;}
+  .topbar .chat-work-tab{min-width:72px!important;padding-inline:12px!important;}
+  .top-actions{gap:5px!important;}
+  .top-actions .core-status{max-width:150px!important;}
+}
+@media(max-width:980px){
+  .topbar{grid-template-columns:34px minmax(60px,1fr) 150px!important;grid-template-rows:1fr auto!important;height:auto!important;min-height:62px!important;padding-block:6px!important;row-gap:5px!important;}
+  .topbar>.sidebar-toggle{grid-column:1;grid-row:1;}
+  .topbar>.topbar-location{grid-column:2;grid-row:1;}
+  .topbar>.chat-work-switch{grid-column:3;grid-row:1;min-width:146px;}
+  .topbar>.top-actions{grid-column:1/-1;grid-row:2;display:flex!important;justify-self:end;max-width:100%;}
+  .top-actions .core-status{max-width:175px!important;}
+}
+@media(max-width:680px){
+  .topbar{grid-template-columns:34px minmax(0,1fr) 128px!important;}
+  .topbar-location .crumb,.topbar-location .slash{display:none!important;}
+  .topbar>.chat-work-switch{min-width:126px;}
+  .topbar .chat-work-tab{min-width:58px!important;padding-inline:7px!important;}
+  .topbar>.top-actions{overflow-x:auto;justify-self:stretch;}
+  .sidebar{width:238px!important;min-width:238px!important;max-width:238px!important;flex-basis:238px!important;}
+  :root{--sidebar-width:238px;}
+}

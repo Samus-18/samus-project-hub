@@ -1,0 +1,14 @@
+node_modules/
+dist/
+target/
+build-tests/
+**/.env*
+**/*.log
+**/logs/
+**/private_chat_exports/
+**/tool-history.jsonl
+*.zip
+*.rar
+*.exe
+*.dll
+*.pdb

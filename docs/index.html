@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="cs"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#080a10">
+<meta name="description" content="Samus Projects: Aurora AI, Horizon Boost, Thalvoryn — projekty, vývoj a ověřená vydání.">
+<meta property="og:title" content="SAMUS // PROJECTS"><meta property="og:description" content="Windows AI, GPU tools and Minecraft world generation.">
+<meta property="og:image" content="https://samus-18.github.io/samus-project-hub/assets/horizon-home.png">
+<title>SAMUS // PROJECTS</title>
+<link rel="icon" href="assets/thalvoryn-pack.png">
+<link rel="stylesheet" href="styles.css">
+<script src="app.js" defer></script>
+</head><body>
+<div class="texture" aria-hidden="true"></div>
+<div class="wrap">
+<header class="topbar">
+<a class="brand" href="#top" aria-label="Samus Projects home"><span class="mark"><span></span><span></span><span></span></span><span>SAMUS<span class="brand-dim">/PROJECTS</span></span></a>
+<nav aria-label="Projekty"><a href="#projects" data-en="Projects">Projekty</a><a href="#releases" data-en="Releases">Vydání</a><a href="#about" data-en="About">O projektu</a></nav>
+<div class="top-actions"><button type="button" class="lang" id="lang" aria-label="Switch Czech / English">EN</button><a class="small-link" href="https://github.com/Samus-18/samus-project-hub" target="_blank" rel="noopener">GitHub <span aria-hidden="true">↗</span></a></div>
+</header>
+<main id="top">
+<section class="hero">
+<div class="hero-copy"><p class="eyebrow"><span class="pulse"></span> INDEPENDENT DEV • 2026</p>
+<h1><span data-en="Ideas turned into">Nápady, které</span><br><em data-en="real projects.">se mění v projekty.</em></h1>
+<p class="hero-summary" data-en="Three projects, one home. Local AI, native gaming tools and a reimagined Minecraft world. Source, progress and downloads in one place.">Tři projekty, jedno místo. Lokální AI, nativní herní nástroje a přepracovaný svět Minecraftu. Zdrojáky, pokrok a vydání přehledně pohromadě.</p>
+<div class="hero-buttons"><a class="cta" href="#projects"><span data-en="Explore projects">Prohlédnout projekty</span><span>↗</span></a><a class="ghost" href="https://github.com/Samus-18/samus-project-hub/releases" target="_blank" rel="noopener"><span data-en="Latest downloads">Nejnovější vydání</span> ↗</a></div>
+<div class="hero-stats"><span><strong>03</strong><small data-en="featured projects">hlavní projekty</small></span><span><strong>02</strong><small data-en="platform families">platformní rodiny</small></span><span><strong>100%</strong><small data-en="independent project hub">nezávislý rozcestník</small></span></div>
+</div>
+<div class="hero-visual" aria-label="Project previews">
+<div class="visual-grid"><div class="visual-card v-aurora"><img src="assets/aurora-chat.png" loading="eager" alt="Aurora AI chat interface preview"></div><div class="visual-card v-horizon"><img src="assets/horizon-home.png" loading="eager" alt="Horizon Boost Windows interface screenshot"></div><div class="visual-card v-thal"><img src="assets/thalvoryn-pack.png" alt="Thalvoryn datapack icon"></div></div>
+<div class="visual-caption"><span class="live-dot"></span> PROJECT ARCHIVE / PUBLIC SHOWCASE</div>
+</div>
+</section>
+
+<section class="intro" id="projects"><div><p class="eyebrow">01 — SELECTED WORK</p><h2 data-en="Made to explore.">Tvořeno pro objevování.</h2></div><p data-en="Each project has its own source folder, status and release history. Test builds are labeled honestly.">Každý projekt má vlastní zdrojovou složku, stav vývoje a historii vydání. Testovací verze jsou jasně označené.</p></section>
+
+<section class="projects" aria-label="Featured projects">
+<article class="project aurora" id="aurora">
+<div class="project-image"><img src="assets/aurora-chat.png" alt="Skutečný statický Chromium náhled rozhraní Aurora AI" loading="lazy"><div class="image-tags"><span>LOCAL-FIRST AI</span><span>WINDOWS</span></div><span class="image-caption" data-en="Static application UI preview, not a live Ollama test">Statický náhled UI, nikoli živý test Ollamy</span></div>
+<div class="project-content"><div class="number-row"><span>PROJECT / 01</span><span class="status">v0.8.6 • SETUP</span></div><div class="symbol s-aurora">✳</div><h3>Aurora <span>AI</span></h3><p class="lead" data-en="Your own AI workspace, built for local models and practical work.">Vlastní pracovní prostředí s AI, postavené pro lokální modely a skutečnou práci.</p><p class="details" data-en="Ollama, optional cloud providers, shared Chat/Work, Agent Studio, model management, ComfyUI and approved project-edit workflows.">Ollama, volitelní cloudoví poskytovatelé, Chat/Work, Agent Studio, správa modelů, ComfyUI a schvalované úpravy projektů.</p><div class="chips"><span>Electron</span><span>Ollama</span><span>Agent Studio</span></div><div class="links"><a class="action primary" data-project="aurora-ai" href="https://github.com/Samus-18/samus-project-hub/releases"><span data-en="Windows installer">Windows instalátor</span> ↗</a><a class="action" href="https://github.com/Samus-18/samus-project-hub/tree/main/projects/aurora-ai" data-en="View source">Zdrojový kód ↗</a></div><p class="footnote" data-en="Installer hash verified; live provider/integration checks remain pending.">Hash instalátoru ověřen; živé integrační testy stále čekají.</p></div>
+</article>
+
+<article class="project horizon" id="horizon">
+<div class="project-image"><img src="assets/horizon-home.png" alt="Horizon Boost – skutečný snímek testovacího UI" loading="lazy"><div class="image-tags"><span>RUST / D3D11</span><span>GPU UTILITIES</span></div><span class="image-caption" data-en="Real Windows GUI screenshot from test fixture">Reálný snímek testovacího Windows GUI</span></div>
+<div class="project-content"><div class="number-row"><span>PROJECT / 02</span><span class="status">V134 • DEV</span></div><div class="symbol s-horizon">◈</div><h3>Horizon <span>Boost</span></h3><p class="lead" data-en="Native Windows GPU tools without injecting into games.">Nativní herní GPU nástroje pro Windows bez injekce do her.</p><p class="details" data-en="Windows.Graphics.Capture, D3D11 filters, independent DXGI output, upscaling, experimental frame generation, overlay and game tools. Built with RX 580 in mind.">Windows.Graphics.Capture, D3D11 filtry, vlastní DXGI výstup, upscaling, experimentální frame generation, overlay a herní utility. Optimalizace i pro RX 580.</p><div class="chips"><span>Rust</span><span>WGC / DXGI</span><span>RX 580</span></div><div class="links"><a class="action primary" data-project="horizon-boost" href="https://github.com/Samus-18/samus-project-hub/releases"><span data-en="Development builds">Vývojové verze</span> ↗</a><a class="action" href="https://github.com/Samus-18/samus-project-hub/tree/main/projects/horizon-boost" data-en="View source">Zdrojový kód ↗</a></div><p class="footnote" data-en="555 Rust tests passed for V134; real-game mouse/fullscreen and speed comparison unverified.">V134: 555 Rust testů prošlo; ovládání ve hře, fullscreen a výkonové srovnání nejsou potvrzené.</p></div>
+</article>
+
+<article class="project thalvoryn" id="thalvoryn">
+<div class="project-image thal-bg"><div class="skyline" aria-hidden="true"><div></div><div></div><div></div></div><img class="pack" src="assets/thalvoryn-pack.png" alt="Originální ikona Thalvoryn Minecraft datapacku" loading="lazy"><div class="image-tags"><span>MINECRAFT WORLGEN</span><span>JAVA + RUST</span></div><span class="image-caption" data-en="Original pack icon; illustrated backdrop is decorative">Ikona balíčku; dekorativní pozadí není screenshot ze hry</span></div>
+<div class="project-content"><div class="number-row"><span>PROJECT / 03</span><span class="status review">V86 • STAGE 3 TEST</span></div><div class="symbol s-thal">✦</div><h3>Thalvoryn <span>Worldgen</span></h3><p class="lead" data-en="A more ambitious world for Minecraft Java and Horizon Rust.">Ambicióznější generování světa pro Minecraft Java a Horizon Rust.</p><p class="details" data-en="JJThunder-inspired terrain, TREK structures, custom caves, sky islands, expanded Nether and End, with separate Nether 1024/2032 variants.">Terén ve stylu JJThunder, struktury TREK, jeskyně, nebeské ostrovy a rozšířený Nether a End. Samostatné varianty Nether 1024/2032.</p><div class="chips"><span>Java</span><span>Horizon Rust</span><span>4 variants</span></div><div class="links"><a class="action primary" data-project="thalvoryn" href="https://github.com/Samus-18/samus-project-hub/releases"><span data-en="Release status">Stav vydání</span> ↗</a><a class="action" href="https://github.com/Samus-18/samus-project-hub/tree/main/projects/thalvoryn" data-en="Details & credits">Detaily a kredity ↗</a></div><p class="footnote" data-en="Four V86 test archives verified locally. Public binary downloads pending third-party asset permission checks.">Čtyři V86 testovací ZIPy ověřeny lokálně. Veřejné stažení čeká na ověření práv k externím strukturám.</p></div>
+</article>
+</section>
+<section class="bottom" id="releases"><div><p class="eyebrow">02 — RELEASE TRACKER</p><h2 data-en="Latest, not just listed.">Nejnovější, ne jen vypsané.</h2><p data-en="The site checks GitHub Releases for each project. Pre-releases remain clearly marked.">Web kontroluje GitHub Releases každého projektu a odlišuje vývojové verze.</p><a class="cta" href="https://github.com/Samus-18/samus-project-hub/releases">GitHub Releases ↗</a></div><div class="release-list"><div><span>Aurora AI</span><strong id="rel-aurora-ai">v0.8.6</strong></div><div><span>Horizon Boost</span><strong id="rel-horizon-boost">V134 DEV</strong></div><div><span>Thalvoryn</span><strong id="rel-thalvoryn">V86 / RIGHTS REVIEW</strong></div><small data-en="Version information is refreshed when GitHub API is reachable.">Verze se aktualizují, když je dostupné GitHub API.</small></div></section>
+<section class="about" id="about"><div><p class="eyebrow">03 — BUILD NOTES</p><h2 data-en="Made with care, released with evidence.">Vývoj podle výsledků, ne slibů.</h2></div><p data-en="A published build is not necessarily certified for every game. Source tests, screenshots, release hashes, known limitations and third-party credits stay visible. No private chat archives are published here.">Zveřejněný build neznamená kompatibilitu se všemi hrami. Uvádím testy, screenshoty, kontrolní součty, známá omezení a kredity. Soukromé archivy chatů sem nepatří.</p></section>
+</main>
+<footer><span>© 2026 SAMUS / PROJECTS</span><span>MADE FOR WINDOWS + MINECRAFT</span><a href="https://github.com/Samus-18" target="_blank" rel="noopener">Samus-18 on GitHub ↗</a></footer>
+</div>
+</body></html>
