@@ -1,4 +1,6 @@
-//! Windows top-level game detection. Does not inject, hook or alter any game process.
+pub(crate) const HUD_TITLE:&str="Vanta FX - HUD";
+pub(crate) const MAIN_TITLE:&str="Vanta FX - Native GPU Tools";
+// Windows top-level game detection. Does not inject, hook or alter any game process.
 use std::{ffi::c_void,path::{Path,PathBuf},process::{Command,Stdio}};
 use std::os::windows::process::CommandExt;
 use sysinfo::{Pid,System,ProcessesToUpdate};
@@ -445,7 +447,7 @@ pub fn magpie_scaling_info(game_pid:u32)->Option<MagpieScalingInfo>{
 /// Magpie may create a later TOPMOST scaling window; restore our OWN overlay's
 /// Z-order without clicking, focusing the game or injecting anything.
 pub fn keep_horizon_overlay_above_magpie()->bool{
-    let hwnd=own_window("HORIZON BOOST - OVERLAY");
+    let hwnd=own_window(HUD_TITLE);
     if hwnd.is_null()||unsafe{IsWindowVisible(hwnd)}==0{return false;}
     const SWP_NOSIZE:u32=0x0001;
     const SWP_NOMOVE:u32=0x0002;
@@ -461,14 +463,14 @@ pub fn keep_horizon_overlay_above_magpie()->bool{
 /// the on-demand editor removes those flags so the controls can be clicked.
 /// Do not use a global low-level mouse hook or tamper with game input.
 pub fn show_passive_hud()->bool{
-    let hwnd=own_window("HORIZON BOOST - OVERLAY");
+    let hwnd=own_window(HUD_TITLE);
     if hwnd.is_null(){return false;}
     let required=0x08080020;
     if unsafe{GetWindowLongW(hwnd,-20)}&required!=required{return false;}
     (unsafe{SetWindowPos(hwnd,(-1isize) as Handle,0,0,0,0,0x0001|0x0002|0x0010|0x0040)})!=0
 }
 pub fn configure_overlay_interaction(passive:bool,opacity:f32)->Result<(),String>{
-    let hwnd=own_window("HORIZON BOOST - OVERLAY");
+    let hwnd=own_window(HUD_TITLE);
     if hwnd.is_null(){return Err("Horizon HUD window does not exist yet".into());}
     const GWL_EXSTYLE:i32=-20;
     const WS_EX_LAYERED:i32=0x00080000;
@@ -514,7 +516,7 @@ pub fn configure_overlay_interaction(passive:bool,opacity:f32)->Result<(),String
 }
 pub fn set_overlay_opacity(opacity:f32)->Result<(),String>{
     // Only changes Horizon Boost's own overlay window, never the game.
-    let hwnd=own_window("HORIZON BOOST - OVERLAY");
+    let hwnd=own_window(HUD_TITLE);
     if hwnd.is_null(){return Err("Overlay window is not created yet".into());}
     const GWL_EXSTYLE:i32=-20;
     const WS_EX_LAYERED:i32=0x00080000;
@@ -578,7 +580,7 @@ static OVERLAY_ROUND_STYLE:std::sync::atomic::AtomicU64=std::sync::atomic::Atomi
 pub fn round_horizon_window(overlay:bool)->bool{
     use std::sync::atomic::Ordering;
     let cache=if overlay{&OVERLAY_ROUND_STYLE}else{&MAIN_ROUND_STYLE};
-    let name=if overlay{"HORIZON BOOST - OVERLAY"}else{"HORIZON BOOST - Rust"};
+    let name=if overlay{HUD_TITLE}else{MAIN_TITLE};
     let hwnd=own_window(name);
     if hwnd.is_null(){return false;}
     let mut boxrect=WinRect::default();
@@ -653,7 +655,7 @@ fn select_active(pinned:Option<u32>,prior:Option<&GameInfo>,visible:&[GameInfo],
 }
 
 pub fn place_own_hud(target:&crate::display_probe::Target,anchor:[f32;2])->Result<Option<u32>,String>{
- let hwnd=own_window("HORIZON BOOST - OVERLAY");
+ let hwnd=own_window(HUD_TITLE);
  if hwnd.is_null(){return Ok(None);}
  let mut r=WinRect::default();if unsafe{GetWindowRect(hwnd,&mut r)}==0{return Err("Own HUD geometry unavailable".into());}
  let w=r.right-r.left;let h=r.bottom-r.top;
@@ -731,5 +733,33 @@ pub fn capture_preflight(pid:u32)->Result<CapturePreflight,String>{
  #[test]fn invalid_pid_is_rejected_without_starting_capture(){
   assert!(capture_preflight(0).is_err());
   assert!(capture_preflight(std::process::id()).is_err());
+ }
+}
+
+#[cfg(test)] mod v138_hud_title_test {
+ #[test]fn hud_title_matches_eframe_creation(){assert_eq!(super::HUD_TITLE,"Vanta FX - HUD");assert_eq!(super::MAIN_TITLE,"Vanta FX - Native GPU Tools");}
+}
+
+#[cfg(test)]mod v138_native_hud_style_smoke{
+ use super::*;
+ #[link(name="user32")]unsafe extern "system"{
+  fn CreateWindowExW(ex:u32,class:*const u16,title:*const u16,style:u32,
+    x:i32,y:i32,w:i32,h:i32,parent:Handle,menu:Handle,instance:Handle,
+    param:*mut std::ffi::c_void)->Handle;
+  fn DestroyWindow(hwnd:Handle)->i32;
+ }
+ #[test]fn hidden_native_hud_is_discoverable_and_can_be_made_mouse_through(){
+  let class=wstr("STATIC");let title=wstr(HUD_TITLE);
+  let hwnd=unsafe{CreateWindowExW(0,class.as_ptr(),title.as_ptr(),0,
+   0,0,10,10,std::ptr::null_mut(),std::ptr::null_mut(),
+   std::ptr::null_mut(),std::ptr::null_mut())};
+  assert!(!hwnd.is_null(),"Failed to create a safe hidden HUD fixture");
+  let found=own_window(HUD_TITLE);
+  let styles=configure_overlay_interaction(true,0.86);
+  let flag=unsafe{GetWindowLongW(hwnd,-20)}as u32;
+  unsafe{DestroyWindow(hwnd);}
+  assert_eq!(found,hwnd,"Native title look-up did not find real own HWND");
+  assert!(styles.is_ok(),"Could not apply mouse-through styles: {styles:?}");
+  assert_eq!(flag&0x08080020,0x08080020,"Window must be layered, click-through and nonactivating");
  }
 }

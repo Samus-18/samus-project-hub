@@ -79,6 +79,18 @@ pub(crate) fn emit_key(code:u16,up:bool)->Result<(),String>{
  let n=unsafe{SendInput(1,&event,std::mem::size_of::<Input>() as i32)};
  if n==1{Ok(())}else{Err("Windows did not accept key event".into())}
 }
+/// Relative Win32 SendInput motion. Not equivalent to a raw HID event; a game
+/// may ignore or transform it. Called only after foreground/focus permission.
+pub(crate) fn emit_relative_mouse(dx:i32,dy:i32)->Result<(),String>{
+ if dx==0&&dy==0{return Ok(());}
+ if dx.abs()>32767||dy.abs()>32767{return Err("Camera delta out of safe range".into());}
+ let e=Input{kind:0,data:InputData{mouse:Mouse{
+  dx,dy,data:0,flags:0x0001,time:0,extra:0
+ }}};
+ if unsafe{SendInput(1,&e,std::mem::size_of::<Input>() as i32)}==1{
+  Ok(())
+ }else{Err("Windows refused relative mouse input".into())}
+}
 pub(crate) fn emit_mouse(button:u8,up:bool)->Result<(),String>{
  let flags=match(button,up){(0,false)=>2,(0,true)=>4,(1,false)=>8,(1,true)=>16,_=>return Err("Unsupported button".into())};
  let e=Input{kind:0,data:InputData{mouse:Mouse{dx:0,dy:0,data:0,flags,time:0,extra:0}}};

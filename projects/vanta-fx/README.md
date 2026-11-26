@@ -35,3 +35,12 @@ GPL-derived FSRCNNX/CuNNy shader source and corresponding GNU GPLv3 licenses are
 - Upscaling & GPU filters share one tab; 8 quick shader looks, 83 searchable real presets, and 17 scaler methods; experimental FG stays opt-in.
 - Optional Alt+F1..F11 except F4 macro trigger works even when Vanta FX is minimized, checks selected foreground game, F12 to cancel. Record/Play stays target-restricted and permission-based.
 - Video recording is independent and does not yet capture raw mouse movement from Roblox shift-lock. Exclusive fullscreen game overlay and input are not certified.
+
+
+## V138 usability & safety
+
+- Hardware scan recommends a profile based on detected GPU, RAM and measured data when available. Before applying, a durable same-game output-profile backup is written and checked. Restore after restart.
+- Original game FPS comparison is sampled before and after on the same selected game, with a minimum settle interval; no artificial FPS improvements are reported.
+- Upscaling & GPU filters share one tab; 8 quick shader looks, 83 searchable real presets, and 17 scaler methods; experimental FG stays opt-in.
+- Optional Alt+F1..F11 except F4 macro trigger works even when Vanta FX is minimized, checks selected foreground game, F12 to cancel. Record/Play stays target-restricted and permission-based.
+- Optional Raw Input mode captures mouse deltas; video is independent and SendInput camera replay is unverified in live Roblox. Exclusive fullscreen game overlay and input are not certified.

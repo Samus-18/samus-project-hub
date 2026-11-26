@@ -1,5 +1,5 @@
 
-// Vanta FX / V137: clear direct-control desktop. Intentionally no home tiles,
+// Vanta FX / V138: clear direct-control desktop. Intentionally no home tiles,
 // pop-up feature menu, giant gradient hero, or nested accordion navigation.
 // The old expert widgets remain in Rust for backwards compatibility with profiles.
 const VF_BACKGROUND:Color32=Color32::from_rgb(11,12,16);
@@ -132,7 +132,7 @@ fn vf_navigation(app:&mut BoostApp,ui:&mut Ui){
      if new_language==1{"CZ"}else{"EN"})).clicked(){
    app.settings.ui_language=new_language;app.save();
   }
-  ui.label(RichText::new("V137 / RUST").size(10.).color(VF_MUTED));
+  ui.label(RichText::new("V138 / RUST").size(10.).color(VF_MUTED));
  });
 }
 fn vf_page_head(app:&BoostApp,ui:&mut Ui){
@@ -486,6 +486,13 @@ fn vf_macros(app:&mut BoostApp,ui:&mut Ui){
   if previous_window!=s.selected.as_ref().map(|w|(w.hwnd,w.pid,w.tid)){s.consent=false;}
   let consent=local(ui,"I chose an offline/local application","Vybral jsem offline/místní aplikaci");
   ui.checkbox(&mut s.consent,consent);
+  let camera=local(ui,"Record raw mouse motion (Shift Lock camera)",
+    "Zaznamenat relativní pohyb myši (Shift Lock kamera)");
+  ui.add_enabled(!s.busy(),egui::Checkbox::new(&mut s.relative_mouse,camera));
+  if s.relative_mouse{
+   vf_hint(ui,local(ui,"Raw Windows mouse deltas, not cursor positions. Playback uses ordinary SendInput and may be ignored by some games.",
+    "Snímá skutečné relativní pohyby myši, ne polohu kurzoru. Přehrávání používá SendInput; některé hry ho mohou ignorovat."));
+  }
   ui.add_space(8.);
   let busy=s.busy();
   let enabled=!blocked&&s.selected.is_some()&&s.consent&&!busy;
@@ -621,8 +628,8 @@ fn vf_macro_background(app:&mut BoostApp,ui:&mut Ui){
   if vf_button(ui,button,false,!app.is_smoke&&!app.recorder.finishing()){
    app.recording();
   }
-  vf_hint(ui,vf_local(app,"Real video of the game for reviewing camera/shift-lock movement. The macro currently records desktop cursor positions, not raw relative camera motion.",
-   "Skutečné video hry pro kontrolu pohybu kamery / shift-locku. Makro zatím zaznamenává polohu kurzoru, nikoli surový relativní pohyb kamery."));
+  vf_hint(ui,vf_local(app,"Optional raw relative mouse deltas are stored in the macro timeline. Screen video is separate. Replay uses SendInput, so shift-lock camera behavior remains game-dependent.",
+   "Volitelný surový relativní pohyb myši se ukládá do časové osy makra. Video je zvlášť. Přehrávání přes SendInput závisí na konkrétní hře."));
  });
 }
 fn vf_hud(app:&mut BoostApp,ui:&mut Ui){

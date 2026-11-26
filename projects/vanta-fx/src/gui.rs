@@ -168,7 +168,7 @@ pub fn render(app:&mut BoostApp,ctx:&egui::Context){
             ui.horizontal(|ui|{
                 ui.colored_label(RED,"FX");
                 caption(ui,&app.status);if app.recorder.elapsed().is_some(){ui.colored_label(RED,"REC");}else if app.replay.active(){ui.label("REPLAY");}
-                ui.with_layout(Layout::right_to_left(Align::Center),|ui|{caption(ui,"VANTA FX · V137 DEV  /  D3D11");});
+                ui.with_layout(Layout::right_to_left(Align::Center),|ui|{caption(ui,"VANTA FX · V138 DEV  /  D3D11");});
             });
         });
 
@@ -176,7 +176,7 @@ pub fn render(app:&mut BoostApp,ctx:&egui::Context){
         if ctx.content_rect().width()<860.{egui::Margin::symmetric(10,10)}
         else{egui::Margin::symmetric(20,14)}))
         .show(ctx,|ui|{
-            // V137: flat low-noise surface; no fullscreen purple gradients.
+            // V138: flat low-noise surface; no fullscreen purple gradients.
             // Each page/sub-view owns its scroll position. Changing from a long
             // shader gallery to the compact Color Lab must never leave the
             // newly selected tab apparently blank at an old scroll offset.
@@ -203,14 +203,17 @@ pub fn render(app:&mut BoostApp,ctx:&egui::Context){
         let editor_at_start=app.overlay_edit_mode;
         let changed=app.last_overlay_passive!=Some(!editor_at_start);
         ctx.show_viewport_immediate(ViewportId::from_hash_of("vanta-overlay"),
-            ViewportBuilder::default().with_title("Vanta FX - HUD")
+            ViewportBuilder::default().with_title(crate::win::HUD_TITLE)
                 .with_inner_size([width,height])
                 .with_position([x,y])
                 .with_always_on_top()
                 .with_active(editor_at_start)
                 .with_taskbar(false)
                 .with_mouse_passthrough(!editor_at_start)
-                .with_visible(!app.is_smoke && app.last_overlay_passive.is_some())
+                // The viewport must exist before native Win32 click-through styles
+                // can be configured. MousePassThrough is enabled at creation;
+                // fail closed in the interaction check below if OS refuses.
+                .with_visible(!app.is_smoke)
                 .with_decorations(false)
                 .with_resizable(false),
             |ov_ctx,_class|{

@@ -5,9 +5,10 @@ const MAX:usize=512;const LIMIT:u32=60000;
 const KEYS:&[u16]=&[0x20,0x0d,0x09,0x25,0x26,0x27,0x28,0x30,0x31,0x32,0x33,0x34,0x35,0x36,0x37,0x38,0x39,0x41,0x42,0x43,0x44,0x45,0x46,0x47,0x48,0x49,0x4a,0x4b,0x4c,0x4d,0x4e,0x4f,0x50,0x51,0x52,0x53,0x54,0x55,0x56,0x57,0x58,0x59,0x5a,0x1b,0x8,0x2d,0x2e,0x24,0x23,0x21,0x22,0x70,0x71,0x72,0x73,0x74,0x75,0x76,0x77,0x78,0x79,0x7a];
 #[derive(Clone,Copy,Debug,Serialize,Deserialize,PartialEq,Eq)]
 #[serde(tag="kind",rename_all="snake_case",deny_unknown_fields)]
-pub enum Action{Move{x:u16,y:u16},Button{button:u8,down:bool},Key{code:u16,down:bool}}
+pub enum Action{Move{x:u16,y:u16},Relative{dx:i16,dy:i16},Button{button:u8,down:bool},Key{code:u16,down:bool}}
 impl Action{pub fn label(self)->String{match self{
  Self::Move{x,y}=>format!("Pointer {:.1}% / {:.1}%",x as f32/100.,y as f32/100.),
+ Self::Relative{dx,dy}=>format!("Camera delta {dx:+} / {dy:+}"),
  Self::Button{button,down}=>format!("{} {}",if button==0{"Left click"}else{"Right click"},if down{"down"}else{"up"}),
  Self::Key{code,down}=>format!("{} {}",key_name(code),if down{"down"}else{"up"})}}}
 fn key_name(k:u16)->String{match k{0x20=>"Space".into(),0x0d=>"Enter".into(),0x09=>"Tab".into(),0x25=>"Left".into(),0x26=>"Up".into(),0x27=>"Right".into(),0x28=>"Down".into(),0x1b=>"Esc".into(),0x08=>"Backspace".into(),
@@ -17,8 +18,8 @@ fn key_name(k:u16)->String{match k{0x20=>"Space".into(),0x0d=>"Enter".into(),0x0
 #[derive(Clone,Debug,Serialize,Deserialize,PartialEq,Eq)]
 #[serde(deny_unknown_fields)]pub struct Event{pub wait_ms:u32,pub action:Action}
 #[derive(Clone,Debug,Serialize,Deserialize,PartialEq,Eq)]
-#[serde(default,deny_unknown_fields)]pub struct Plan{pub events:Vec<Event>,pub repeat:u8,pub speed:u16,pub between_ms:u32}
-impl Default for Plan{fn default()->Self{Self{events:vec![],repeat:1,speed:100,between_ms:500}}}
+#[serde(default,deny_unknown_fields)]pub struct Plan{pub events:Vec<Event>,pub repeat:u8,pub speed:u16,pub between_ms:u32,pub relative_camera:bool}
+impl Default for Plan{fn default()->Self{Self{events:vec![],repeat:1,speed:100,between_ms:500,relative_camera:false}}}
 impl Plan{
  /// Shift the first event in place; all edits are transactional and preserve valid plans.
  pub fn shift_start(&mut self,delta:i32)->Result<(),String>{
@@ -74,7 +75,8 @@ impl Plan{
   let(mut keys,mut buttons)=(BTreeSet::new(),BTreeSet::new());let mut positioned=false;
   for e in &self.events{match e.action{
    Action::Move{x,y} if x<=10000&&y<=10000=>positioned=true,
-   Action::Button{button,down} if button<=1&&positioned=>{if !(if down{buttons.insert(button)}else{buttons.remove(&button)}){return Err("Unbalanced mouse sequence".into());}},
+   Action::Relative{dx,dy} if self.relative_camera&&(dx!=0||dy!=0)=>{},
+   Action::Button{button,down} if button<=1&&(positioned||self.relative_camera)=>{if !(if down{buttons.insert(button)}else{buttons.remove(&button)}){return Err("Unbalanced mouse sequence".into());}},
    Action::Key{code,down} if KEYS.contains(&code)=>{if !(if down{keys.insert(code)}else{keys.remove(&code)}){return Err("Unbalanced key sequence".into());}},
    _=>return Err("Unsupported action / missing mouse position".into()),
   }}
@@ -118,7 +120,7 @@ impl Plan{
  pub fn remove_balanced(&mut self,i:usize)->Result<(),String>{
   self.validate()?;let action=self.events.get(i).ok_or("Event not found")?.action;
   let mut candidate=self.clone();
-  if matches!(action,Action::Move{..}){candidate.delete_preserve_time(i);}else{let j=self.paired_index(i).ok_or("Matching release missing")?;candidate.delete_preserve_time(i.max(j));candidate.delete_preserve_time(i.min(j));}
+  if matches!(action,Action::Move{..}|Action::Relative{..}){candidate.delete_preserve_time(i);}else{let j=self.paired_index(i).ok_or("Matching release missing")?;candidate.delete_preserve_time(i.max(j));candidate.delete_preserve_time(i.min(j));}
   if !candidate.events.is_empty(){candidate.validate()?;}*self=candidate;Ok(())
  }
  pub fn swap_balanced(&mut self,a:usize,b:usize)->Result<(),String>{
@@ -136,19 +138,19 @@ impl Plan{
 }
 pub fn sanitize_profiles(profiles:&mut BTreeMap<String,BTreeMap<String,Plan>>){profiles.retain(|k,bank|{sanitize(bank);!k.trim().is_empty()&&k.len()<=512&&!k.chars().any(char::is_control)&&!bank.is_empty()});while profiles.len()>128{profiles.pop_last();}}
 pub fn sanitize(bank:&mut BTreeMap<String,Plan>){bank.retain(|k,v|!k.trim().is_empty()&&k.chars().count()<=48&&!k.chars().any(char::is_control)&&v.validate().is_ok());while bank.len()>32{bank.pop_last();}}
-#[derive(Default)]struct Record{events:Vec<Event>,last:u32,keys:BTreeSet<u16>,buttons:BTreeSet<u8>}
+#[derive(Default)]struct Record{events:Vec<Event>,last:u32,keys:BTreeSet<u16>,buttons:BTreeSet<u8>,relative_camera:bool}
 impl Record{
  fn push(&mut self,at:u32,a:Action)->bool{
-  if self.events.len()>=MAX-KEYS.len()-2||at>LIMIT||at<self.last{return false;}
+  if self.events.len()>=MAX-self.keys.len()-self.buttons.len()-2||at>LIMIT||at<self.last{return false;}
   match a{Action::Key{code,down}=>{if down{self.keys.insert(code);}else{self.keys.remove(&code);}},Action::Button{button,down}=>{if down{self.buttons.insert(button);}else{self.buttons.remove(&button);}},_=>{}}
   self.events.push(Event{wait_ms:at-self.last,action:a});self.last=at;true
  }
- fn finish(mut self)->Plan{for code in self.keys{self.events.push(Event{wait_ms:0,action:Action::Key{code,down:false}});}for button in self.buttons{self.events.push(Event{wait_ms:0,action:Action::Button{button,down:false}});}Plan{events:self.events,..Default::default()}}
+ fn finish(mut self)->Plan{for code in self.keys{self.events.push(Event{wait_ms:0,action:Action::Key{code,down:false}});}for button in self.buttons{self.events.push(Event{wait_ms:0,action:Action::Button{button,down:false}});}Plan{events:self.events,relative_camera:self.relative_camera,..Default::default()}}
 }
-#[derive(Default)]pub struct Preview{pub point:Option<[u16;2]>,pub keys:BTreeSet<u16>,pub buttons:BTreeSet<u8>,pub applied:usize,pub cycle:u8}
+#[derive(Default)]pub struct Preview{pub point:Option<[u16;2]>,pub camera_delta:[i32;2],pub keys:BTreeSet<u16>,pub buttons:BTreeSet<u8>,pub applied:usize,pub cycle:u8}
 pub fn preview(p:&Plan,ms:u64)->Preview{
  let mut v=Preview::default();if p.validate().is_err(){return v;}let mut t=0;
- for i in 0..p.repeat{v.cycle=i+1;for e in &p.events{t+=p.delay(e.wait_ms);if ms<t{return v;}match e.action{Action::Move{x,y}=>v.point=Some([x,y]),Action::Key{code,down}=>{if down{v.keys.insert(code);}else{v.keys.remove(&code);}},Action::Button{button,down}=>{if down{v.buttons.insert(button);}else{v.buttons.remove(&button);}}}v.applied+=1;}t+=u64::from(p.between_ms);if ms<t{return v;}}v
+ for i in 0..p.repeat{v.cycle=i+1;for e in &p.events{t+=p.delay(e.wait_ms);if ms<t{return v;}match e.action{Action::Move{x,y}=>v.point=Some([x,y]),Action::Relative{dx,dy}=>{v.camera_delta[0]+=i32::from(dx);v.camera_delta[1]+=i32::from(dy);},Action::Key{code,down}=>{if down{v.keys.insert(code);}else{v.keys.remove(&code);}},Action::Button{button,down}=>{if down{v.buttons.insert(button);}else{v.buttons.remove(&button);}}}v.applied+=1;}t+=u64::from(p.between_ms);if ms<t{return v;}}v
 }
 type Hwnd=*mut c_void;
 #[derive(Clone,Debug,PartialEq,Eq)]pub struct Target{pub hwnd:usize,pub pid:u32,pub tid:u32,pub title:String}
@@ -191,17 +193,27 @@ fn wait_focus(t:&Target,run:&AtomicBool)->Result<(),String>{
  while !t.focused(){if cancelled(run)||!t.identity()||Instant::now()>=end{return Err("Target not focused / cancelled".into());}thread::sleep(Duration::from_millis(25));}
  let end=Instant::now()+Duration::from_secs(3);while KEYS.iter().copied().chain([1,2,0x10,0x11,0x12,0x5b,0x5c]).any(down){if cancelled(run)||!t.focused()||Instant::now()>=end{return Err("Release inputs before starting".into());}thread::sleep(Duration::from_millis(15));}guard(t,run)
 }
-fn capture(t:&Target,run:&AtomicBool,progress:&AtomicUsize)->Result<Plan,String>{
- wait_focus(t,run)?;let start=Instant::now();let mut r=Record::default();let mut prev=None;
+fn capture(t:&Target,run:&AtomicBool,progress:&AtomicUsize,relative:bool)->Result<Plan,String>{
+ wait_focus(t,run)?;
+ let mut raw=if relative{Some(crate::raw_mouse_capture::Listener::start()?)}else{None};
+ let start=Instant::now();let mut r=Record{relative_camera:relative,..Default::default()};let mut prev=None;
  loop{let at=start.elapsed().as_millis().min(u128::from(u32::MAX))as u32;if at>=LIMIT||guard(t,run).is_err(){break;}
   let p=t.pointer();let keys=KEYS.iter().copied().filter(|&k|down(k)).collect::<BTreeSet<_>>();
   let buttons=[(0,1),(1,2)].into_iter().filter_map(|(b,k)|down(k).then_some(b)).collect::<BTreeSet<u8>>();
   if guard(t,run).is_err(){break;}
-  if p.is_none()&&(!buttons.is_empty()||!r.buttons.is_empty()){break;}
-  if let Some([x,y])=p{if prev!=p{if !r.push(at,Action::Move{x,y}){break;}prev=p;}}
+  if raw.is_none()&&p.is_none()&&(!buttons.is_empty()||!r.buttons.is_empty()){break;}
+  if let Some(listener)=raw.as_mut(){
+   if let Some((dx,dy))=listener.poll()?{
+    let action=Action::Relative{dx:dx.clamp(i16::MIN as i32,i16::MAX as i32) as i16,
+      dy:dy.clamp(i16::MIN as i32,i16::MAX as i32) as i16};
+    if !r.push(at,action){break;}
+   }
+  }else if let Some([x,y])=p{
+   if prev!=p{if !r.push(at,Action::Move{x,y}){break;}prev=p;}
+  }
   let changes=r.keys.symmetric_difference(&keys).copied().map(|code|Action::Key{code,down:keys.contains(&code)}).chain(r.buttons.symmetric_difference(&buttons).copied().map(|button|Action::Button{button,down:buttons.contains(&button)})).collect::<Vec<_>>();
   let mut full=false;for a in changes{if !r.push(at,a){full=true;break;}}
-  progress.store(r.events.len(),Ordering::Relaxed);if full{break;}thread::sleep(Duration::from_millis(16));
+  progress.store(r.events.len(),Ordering::Relaxed);if full{break;}thread::sleep(Duration::from_millis(if relative{36}else{16}));
  }
  let p=r.finish();p.validate()?;Ok(p)
 }
@@ -228,7 +240,8 @@ fn playback(t:&Target,p:&Plan,run:&AtomicBool,progress:&AtomicUsize)->Result<(),
  for cycle in 0..p.repeat{if cycle>0{wait(u64::from(p.between_ms),&held,expected)?;}for e in &p.events{
   wait(p.delay(e.wait_ms),&held,expected)?;match e.action{
    Action::Move{x,y}=>{let pt=t.absolute(x,y).ok_or("Target point unavailable")?;guard(t,run)?;if unsafe{SetCursorPos(pt.x,pt.y)}==0{return Err("Pointer move refused".into());}expected=t.pointer();if expected.is_none(){return Err("Pointer outside selected window".into());}},
-   Action::Button{..}=>{if expected.is_none()||t.pointer().is_none(){return Err("Mouse target unavailable".into());}check(&held,expected)?;held.emit(e.action)?;},
+   Action::Relative{dx,dy}=>{check(&held,expected)?;crate::game_macros::emit_relative_mouse(i32::from(dx),i32::from(dy))?;},
+   Action::Button{..}=>{if !p.relative_camera&&(expected.is_none()||t.pointer().is_none()){return Err("Mouse target unavailable".into());}check(&held,expected)?;held.emit(e.action)?;},
    Action::Key{..}=>{check(&held,expected)?;held.emit(e.action)?;},
   }n+=1;progress.store(n,Ordering::Relaxed);
  }}Ok(())
@@ -242,7 +255,7 @@ impl History{
  pub fn redo(&mut self,p:&mut Plan)->bool{if let Some(v)=self.future.pop(){self.past.push(std::mem::replace(p,v));true}else{false}}
  pub fn can_undo(&self)->bool{!self.past.is_empty()}pub fn can_redo(&self)->bool{!self.future.is_empty()}
 }
-#[derive(Default)]pub struct Studio{pub windows:Vec<Target>,pub selected:Option<Target>,pub plan:Plan,pub name:String,pub raw:String,pub status:String,pub consent:bool,pub preview_at:Option<Instant>,pub history:History,worker:Option<Worker>}
+#[derive(Default)]pub struct Studio{pub windows:Vec<Target>,pub selected:Option<Target>,pub relative_mouse:bool,pub plan:Plan,pub name:String,pub raw:String,pub status:String,pub consent:bool,pub preview_at:Option<Instant>,pub history:History,worker:Option<Worker>}
 impl Studio{
  pub fn busy(&self)->bool{self.worker.is_some()}
  pub fn progress(&self)->usize{self.worker.as_ref().map_or(0,|w|w.progress.load(Ordering::Relaxed))}
@@ -253,9 +266,9 @@ impl Studio{
   if crate::anticheat_guard::inspect(std::path::Path::new(""),&t.title).blocked{
    return Err("Protected multiplayer/anti-cheat title: macro recording and playback are disabled. This is a heuristic, not certification.".into());
   }
-  let p=self.plan.clone();if !record{p.validate()?;}
+  let p=self.plan.clone();let relative_mouse=self.relative_mouse;if !record{p.validate()?;}
   let cancel=Arc::new(AtomicBool::new(true));let progress=Arc::new(AtomicUsize::new(0));let(a,b)=(cancel.clone(),progress.clone());let(tx,rx)=mpsc::channel();
-  let worker=thread::Builder::new().name("Horizon window macro".into()).spawn(move||{let result=if record{capture(&t,&a,&b).map(Finished::Recorded)}else{playback(&t,&p,&a,&b).map(|_|Finished::Played)};let _=tx.send(result);}).map_err(|e|e.to_string())?;
+  let worker=thread::Builder::new().name("Horizon window macro".into()).spawn(move||{let result=if record{capture(&t,&a,&b,relative_mouse).map(Finished::Recorded)}else{playback(&t,&p,&a,&b).map(|_|Finished::Played)};let _=tx.send(result);}).map_err(|e|e.to_string())?;
   self.consent=false;self.preview_at=None;self.worker=Some(Worker{cancel,progress,rx,record,thread:Some(worker)});self.status="Focus selected window within 20 seconds. F12 stops.".into();Ok(())
  }
  pub fn cancel(&mut self){self.preview_at=None;if let Some(w)=&self.worker{w.cancel.store(false,Ordering::Release);self.status="Stopping...".into();;}}
@@ -429,3 +442,24 @@ pub fn starter(index:usize)->Result<Plan,String>{let mut p=Plan::default();match
 #[derive(Default)]struct PauseGate{held:bool,requested:bool,paused:bool}
 impl PauseGate{fn sample(&mut self,key:bool,safe:bool)->bool{if key&&!self.held{if self.paused{self.paused=false;self.requested=false;}else{self.requested=!self.requested;}}self.held=key;if safe&&self.requested&&!self.paused{self.paused=true;self.requested=false;}self.paused}}
 #[cfg(test)]mod pause_tests{#[test]fn pause_waits_for_released_inputs(){let mut p=super::PauseGate::default();assert!(!p.sample(true,false));assert!(!p.sample(false,false));assert!(p.sample(false,true));assert!(!p.sample(true,true));assert!(!p.sample(false,true));}}
+
+#[cfg(test)]mod v138_camera_tests{
+ use super::*;
+ #[test]fn relative_camera_roundtrip_and_preview(){
+  let mut p=Plan{relative_camera:true,..Default::default()};
+  p.events.push(Event{wait_ms:25,action:Action::Relative{dx:30,dy:-12}});
+  p.events.push(Event{wait_ms:50,action:Action::Relative{dx:-5,dy:18}});
+  assert!(p.validate().is_ok());
+  let json=p.export().unwrap();let restored=Plan::import(&json).unwrap();
+  assert_eq!(restored,p);
+  let display=preview(&restored,100);
+  assert_eq!(display.camera_delta,[25,6]);
+  assert_eq!(display.applied,2);
+ }
+ #[test]fn old_macro_cannot_silently_inject_relative_input(){
+  let p=Plan{events:vec![Event{wait_ms:12,action:Action::Relative{dx:4,dy:7}}],..Default::default()};
+  assert!(p.validate().is_err());
+  let old=Plan::default();
+  assert!(!old.relative_camera);
+ }
+}
