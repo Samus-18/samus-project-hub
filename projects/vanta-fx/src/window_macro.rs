@@ -271,6 +271,86 @@ pub fn proof()->Result<String,String>{
  let mut bank=BTreeMap::new();p.save("Fixture",&mut bank)?;if bank.get("Fixture")!=Some(&p){return Err("Library".into());}
  Ok("WINDOW_MACRO=PASS ROUNDTRIP=true REPEAT=true PREVIEW=true BALANCED=true NO_REAL_INPUT=true".into())
 }
+
+// V137: opt-in, target-bound, background Alt+Fx macro trigger.
+// It is independent from eframe's paint loop and therefore keeps listening
+// while Vanta FX is minimized. No DLL injection, network, or keylogging.
+struct GameHotkey{
+ active:Arc<AtomicBool>,join:Option<thread::JoinHandle<()>>,
+ status:Arc<std::sync::Mutex<String>>,
+}
+static GAME_HOTKEY:std::sync::OnceLock<std::sync::Mutex<Option<GameHotkey>>>=std::sync::OnceLock::new();
+fn hotkey_slot()->&'static std::sync::Mutex<Option<GameHotkey>>{
+ GAME_HOTKEY.get_or_init(||std::sync::Mutex::new(None))
+}
+pub fn hotkey_active()->bool{
+ hotkey_slot().lock().is_ok_and(|s|s.as_ref().is_some_and(|h|h.active.load(Ordering::Acquire)))
+}
+pub fn hotkey_status()->String{
+ hotkey_slot().lock().ok().and_then(|s|s.as_ref().map(|h|{
+  h.status.lock().map(|v|v.clone()).unwrap_or_else(|_|"Status unavailable".into())
+ })).unwrap_or_else(||"Disarmed".into())
+}
+pub fn hotkey_disarm(){
+ if let Ok(mut guard)=hotkey_slot().lock(){
+  if let Some(mut prev)=guard.take(){
+   prev.active.store(false,Ordering::Release);
+   if let Some(t)=prev.join.take(){let _=t.join();}
+  }
+ }
+}
+pub fn hotkey_arm(target:Target,plan:Plan,chord:crate::shortcut_registry::Chord)->Result<(),String>{
+ plan.validate()?;
+ if !chord.valid()||chord.mods!=1||!(0x70..=0x7a).contains(&chord.key)||chord.key==0x73{
+  return Err("Choose Alt+F1..F11 except Alt+F4. F12 remains emergency stop.".into());
+ }
+ if !target.identity(){return Err("Selected window is no longer available".into());}
+ if crate::anticheat_guard::inspect(std::path::Path::new(""),&target.title).blocked{
+  return Err("Protected game title: macro not armed.".into());
+ }
+ hotkey_disarm();
+ let active=Arc::new(AtomicBool::new(true));
+ let status=Arc::new(std::sync::Mutex::new(format!("ARMED: {} / {}",
+  chord.label(),target.title)));
+ let run=active.clone();let result=status.clone();
+ let worker=thread::Builder::new().name("Vanta FX offline macro hotkey".into()).spawn(move||{
+  let progress=AtomicUsize::new(0);
+  let mut was_down=chord.down();
+  while run.load(Ordering::Acquire){
+   if down(0x7b){run.store(false,Ordering::Release);break;} // F12
+   if !target.identity(){run.store(false,Ordering::Release);break;}
+   let pressed=chord.down();
+   if pressed&&!was_down&&target.focused(){
+    if let Ok(mut s)=result.lock(){*s="Playing in selected game...".into();}
+    let playback_result=playback(&target,&plan,&run,&progress);
+    if let Ok(mut s)=result.lock(){*s=match playback_result{
+     Ok(())=>format!("Finished {} macro actions. Shortcut remains armed.",progress.load(Ordering::Relaxed)),
+     Err(e)=>format!("Stopped: {e}. Shortcut remains armed."),
+    };}
+    if down(0x7b){run.store(false,Ordering::Release);break;}
+   }
+   was_down=pressed;
+   thread::sleep(Duration::from_millis(16));
+  }
+ });
+ match worker{
+  Ok(join)=>{
+   if let Ok(mut guard)=hotkey_slot().lock(){*guard=Some(GameHotkey{active,join:Some(join),status});Ok(())}
+   else{active.store(false,Ordering::Release);let _=join.join();Err("Hotkey state lock unavailable".into())}
+  },
+  Err(e)=>{active.store(false,Ordering::Release);Err(e.to_string())},
+ }
+}
+#[cfg(test)]mod v137_hotkey_tests{
+ use super::*;
+ #[test]fn safe_chord_definition_and_target_validation_are_explicit(){
+  use crate::shortcut_registry::Chord;
+  assert!(Chord{key:0x77,mods:1}.valid());
+  assert!(!Chord{key:0x73,mods:1}.valid());
+  assert!(!Chord{key:0x7b,mods:1}.valid());
+ }
+}
+
 #[cfg(test)]mod tests{use super::*;
  #[test]fn deterministic_fixture(){proof().unwrap();}
  #[test]fn invalid_actions_and_timing(){let mut p=Plan{events:vec![Event{wait_ms:0,action:Action::Button{button:0,down:true}}],..Default::default()};assert!(p.validate().is_err());p.events=vec![Event{wait_ms:1,action:Action::Key{code:65,down:true}},Event{wait_ms:1,action:Action::Key{code:65,down:false}}];assert!(p.validate().is_ok());p.repeat=255;assert!(p.validate().is_err());assert!(Plan::import(r#"{"format":"HorizonBoost.WindowMacro.1","plan":{"events":[],"command":"run"}}"#).is_err());}

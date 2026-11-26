@@ -1,5 +1,5 @@
 
-// Vanta FX / V136: clear direct-control desktop. Intentionally no home tiles,
+// Vanta FX / V137: clear direct-control desktop. Intentionally no home tiles,
 // pop-up feature menu, giant gradient hero, or nested accordion navigation.
 // The old expert widgets remain in Rust for backwards compatibility with profiles.
 const VF_BACKGROUND:Color32=Color32::from_rgb(11,12,16);
@@ -10,8 +10,8 @@ const VF_ACCENT:Color32=Color32::from_rgb(235,95,106);
 const VF_MUTED:Color32=Color32::from_rgb(156,161,174);
 const VF_FOREGROUND:Color32=Color32::from_rgb(237,240,245);
 const VF_SUCCESS:Color32=Color32::from_rgb(112,209,168);
-const VF_NAV_AREAS:[SuiteArea;11]=[
- SuiteArea::Home,SuiteArea::Visual,SuiteArea::Boost,SuiteArea::Tools,
+const VF_NAV_AREAS:[SuiteArea;10]=[
+ SuiteArea::Home,SuiteArea::Visual,SuiteArea::Tools,
  SuiteArea::Macros,SuiteArea::Overlay,SuiteArea::Capture,SuiteArea::Library,
  SuiteArea::System,SuiteArea::Settings,SuiteArea::Lab,
 ];
@@ -41,7 +41,7 @@ fn vf_button(ui:&mut Ui,label:&str,primary:bool,enabled:bool)->bool{
 fn vf_title(app:&BoostApp)->(&'static str,&'static str){
  match suite_current(app){
   SuiteArea::Home=>(vf_local(app,"Overview","Přehled"),vf_local(app,"Your game and the controls you actually need.","Hra a ovládání, které opravdu potřebuješ.")),
-  SuiteArea::Visual=>(vf_local(app,"GPU Filters","GPU filtry"),vf_local(app,"Pick an effect and change its strength directly.","Vyber efekt a přímo nastav jeho sílu.")),
+  SuiteArea::Visual=>(vf_local(app,"Upscaling & Filters","Upscaling a filtry"),vf_local(app,"Scale your output and pick real GPU effects on one page.","Zvětšení obrazu a GPU efekty na jedné stránce.")),
   SuiteArea::Boost=>(vf_local(app,"Upscaling","Upscaling"),vf_local(app,"Capture, scale and present on your GPU.","Snímání, zvětšení a vykreslení na GPU.")),
   SuiteArea::Tools=>(vf_local(app,"Game Tools","Herní nástroje"),vf_local(app,"Crosshair, timers and practical gaming utilities.","Zaměřovač, časovače a herní pomůcky.")),
   SuiteArea::Macros=>(vf_local(app,"Macro Recorder","Záznam maker"),vf_local(app,"Record. Play. Stop. Offline/local apps only.","Nahraj. Přehraj. Zastav. Jen offline aplikace.")),
@@ -89,7 +89,7 @@ fn vf_header(app:&mut BoostApp,ctx:&egui::Context,ui:&mut Ui){
 fn vf_nav_label(app:&BoostApp,area:SuiteArea)->&'static str{
  match area {
   SuiteArea::Home=>vf_local(app,"Overview","Přehled"),
-  SuiteArea::Visual=>vf_local(app,"GPU filters","GPU filtry"),
+  SuiteArea::Visual=>vf_local(app,"Upscale + filters","Upscale + filtry"),
   SuiteArea::Boost=>vf_local(app,"Upscaling","Upscaling"),
   SuiteArea::Tools=>vf_local(app,"Game tools","Herní nástroje"),
   SuiteArea::Macros=>vf_local(app,"Macros","Makra"),
@@ -132,7 +132,7 @@ fn vf_navigation(app:&mut BoostApp,ui:&mut Ui){
      if new_language==1{"CZ"}else{"EN"})).clicked(){
    app.settings.ui_language=new_language;app.save();
   }
-  ui.label(RichText::new("V136 / RUST").size(10.).color(VF_MUTED));
+  ui.label(RichText::new("V137 / RUST").size(10.).color(VF_MUTED));
  });
 }
 fn vf_page_head(app:&BoostApp,ui:&mut Ui){
@@ -362,6 +362,27 @@ fn vf_filters(app:&mut BoostApp,ui:&mut Ui){
     }
    });
   }
+  ui.add_space(10.);
+  let library=vf_local(app,"MORE FILTERS / full library","VÍCE FILTRŮ / celá knihovna");
+  egui::CollapsingHeader::new(format!("{library} ({})",crate::native_presets::PRESETS.len()))
+   .id_salt("vf-v137-filter-library").default_open(false).show(ui,|ui|{
+    let hint=vf_local(app,"Search effects...","Hledat efekty...");
+    ui.add(egui::TextEdit::singleline(&mut app.filter_search).hint_text(hint));
+    let query=app.filter_search.to_lowercase();
+    let mut selected=None;
+    let current=app.settings.native_preset;
+    egui::ScrollArea::vertical().max_height(245.).id_salt("vf-effect-list")
+     .show(ui,|ui|{
+       for (idx,preset) in crate::native_presets::PRESETS.iter().enumerate(){
+        if !query.is_empty()&&!format!("{} {}",preset.label,preset.desc).to_lowercase().contains(&query){continue;}
+        ui.horizontal(|ui|{
+         if ui.selectable_label(current==idx,preset.label).on_hover_text(preset.desc).clicked(){selected=Some(idx);}
+         ui.label(RichText::new(preset.desc).size(10.).color(VF_MUTED));
+        });
+       }
+     });
+    if let Some(index)=selected{if !app.is_smoke{app.select_native_preset(index);}}
+   });
  });
  ui.add_space(12.);
  vf_frame(ui,|ui|{
@@ -379,8 +400,71 @@ fn vf_filters(app:&mut BoostApp,ui:&mut Ui){
  });
 }
 
+fn vf_combined_visual(app:&mut BoostApp,ui:&mut Ui){
+ vf_filters(app,ui);
+ ui.add_space(12.);
+ vf_frame(ui,|ui|{
+  vf_section(ui,vf_local(app,"Upscaling","Zvětšení obrazu"));
+  vf_hint(ui,vf_local(app,"Simple settings first. Advanced algorithms are in More upscalers.",
+   "Nejdřív jednoduché volby. Další metody najdeš pod Více upscalerů."));
+  let mut mode=app.settings.native_scale_mode;
+  ui.horizontal_wrapped(|ui|{
+   ui.label(vf_local(app,"Method","Metoda"));
+   for(id,en,cz)in [(0u8,"Native","Nativní"),(2,"Smooth","Jemný"),(8,"FSR1","FSR1"),(9,"NIS","NIS")]{
+    ui.selectable_value(&mut mode,id,vf_local(app,en,cz));
+   }
+  });
+  if mode!=app.settings.native_scale_mode&&!app.is_smoke{app.apply_scale_algorithm(mode);}
+  vf_quality(app,ui);
+  let mut cap=app.settings.preview_fps_limit;
+  ui.horizontal(|ui|{
+   ui.label(vf_local(app,"GPU output limit","Limit GPU výstupu"));
+   egui::ComboBox::from_id_salt("vf-v137-output-fps")
+    .selected_text(if cap==0{"Off".into()}else{format!("{cap} FPS")}).show_ui(ui,|ui|{
+     for value in [0u32,30,45,60,75,90,120,144,165]{
+      ui.selectable_value(&mut cap,value,if value==0{"Off".into()}else{format!("{value} FPS")});
+     }
+    });
+  });
+  if cap!=app.settings.preview_fps_limit&&!app.is_smoke{
+   app.settings.preview_fps_limit=cap;app.preview_guard.reset();
+   if let Some(w)=app.native_mirror.as_ref(){w.set_preview_limit(cap);}
+   app.save();
+  }
+  egui::CollapsingHeader::new(vf_local(app,"MORE UPSCALERS / 17 real modes",
+      "VÍCE UPSCALERŮ / 17 metod")).default_open(false).show(ui,|ui|{
+   let mut selected=app.settings.native_scale_mode;
+   egui::ScrollArea::vertical().max_height(220.).id_salt("vf-v137-upscaler-list").show(ui,|ui|{
+    for (idx,label) in crate::spatial::MODES.iter().enumerate(){
+     ui.selectable_value(&mut selected,idx as u8,*label);
+    }
+   });
+   if selected!=app.settings.native_scale_mode&&!app.is_smoke{app.apply_scale_algorithm(selected);}
+   vf_hint(ui,vf_local(app,"CNN 2x methods need enough GPU memory and exact 2x output. Unsupported dimensions fall back safely.",
+    "CNN režimy potřebují paměť GPU a přesné 2x zvětšení. Při nepodporované velikosti se použije bezpečná náhrada."));
+  });
+  vf_hint(ui,vf_local(app,"Output scaling does not lower the game's internal render resolution or guarantee more game FPS.",
+    "Zvětšení výstupu nesnižuje interní rozlišení hry ani nezaručuje vyšší FPS hry."));
+ });
+ ui.add_space(12.);
+ vf_frame(ui,|ui|{
+  vf_section(ui,vf_local(app,"Frame Generation / experimental","Generování snímků / experimentální"));
+  let enabled=vf_local(app,"Allow experimental interpolation","Povolit experimentální interpolaci");
+  if ui.checkbox(&mut app.settings.experimental_fg_allowed,enabled).changed(){app.save();}
+  ui.horizontal_wrapped(|ui|{
+   for factor in [2u8,3]{
+    if vf_button(ui,&format!("FG {factor}x"),false,
+      app.settings.experimental_fg_allowed&&!app.is_smoke&&app.telem.active_game.is_some()){
+     rm_start(app,crate::native_mirror::MirrorMode::BorderlessScreen,factor);
+    }
+   }
+  });
+  vf_hint(ui,vf_local(app,"More output frames are not more game-rendered frames. Latency can increase.",
+    "Více výstupních snímků není více FPS herního enginu. Latence může vzrůst."));
+ });
+}
 fn vf_macros(app:&mut BoostApp,ui:&mut Ui){
- let blocked=app.macro_runner.running()||app.macro_armed_pid.is_some()||app.is_smoke;
+ let blocked=app.macro_runner.running()||app.macro_armed_pid.is_some()||crate::window_macro::hotkey_active()||app.is_smoke;
  let key=app.profile_key();
  let names=app.settings.window_macro_profiles.get(&key)
   .map_or_else(Vec::new,|s|s.keys().cloned().collect::<Vec<_>>());
@@ -448,8 +532,8 @@ fn vf_macros(app:&mut BoostApp,ui:&mut Ui){
   ui.label(format!("{}: {}  ·  {:.1} s",
    local(ui,"Actions","Akce"),s.plan.events.len(),s.plan.duration() as f64/1000.));
   if !s.status.is_empty(){vf_hint(ui,&s.status);}
-  vf_hint(ui,local(ui,"F12 or losing focus stops playback. No infinite loops or background automation.",
-   "F12 nebo ztráta fokusu přehrávání zastaví. Bez nekonečných smyček na pozadí."));
+  vf_hint(ui,local(ui,"F12 or focus loss stops direct playback. Background hotkey is a separate, opt-in worker below.",
+   "F12 nebo ztráta fokusu zastaví přímé přehrávání. Herní zkratka má vlastní volitelný režim níže."));
  });
  if save{
   let s=&mut app.window_macro;
@@ -458,9 +542,87 @@ fn vf_macros(app:&mut BoostApp,ui:&mut Ui){
   }else{app.save();}
  }
  ui.add_space(12.);
+ vf_macro_background(app,ui);
+ ui.add_space(12.);
  vf_frame(ui,|ui|{
   vf_section(ui,vf_local(app,"Timeline & mouse steps","Časová osa a kroky myši"));
   vf_macro_timeline(app,ui);
+ });
+}
+fn vf_macro_background(app:&mut BoostApp,ui:&mut Ui){
+ vf_frame(ui,|ui|{
+  vf_section(ui,vf_local(app,"Background hotkey / select and arm",
+    "Zkratka ve hře / nastav a aktivuj"));
+  vf_hint(ui,vf_local(app,"Keep Vanta FX running (it may be minimized). Alt+Fx works only in the selected permitted game.",
+    "Vanta FX musí běžet (může být minimalizovaná). Alt+Fx funguje jen ve vybrané povolené hře."));
+  let mut picked=None;
+  let current=app.settings.global_shortcuts.get("MACRO");
+  ui.horizontal_wrapped(|ui|{
+   ui.label(vf_local(app,"Play shortcut","Spouštěcí zkratka"));
+   egui::ComboBox::from_id_salt("vf-v137-macro-chord")
+    .selected_text(app.settings.global_shortcuts.label("MACRO")).show_ui(ui,|ui|{
+     for f in [1u16,2,3,5,6,7,8,9,10,11]{
+      let vk=0x6f+f;
+      if ui.selectable_label(current.is_some_and(|c|c.mods==1&&c.key==vk),format!("Alt+F{f}")).clicked(){
+       picked=Some(vk);
+      }
+     }
+    });
+  });
+  if let Some(vk)=picked{
+   match app.settings.global_shortcuts.assign("MACRO",Some(crate::shortcut_registry::Chord{key:vk,mods:1})){
+    Ok(())=>{crate::window_macro::hotkey_disarm();app.save();},
+    Err(e)=>app.window_macro.status=format!("Shortcut conflict: {e}"),
+   }
+  }
+  let target=app.window_macro.selected.clone();
+  let plan=app.window_macro.plan.clone();
+  let allowed=target.as_ref().is_some_and(|t|{
+   app.telem.active_game.as_ref().is_some_and(|g|
+    g.pid==t.pid&&!crate::anticheat_guard::inspect(&g.path,&g.title).blocked)
+  });
+  let ready=target.is_some()&&allowed&&plan.validate().is_ok()
+    &&app.window_macro.consent&&!app.window_macro.busy()
+    &&!app.macro_runner.running()&&!app.is_smoke
+    &&app.settings.global_shortcuts.get("MACRO").is_some();
+  let armed=crate::window_macro::hotkey_active();
+  ui.horizontal_wrapped(|ui|{
+   if armed{
+    if vf_button(ui,vf_local(app,"DISARM / F12","DEAKTIVOVAT / F12"),true,true){
+     crate::window_macro::hotkey_disarm();
+    }
+   }else if vf_button(ui,vf_local(app,"ARM FOR BACKGROUND","AKTIVOVAT PRO HRU"),true,ready){
+    if let (Some(t),Some(chord))=(target,app.settings.global_shortcuts.get("MACRO")){
+     match crate::window_macro::hotkey_arm(t,plan,chord){
+      Ok(())=>{app.window_macro.consent=false;app.named_macro_arm=None;},
+      Err(e)=>app.window_macro.status=e,
+     }
+    }
+   }
+   if vf_button(ui,vf_local(app,"Minimize Vanta FX","Minimalizovat Vanta FX"),false,true){
+    ui.ctx().send_viewport_cmd(ViewportCommand::Minimized(true));
+   }
+   if vf_button(ui,vf_local(app,"Show HUD","Zobrazit HUD"),false,!app.overlay_open&&!app.is_smoke){
+    app.toggle_passive_hud();
+   }
+  });
+  ui.colored_label(if crate::window_macro::hotkey_active(){VF_SUCCESS}else{VF_MUTED},
+   crate::window_macro::hotkey_status());
+  vf_hint(ui,vf_local(app,"F12 stops macro and disarms shortcut. Alt+F4 and Alt+F12 are reserved. Focus loss stops playback. No anti-cheat bypass.",
+   "F12 zastaví a deaktivuje makro. Alt+F4 a Alt+F12 jsou vyhrazené. Ztráta fokusu zastaví přehrávání. Bez obcházení anti-cheatu."));
+ });
+ ui.add_space(12.);
+ vf_frame(ui,|ui|{
+  vf_section(ui,vf_local(app,"Screen reference / camera movement",
+   "Video z obrazovky / pohyb kamery"));
+  let recording=app.recorder.active();
+  let button=if recording{vf_local(app,"Stop screen video","Zastavit video")}
+     else{vf_local(app,"Record screen video","Nahrávat video obrazovky")};
+  if vf_button(ui,button,false,!app.is_smoke&&!app.recorder.finishing()){
+   app.recording();
+  }
+  vf_hint(ui,vf_local(app,"Real video of the game for reviewing camera/shift-lock movement. The macro currently records desktop cursor positions, not raw relative camera motion.",
+   "Skutečné video hry pro kontrolu pohybu kamery / shift-locku. Makro zatím zaznamenává polohu kurzoru, nikoli surový relativní pohyb kamery."));
  });
 }
 fn vf_hud(app:&mut BoostApp,ui:&mut Ui){
@@ -574,23 +736,11 @@ fn vf_library(app:&mut BoostApp,ui:&mut Ui){
  });
 }
 fn vf_system(app:&mut BoostApp,ui:&mut Ui){
- vf_frame(ui,|ui|{
-  vf_section(ui,vf_local(app,"Detected GPU","Zjištěná grafika"));
-  ui.label(RichText::new(&app.gpu).size(18.).strong());
-  ui.label(format!("CPU: {} {}",
-    std::thread::available_parallelism().map_or(0,|n|n.get()),
-    vf_local(app,"logical threads","logických vláken")));
-  if app.telem.total_ram_gb>0.{
-   ui.label(format!("RAM: {:.1}/{:.1} GiB",app.telem.used_ram_gb,app.telem.total_ram_gb));
-  }
-  vf_hint(ui,vf_local(app,"Settings are opt-in and reversible; no promised FPS gain.",
-   "Nastavení je dobrovolné a vratné, žádný slíbený nárůst FPS."));
- });
- ui.add_space(12.);
- vf_frame(ui,|ui|{
-  vf_section(ui,vf_local(app,"Hardware diagnostics","Diagnostika hardwaru"));
-  performance_game_tools(app,ui);
-  suite_moved_system_tune(app,ui);
+ optimizer_panel(app,ui);
+ ui.add_space(10.);
+ egui::CollapsingHeader::new(vf_local(app,"MORE / Windows tools and diagnostics",
+   "VICE / Windows nástroje a diagnostika")).default_open(false).show(ui,|ui|{
+  vf_frame(ui,|ui|{performance_game_tools(app,ui);suite_moved_system_tune(app,ui);});
  });
 }
 fn vf_settings(app:&mut BoostApp,ui:&mut Ui){
@@ -629,8 +779,7 @@ fn vf_content(app:&mut BoostApp,ui:&mut Ui){
  vf_page_head(app,ui);
  match suite_current(app){
   SuiteArea::Home=>vf_home(app,ui),
-  SuiteArea::Boost=>vf_scaling(app,ui),
-  SuiteArea::Visual=>vf_filters(app,ui),
+  SuiteArea::Boost|SuiteArea::Visual=>vf_combined_visual(app,ui),
   SuiteArea::Tools=>vf_tools(app,ui),
   SuiteArea::Macros=>vf_macros(app,ui),
   SuiteArea::Overlay=>vf_hud(app,ui),
@@ -674,7 +823,7 @@ mod vanta_v136_layout_tests{
  #[test]fn each_primary_destination_is_unique(){
   let mut seen=std::collections::HashSet::new();
   for area in VF_NAV_AREAS{assert!(seen.insert(area.name()));}
-  assert_eq!(VF_NAV_AREAS.len(),11);
+  assert_eq!(VF_NAV_AREAS.len(),10);
  }
  #[test]fn status_palette_is_distinct_and_readable(){
   assert_ne!(VF_BACKGROUND,VF_PANEL);

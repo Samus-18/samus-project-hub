@@ -168,7 +168,7 @@ pub fn render(app:&mut BoostApp,ctx:&egui::Context){
             ui.horizontal(|ui|{
                 ui.colored_label(RED,"FX");
                 caption(ui,&app.status);if app.recorder.elapsed().is_some(){ui.colored_label(RED,"REC");}else if app.replay.active(){ui.label("REPLAY");}
-                ui.with_layout(Layout::right_to_left(Align::Center),|ui|{caption(ui,"VANTA FX · V136 DEV  /  D3D11");});
+                ui.with_layout(Layout::right_to_left(Align::Center),|ui|{caption(ui,"VANTA FX · V137 DEV  /  D3D11");});
             });
         });
 
@@ -176,7 +176,7 @@ pub fn render(app:&mut BoostApp,ctx:&egui::Context){
         if ctx.content_rect().width()<860.{egui::Margin::symmetric(10,10)}
         else{egui::Margin::symmetric(20,14)}))
         .show(ctx,|ui|{
-            // V136: flat low-noise surface; no fullscreen purple gradients.
+            // V137: flat low-noise surface; no fullscreen purple gradients.
             // Each page/sub-view owns its scroll position. Changing from a long
             // shader gallery to the compact Color Lab must never leave the
             // newly selected tab apparently blank at an old scroll offset.

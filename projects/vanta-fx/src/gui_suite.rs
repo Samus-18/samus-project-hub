@@ -15,8 +15,8 @@ impl SuiteArea{
  }}
 }
 fn suite_current(a:&BoostApp)->SuiteArea{match a.page{
- Page::Home=>SuiteArea::Home,Page::Filters=>SuiteArea::Visual,Page::Scaling|Page::FrameGen=>SuiteArea::Boost,
- Page::Performance=>if matches!(a.performance_view,1|4){SuiteArea::System}else{SuiteArea::Boost},
+ Page::Home=>SuiteArea::Home,Page::Filters|Page::Scaling|Page::FrameGen=>SuiteArea::Visual,
+ Page::Performance=>if matches!(a.performance_view,1|4){SuiteArea::System}else{SuiteArea::Visual},
  Page::Extras=>if a.extras_view==5{SuiteArea::Macros}else{SuiteArea::Tools},
  Page::Overlay=>SuiteArea::Overlay,Page::Capture=>SuiteArea::Capture,Page::Library=>SuiteArea::Library,
  Page::Settings=>SuiteArea::Settings,Page::Unsorted=>SuiteArea::Lab}}

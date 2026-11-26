@@ -2005,7 +2005,7 @@ impl BoostApp {
         }
     }
     fn emergency_stop(&mut self){
-        self.reference_epoch=self.reference_epoch.wrapping_add(1);self.named_macro_arm=None;
+        self.reference_epoch=self.reference_epoch.wrapping_add(1);self.named_macro_arm=None;crate::window_macro::hotkey_disarm();
         self.cursor_lock.release();self.cursor_lock_armed=false;
         self.reminders.clear();self.companion.stop();self.mobile.stop();self.pending_screenshot=None;
         self.report.stop();self.controller_enabled=false;self.controller_drift.stop();

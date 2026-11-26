@@ -10,9 +10,9 @@
     },
     {
       "slug": "vanta-fx",
-      "version": "V136",
-      "tag": "vanta-fx-v136-dev",
-      "status": "Rust developer preview; 561 tests; new native UI; unsigned"
+      "version": "V137",
+      "tag": "vanta-fx-v137-dev",
+      "status": "Rust developer preview; 563 tests; PC scan/backup, unified GPU filters and offline hotkeys; unsigned"
     },
     {
       "slug": "thalvoryn",

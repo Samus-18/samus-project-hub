@@ -15,12 +15,12 @@ A local-first Windows AI assistant with Ollama, optional cloud providers, a unif
 
 [Source](projects/aurora-ai/) · [Latest Release](https://github.com/Samus-18/samus-project-hub/releases/tag/aurora-ai-v0.8.6)
 
-### Vanta FX V136 developer preview
+### Vanta FX V137 developer preview
 ![Vanta FX](docs/assets/vanta-home.png)
 
 Native Rust gaming tools: Windows.Graphics.Capture, D3D11 filtering, independent DXGI output, upscaling, overlays and utilities. Not a Magpie wrapper; no game DLL injection.
 
-[Source](projects/vanta-fx/) · [Latest Development Release](https://github.com/Samus-18/samus-project-hub/releases/tag/vanta-fx-v136-dev)
+[Source](projects/vanta-fx/) · [Latest Development Release](https://github.com/Samus-18/samus-project-hub/releases/tag/vanta-fx-v137-dev)
 
 ### Thalvoryn Worldgen V86 Stage 3 TEST
 ![Thalvoryn](docs/assets/thalvoryn-pack.png)

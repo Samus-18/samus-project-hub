@@ -1,5 +1,5 @@
 // Optimization advisor. Read-only analysis, explicit application and same-target undo.
-#[derive(Clone,Copy,Debug,PartialEq)]
+#[derive(Clone,Copy,Debug,PartialEq,serde::Serialize,serde::Deserialize)]
 struct OptConfig{processing:u8,mode:u8,ratio:f32,quality:u8,cap:u32,wait:bool,quiet:bool,adaptive:bool,pacer:bool}
 impl OptConfig{
  fn current(a:&BoostApp)->Self{let s=&a.settings;Self{processing:s.processing_percent,mode:s.native_scale_mode,ratio:s.native_scale_ratio,quality:s.native_quality,cap:s.preview_fps_limit,wait:s.preview_low_latency,quiet:s.quiet_ui,adaptive:a.render_guard_enabled,pacer:a.preview_guard_enabled}}
@@ -17,6 +17,37 @@ impl OptConfig{
   if self.cap==0{"Uncapped".into()}else{format!("{} FPS",self.cap)},
   opt_on(self.wait),opt_on(self.quiet),opt_on(self.adaptive),opt_on(self.pacer)]}
 }
+
+// Durable, profile-specific undo. The file is local and written BEFORE any preset.
+#[derive(serde::Serialize,serde::Deserialize)]
+#[serde(deny_unknown_fields)]
+struct OptBackup{version:u8,key:String,config:OptConfig}
+fn opt_backup_path()->std::path::PathBuf{
+ crate::settings::folder().join("vanta-optimizer-prechange.json")
+}
+fn opt_backup_save(key:&str,config:OptConfig)->Result<(),String>{
+ if key.is_empty()||key.len()>512||key.chars().any(char::is_control){return Err("Invalid game profile".into());}
+ let document=serde_json::to_vec_pretty(&OptBackup{version:1,key:key.into(),config}).map_err(|e|e.to_string())?;
+ if document.len()>4096{return Err("Backup exceeds safe size".into());}
+ let path=opt_backup_path();
+ if let Some(dir)=path.parent(){std::fs::create_dir_all(dir).map_err(|e|e.to_string())?;}
+ crate::settings::atomic_json_replace(&path,&document)
+}
+fn opt_backup_load(key:&str)->Result<OptConfig,String>{
+ let data=std::fs::read(opt_backup_path()).map_err(|e|format!("No saved backup: {e}"))?;
+ if data.len()>4096{return Err("Backup exceeds safe size".into());}
+ let doc:OptBackup=serde_json::from_slice(&data).map_err(|e|format!("Backup damaged: {e}"))?;
+ if doc.version!=1||doc.key!=key{return Err("Backup belongs to another game/profile".into());}
+ let p=doc.config;
+ if !crate::render_budget::PERCENTAGES.contains(&p.processing)
+  ||p.mode as usize>=crate::spatial::MODES.len()
+  ||!crate::spatial::RATIOS.contains(&p.ratio)
+  ||p.quality>3||!crate::preview_pacer::LIMITS.contains(&p.cap){
+  return Err("Backup has unsupported settings".into());
+ }
+ Ok(p)
+}
+
 fn opt_on(b:bool)->String{if b{"On"}else{"Off"}.into()}
 const OPT_LABELS:[&str;9]=["Processing size","Scaler","Output ratio","GPU quality","Own 1x FPS cap","Waitable queue","Quiet UI","Adaptive processing","Adaptive pacing"];
 const OPT_NAMES:[&str;5]=["Eco / older GPU","Balanced","Image quality","Low latency","Native / minimal overhead"];
@@ -90,47 +121,51 @@ fn optimizer_panel(app:&mut BoostApp,ui:&mut Ui){
  let matched=rows.iter().zip(&proposed).filter(|(a,b)|a==b).count();
  frame(PANEL).show(ui,|ui|{
   ui.set_min_width(ui.available_width());
-  heading(ui,"OPTIMIZE / HARDWARE ADVISOR");
-  caption(ui,"Recommendations are starting points. The score is settings alignment, NOT predicted FPS gain.");
+  heading(ui,"PC CHECK / RECOMMENDED SETTINGS");
+  caption(ui,"Scans your actual GPU, RAM and frame samples. Nothing changes until you press Apply. Any FPS comparison must be measured.");
   ui.horizontal_wrapped(|ui|{
-   ui.label(RichText::new(format!("{matched}/{} aligned",OPT_LABELS.len())).color(RED).strong());
+   ui.label(RichText::new("Detected PC").color(VF_FOREGROUND).strong());
    ui.label(&app.gpu);
    ui.label(format!("{} logical CPU threads",std::thread::available_parallelism().map(|n|n.get()).unwrap_or(0)));
    if app.telem.total_ram_gb>0.{ui.label(format!("{:.1}/{:.1} GiB RAM",app.telem.used_ram_gb,app.telem.total_ram_gb));}
   });
-  ui.add(egui::ProgressBar::new(matched as f32/OPT_LABELS.len() as f32).desired_width(ui.available_width()).show_percentage());
-  ui.label(format!("Recommended: {}",OPT_NAMES[rec]));
+  ui.label(RichText::new(format!("Recommended: {}",OPT_NAMES[rec])).size(16.).strong());
    let key=app.profile_key();let mut target=app.settings.output_targets.get(&key).copied().unwrap_or(app.target_fps);
-   if ui.add(egui::Slider::new(&mut target,30..=165).suffix(" FPS").text("Per-game own output target")).changed(){app.settings.output_targets.insert(key,target);app.render_guard.reset();app.preview_guard.reset();app.save();}
-   caption(ui,"Used by the adaptive own-output controllers when enabled. Does not set the game's internal FPS limiter.");
+   egui::CollapsingHeader::new("MORE / own output FPS target").default_open(false).show(ui,|ui|{if ui.add(egui::Slider::new(&mut target,30..=165).suffix(" FPS").text("Output target")).changed(){app.settings.output_targets.insert(key,target);app.render_guard.reset();app.preview_guard.reset();app.save();}caption(ui,"Not the game FPS limiter.");});
    caption(ui,OPT_DESC[rec]);
-   if app.gpu.to_ascii_lowercase().contains("rx 580"){caption(ui,"Polaris RX 580 detected: favor lightweight spatial scaling, limited own-output cap and measured headroom before experimental FG. No native AFMF or ML scaler assumed.");}
-  if let Some(v)=ratio.filter(|v|v.is_finite()){caption(ui,&format!("Measured GPU/frame time ratio: {:.0}%. Association only, not a proven bottleneck.",v*100.));}
-  else{caption(ui,"No paired GPU timing. Recommendation uses detected hardware and RAM only.");}
-  if outline_button(ui,"Analyze GPU capabilities")&&!app.is_smoke{st.scan=Some(crate::gpu_caps::read_native_capabilities());}
+   if app.gpu.to_ascii_lowercase().contains("rx 580"){caption(ui,"RX 580: lightweight GPU output, lower GPU load. Does not change the game resolution.");}
+  if let Some(v)=ratio.filter(|v|v.is_finite()){caption(ui,&format!("Measured GPU/frame time ratio: {:.0}%. Not a confirmed bottleneck.",v*100.));}
+  else{caption(ui,"Recommendation uses detected hardware/RAM. Real FPS gain is not predicted.");}
+  if outline_button(ui,"SCAN THIS PC")&&!app.is_smoke{st.selected=Some(rec);st.scan=Some(crate::gpu_caps::read_native_capabilities());st.message=format!("Analysis complete. Recommended: {}. Review and apply only if desired.",OPT_NAMES[rec]);}
   if let Some(scan)=&st.scan{match scan{Ok(c)=>{caption(ui,&format!("D3D11: {} | RGBA8 UAV {} | FP16 UAV {} | R32F UAV {} | compute compile {}",c.feature_level_11,c.rgba8_typed_uav,c.rgba16f_typed_uav,c.r32f_typed_uav,c.original_cs_5_0_compiles));},Err(e)=>{ui.colored_label(RED,e);}}}
   ui.add_space(7.);
-  ui.horizontal_wrapped(|ui|{for(i,name)in OPT_NAMES.iter().enumerate(){let text=if i==rec{format!("{name} *")}else{name.to_string()};if ui.selectable_label(selected==i,text).clicked(){st.selected=Some(i);}}});
-  caption(ui,OPT_DESC[selected]);
-  egui::CollapsingHeader::new("Preview changes / current vs preset").default_open(true).show(ui,|ui|{
+  egui::CollapsingHeader::new("MORE / choose another performance profile").default_open(false).show(ui,|ui|{ui.horizontal_wrapped(|ui|{for(i,name)in OPT_NAMES.iter().enumerate(){let text=if i==rec{format!("{name} *")}else{name.to_string()};if ui.selectable_label(selected==i,text).clicked(){st.selected=Some(i);}}});caption(ui,OPT_DESC[selected]);});
+  egui::CollapsingHeader::new("What will change? (9 reversible settings)").default_open(false).show(ui,|ui|{
    for i in 0..OPT_LABELS.len(){ui.horizontal_wrapped(|ui|{ui.label(OPT_LABELS[i]);ui.label(&rows[i]);if rows[i]!=proposed[i]{ui.colored_label(RED,format!("-> {}",proposed[i]));}else{ui.label("Unchanged");}});}
   });
   ui.horizontal_wrapped(|ui|{
    if ui.add_enabled(!app.is_smoke&&matched<OPT_LABELS.len(),egui::Button::new("Apply selected preset")).clicked(){
     let key=app.profile_key();
-    st.undo=Some((key,current));chosen.apply(app);st.applied_at=Some(std::time::Instant::now());st.after=None;
-    st.message="Preset applied to Horizon settings. Existing game settings untouched; active own preview may restart.".into();
+    match opt_backup_save(&key,current){
+     Ok(())=>{st.undo=Some((key,current));chosen.apply(app);st.applied_at=Some(std::time::Instant::now());st.after=None;
+      st.message=format!("Applied: {}. Pre-change backup saved on disk; game settings were not edited.",OPT_NAMES[selected]);},
+     Err(e)=>st.message=format!("NOT APPLIED: backup failed: {e}"),
+    }
    }
-   if ui.add_enabled(!app.is_smoke&&st.undo.as_ref().is_some_and(|(k,_)|*k==app.profile_key()),egui::Button::new("Rollback last preset")).clicked(){
-    if let Some((_,old))=st.undo.take(){old.apply(app);st.applied_at=Some(std::time::Instant::now());st.after=None;st.message="Previous Horizon settings restored.".into();}
+   if ui.add_enabled(!app.is_smoke&&opt_backup_load(&app.profile_key()).is_ok(),egui::Button::new("RESTORE SAVED BACKUP")).clicked(){
+    match opt_backup_load(&app.profile_key()){
+     Ok(old)=>{old.apply(app);st.undo=None;st.applied_at=Some(std::time::Instant::now());st.after=None;
+      st.message="Previous Vanta FX output settings restored from disk.".into();},
+     Err(e)=>st.message=format!("Restore failed: {e}"),
+    }
    }
   });
-  caption(ui,"Session undo only; preset does not start capture, change Windows settings, or enable FrameGen. Existing filter stack stays unchanged.");
+  caption(ui,"Automatic backup before Apply; Restore even after restart. Windows and game settings stay unchanged.");
   if !st.message.is_empty(){ui.label(&st.message);}
  });
  ui.add_space(8.);
  frame(PANEL).show(ui,|ui|{
-  heading(ui,"Measured difference / before and after");
+  heading(ui,"REAL GAME FPS / BEFORE AND AFTER");
   caption(ui,"Capture two real rolling snapshots in the same game and scene, at least 10 seconds apart. This is not a controlled benchmark.");
   ui.horizontal_wrapped(|ui|{
    if ui.button("Capture BEFORE").clicked(){st.before=opt_sample(app);st.after=None;st.message=if st.before.is_some(){"Baseline captured."}else{"Select a game and collect at least 100 actual frames."}.into();}
@@ -157,6 +192,7 @@ fn optimizer_panel(app:&mut BoostApp,ui:&mut Ui){
   if !st.message.is_empty(){caption(ui,&st.message);}
  });
  ui.add_space(8.);
+ egui::CollapsingHeader::new("MORE / individual optimizations and explanations").default_open(false).show(ui,|ui|{
  frame(PANEL).show(ui,|ui|{
   heading(ui,"Optimization list");
   ui.horizontal_wrapped(|ui|{ui.label("Search");ui.text_edit_singleline(&mut st.query);ui.checkbox(&mut st.only_recommended,"Recommended only");});
@@ -175,6 +211,7 @@ fn optimizer_panel(app:&mut BoostApp,ui:&mut Ui){
    caption(ui,f.desc);
   }
  });
+ });
  ui.data_mut(|d|d.insert_temp(id,st));
 }
 #[cfg(test)]mod v107_opt_tests{
@@ -191,5 +228,17 @@ fn optimizer_panel(app:&mut BoostApp,ui:&mut Ui){
  #[test]fn comparisons_require_same_process_and_minimum_interval(){
   let t=std::time::Instant::now();let a=OptMeasurement{key:"game".into(),pid:5,at:t,fps:60.,ms:16.7,low:None,own:None};
   let mut b=a.clone();assert!(!opt_measurement_pair(&a,&b));b.at=t+std::time::Duration::from_secs(10);assert!(opt_measurement_pair(&a,&b));b.pid=6;assert!(!opt_measurement_pair(&a,&b));
+ }
+}
+
+#[cfg(test)]mod v137_opt_backup_tests{
+ use super::*;
+ #[test]fn corrupted_and_wrong_profile_backup_are_rejected(){
+  let x=OptBackup{version:1,key:"game-a".into(),config:OPT_PRESETS[0]};
+  let data=serde_json::to_vec(&x).unwrap();
+  let y:OptBackup=serde_json::from_slice(&data).unwrap();
+  assert_eq!(x.config,y.config);
+  assert_eq!(y.key,"game-a");
+  assert!(serde_json::from_str::<OptBackup>(r#"{"version":1,"key":"a","config":{},"evil":true}"#).is_err());
  }
 }
