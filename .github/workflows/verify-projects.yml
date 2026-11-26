@@ -1,0 +1,32 @@
+name: Verify public project hub
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+jobs:
+  static-site:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Check site links, images and project metadata
+        run: python tools/check-site.py
+  aurora-source:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: JavaScript syntax
+        working-directory: projects/aurora-ai
+        run: npm run check
+      - name: Aurora regression tests
+        working-directory: projects/aurora-ai
+        run: npm test
+      - name: Release source preflight
+        working-directory: projects/aurora-ai
+        run: npm run release:preflight
