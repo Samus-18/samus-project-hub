@@ -1,20 +1,22 @@
-# Horizon Boost — Rust GPU utilities
+# Horizon Boost V135 — Rust GPU utilities
 
-![Horizon Boost UI](../../docs/assets/horizon-home.png)
+![Horizon Boost GUI](../../docs/assets/horizon-home.png)
 
-Windows-native GPU effect suite designed for low-overhead capture and custom image processing without game executable injection. Uses WGC (Windows.Graphics.Capture), D3D11 compute filters and its own DXGI presentation. Options include spatial upscaling, experimental frame generation, filter stacks, OSD, crosshair, macro tools and profiles.
+Windows-native GPU gaming utility developed in Rust, without injecting into a game process. Uses Windows.Graphics.Capture (WGC), native D3D11 compute shaders and independent DXGI flip output, plus optional scaling, filters, profiles, HUD tools and experimental frame generation.
 
-## V134 developer state
+## V135 DXGI output reliability
 
-- 555/555 Rust unit tests passed; two integration tests were excluded from the unit pass.
-- Windows GUI EXE built, native packager self-test and read-only three-command CLI test passed.
-- Fixed incorrect monitor topology comparison triggering unnecessary WGC/DXGI rebuilds, and added debounced source-game monitor tracking and three regressions for negative coordinates, resize and disconnect.
-- V133 had two controlled WGC/HLSL/DXGI capture test sessions and ten EN/CZ screenshots.
+- **558/558 Rust unit tests passed**; two live WGC integration fixtures intentionally ignored.
+- Windows GUI EXE build, packager self-test and 3 read-only headless CLI operations passed.
+- Fixed DXGI Desktop Duplication fallback: only S_OK from Present counts toward real own-output FPS. Occluded and busy/non-submitted statuses update diagnostics and reset frame deadlines; device reset/error still follows existing recovery. Three additional regression tests.
+- Retains V134 fix to false monitor-change rebuilds; handles actual selected-game monitor move/resize/disconnect.
 
-**Not verified:** Minecraft mouse coordinate remapping after upscaling, universal exclusive fullscreen, speed advantage over Magpie, real-game long-session stability.
+### Verification limits
 
-## Public source snapshot
+This is a **developer prerelease**. Not proven: live Minecraft/Roblox mouse remapping, true-exclusive fullscreen across every game engine, or a Magpie speed advantage. Own output FPS is not game-engine FPS and DXGI Present submission is not guaranteed physical display scanout.
 
-Includes selected Rust modules, shaders and manifests and attribution files. Machine-local configuration, third-party engines (including Magpie), test videos, original user memory and local binary tooling are excluded. A complete historical distribution may require resources available only in its dedicated release packages. Do not claim that this is a production-certified installer.
+## Public source and licensing
 
-[Development release](https://github.com/Samus-18/samus-project-hub/releases/tag/horizon-boost-v134-dev)
+The repository includes selected Rust sources and GPU shaders, with local toolchain, private logs, previous builds and Magpie executables excluded. GPLv3-derived FSRCNNX/CuNNy shaders in the packaged developer ZIP are distributed with their corresponding source and notices. No game injection.
+
+[Download the V135 developer ZIP and SHA-256](https://github.com/Samus-18/samus-project-hub/releases/tag/horizon-boost-v135-dev)

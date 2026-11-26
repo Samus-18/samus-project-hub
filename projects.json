@@ -10,9 +10,9 @@
     },
     {
       "slug": "horizon-boost",
-      "version": "V134",
-      "tag": "horizon-boost-v134-dev",
-      "status": "Developer preview; 555 Rust tests"
+      "version": "V135",
+      "tag": "horizon-boost-v135-dev",
+      "status": "Developer preview; 558 Rust tests; DXGI output accuracy"
     },
     {
       "slug": "thalvoryn",

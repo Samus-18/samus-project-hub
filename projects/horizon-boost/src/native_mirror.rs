@@ -463,6 +463,38 @@ fn adaptive_pass_limit(current:usize,throughput:f32,available:usize)->usize{
     next.min(available)
 }
 
+
+/// A Present API success HRESULT may still mean occluded, not submitted.
+/// Never count an occluded/busy output frame as delivered DXGI output FPS.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+enum DupPresentAction { Count, Retry, Recover }
+fn duplication_present_action(hr:i32)->DupPresentAction {
+    use crate::present_status::Outcome;
+    match crate::present_status::classify(hr) {
+        Outcome::Submitted => DupPresentAction::Count,
+        Outcome::Occluded | Outcome::OtherStatus | Outcome::Busy => DupPresentAction::Retry,
+        Outcome::Failure => DupPresentAction::Recover,
+    }
+}
+#[cfg(test)]
+mod v135_duplication_present_tests {
+    use super::*;
+    #[test] fn only_s_ok_counts_as_real_output() {
+        assert_eq!(duplication_present_action(0),DupPresentAction::Count);
+        assert_ne!(duplication_present_action(0x087A0001),DupPresentAction::Count);
+        assert_ne!(duplication_present_action(1),DupPresentAction::Count);
+    }
+    #[test] fn positive_occlusion_and_busy_reset_pacing_without_fake_fps() {
+        assert_eq!(duplication_present_action(0x087A0001),DupPresentAction::Retry);
+        assert_eq!(duplication_present_action(1),DupPresentAction::Retry);
+        assert_eq!(duplication_present_action(0x887A000Au32 as i32),DupPresentAction::Retry);
+    }
+    #[test] fn device_removed_or_other_failure_rebuilds_capture() {
+        assert_eq!(duplication_present_action(0x887A0005u32 as i32),DupPresentAction::Recover);
+        assert_eq!(duplication_present_action(0x887A0006u32 as i32),DupPresentAction::Recover);
+    }
+}
+
 fn run_desktop_duplication(target:HWND,stages:&[usize],running:&AtomicBool,
     frames:&AtomicU64,lighting:&RwLock<crate::lighting::LightTuning>,
     health:&crate::capture_health::Health,status:&impl Fn(String),
@@ -542,8 +574,20 @@ fn run_desktop_duplication(target:HWND,stages:&[usize],running:&AtomicBool,
         let present_start=Instant::now();
         let vsync=if health.vsync.load(Ordering::Relaxed){1}else{0};
         let result=unsafe{chain.Present(vsync,windows::Win32::Graphics::Dxgi::DXGI_PRESENT(0))};
-        result.ok().map_err(|e|format!("DXGI_DESKTOP_DUPLICATION_LOST: own flip output: {e}"))?;
+        let action=duplication_present_action(result.0);
+        if action==DupPresentAction::Recover {
+            return Err(format!("DXGI_DESKTOP_DUPLICATION_LOST: own flip Present HRESULT 0x{:08X}",result.0 as u32));
+        }
         if !shown{win.show();shown=true;}
+        if action==DupPresentAction::Retry {
+            // DXGI_STATUS_OCCLUDED and other non-submitted statuses are not
+            // successfully presented frames, even when HRESULT.ok() succeeds.
+            health.non_submitted.fetch_add(1,Ordering::Relaxed);
+            health.clear_timings();
+            deadline.reset();
+            std::thread::sleep(Duration::from_millis(40));
+            continue;
+        }
         deadline.submitted(start,Instant::now(),limit);
         health.effective_passes.store(source.effective_stages() as u64,Ordering::Relaxed);
         health.frame(start.elapsed(),present_start.elapsed());
