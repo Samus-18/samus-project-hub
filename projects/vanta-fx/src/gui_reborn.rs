@@ -151,7 +151,7 @@ fn vf_navigation(app:&mut BoostApp,ui:&mut Ui){
      if new_language==1{"CZ"}else{"EN"})).clicked(){
    app.settings.ui_language=new_language;app.save();
   }
-  ui.label(RichText::new("V139 / RUST").size(10.).color(VF_MUTED));
+  ui.label(RichText::new("V140 / RUST").size(10.).color(VF_MUTED));
  });
 }
 fn vf_page_head(app:&BoostApp,ui:&mut Ui){
@@ -159,7 +159,7 @@ fn vf_page_head(app:&BoostApp,ui:&mut Ui){
  ui.horizontal(|ui|{
   ui.label(RichText::new(title).size(30.).strong().color(VF_FOREGROUND));
   ui.with_layout(Layout::right_to_left(Align::Center),|ui|{
-   ui.label(RichText::new("VANTA / 139").size(10.).color(VF_MUTED));
+   ui.label(RichText::new("VANTA / 140").size(10.).color(VF_MUTED));
   });
  });
  vf_hint(ui,desc);
@@ -218,50 +218,66 @@ fn vf_quick_preset(app:&mut BoostApp,ui:&mut Ui){
   }
  });
 }
-fn vf_home(app:&mut BoostApp,ui:&mut Ui){
- vf_frame(ui,|ui|{vf_game_selector(app,ui);});
- ui.add_space(12.);
- vf_frame(ui,|ui|{
-  vf_section(ui,vf_local(app,"GPU output","GPU výstup"));
-  ui.horizontal_wrapped(|ui|{
-   let key=app.profile_key();
-   let mut mode=app.settings.native_output_modes.get(&key).copied().unwrap_or(0).min(2);
-   let old=mode;
-   for(i,en,cs)in [(0u8,"Game view","Zobrazení hry"),(1,"Preview window","Náhled v okně"),(2,"DXGI fallback","Záložní DXGI")]{
-    ui.selectable_value(&mut mode,i,vf_local(app,en,cs));
-   }
-   if old!=mode&&!app.is_smoke{app.settings.native_output_modes.insert(key,mode);app.save();}
-  });
-  ui.add_space(10.);
-  let key=app.profile_key();
-  let mode=app.settings.native_output_modes.get(&key).copied().unwrap_or(0).min(2);
-  ui.horizontal_wrapped(|ui|{
-   vf_output_action(app,ui,mode);
-   vf_status(app,ui);
-  });
-  ui.add_space(8.);
-  vf_hint(ui,vf_local(app,
-   "Game view is an external WGC/DXGI output, not an injected in-game filter. Use windowed/borderless mode.",
-   "Herní zobrazení je samostatný WGC/DXGI výstup, nikoli filtr vložený do hry. Použij okno / bez okrajů."));
+fn vf_metric_tile(ui:&mut Ui,label:&str,value:&str,detail:&str,accent:Color32,width:f32){
+ Frame::new().fill(Color32::from_rgb(17,22,30)).corner_radius(12)
+  .inner_margin(egui::Margin::same(14)).show(ui,|ui|{
+  ui.set_width(width.max(110.));
+  ui.label(RichText::new(label).size(10.).strong().color(VF_MUTED));
+  ui.add_space(7.);
+  ui.label(RichText::new(value).size(34.).strong().color(accent));
+  ui.label(RichText::new(detail).size(11.).color(VF_MUTED));
  });
- ui.add_space(12.);
+}
+fn vf_home(app:&mut BoostApp,ui:&mut Ui){
+ let running=app.native_mirror.as_ref().is_some_and(|w|w.running());
+ let gpu=app.gpu.clone();
+ Frame::new().fill(Color32::from_rgb(27,35,46)).corner_radius(14)
+  .inner_margin(egui::Margin::same(20)).show(ui,|ui|{
+   ui.horizontal_wrapped(|ui|{
+    ui.vertical(|ui|{
+     ui.label(RichText::new("VANTA / GAME WORKSPACE").size(10.).strong().color(VF_ACCENT));
+     ui.label(RichText::new(vf_local(app,"Ready for your game","Připraveno na hru")).size(27.).strong());
+     ui.label(RichText::new(gpu.as_str()).size(12.).color(VF_MUTED));
+    });
+    ui.with_layout(Layout::right_to_left(Align::Center),|ui|{
+     ui.colored_label(if running{VF_SUCCESS}else{VF_MUTED},if running{"OUTPUT ACTIVE"}else{"STANDBY"});
+    });
+   });
+  });
+ ui.add_space(14.);
+ let own=app.output_rates.snapshot(std::time::Instant::now()).map_or_else(||"—".into(),|s|format!("{:.0}",s.real));
+ let metrics=[("GAME FPS",fps_text(app,"fps"),"Measured source",VF_SUCCESS),("FRAME TIME",fps_text(app,"frametime"),"Game frame time",VF_FOREGROUND),("OUTPUT FPS",own,"Independent output",VF_ACCENT)];
+ let wide=ui.available_width()>650.;
+ if wide{ui.columns(3,|cols|{for(i,(name,value,detail,color))in metrics.iter().enumerate(){let w=cols[i].available_width()-28.;vf_metric_tile(&mut cols[i],name,value,detail,*color,w);}});}
+ else{ui.horizontal_wrapped(|ui|{for(name,value,detail,color)in metrics{vf_metric_tile(ui,name,&value,detail,color,132.);}});}
+ ui.add_space(14.);
+ let selection=|app:&mut BoostApp,ui:&mut Ui|{
+  vf_frame(ui,|ui|{vf_game_selector(app,ui);ui.add_space(10.);
+   if vf_button(ui,vf_local(app,"Games & profiles","Hry a profily"),false,true){SuiteArea::Library.go(app);}
+  });
+ };
+ let output=|app:&mut BoostApp,ui:&mut Ui|{
+  vf_frame(ui,|ui|{
+   vf_section(ui,vf_local(app,"GPU output","GPU výstup"));
+   let key=app.profile_key();let mut mode=app.settings.native_output_modes.get(&key).copied().unwrap_or(0).min(2);
+   let old=mode;
+   ui.horizontal_wrapped(|ui|{for(i,en,cs)in [(0u8,"Game view","Hra"),(1,"Preview","Náhled"),(2,"DXGI","DXGI")]{ui.selectable_value(&mut mode,i,vf_local(app,en,cs));}});
+   if old!=mode&&!app.is_smoke{app.settings.native_output_modes.insert(key,mode);app.save();}
+   ui.add_space(8.);vf_output_action(app,ui,mode);vf_status(app,ui);
+   vf_hint(ui,vf_local(app,"Use windowed or borderless mode.","Použij okno nebo režim bez okrajů."));
+  });
+ };
+ if wide{ui.columns(2,|cols|{selection(app,&mut cols[0]);output(app,&mut cols[1]);});}
+ else{selection(app,ui);ui.add_space(10.);output(app,ui);}
+ ui.add_space(14.);
  vf_frame(ui,|ui|{
   vf_quick_preset(app,ui);
-  ui.separator();
-  vf_section(ui,vf_local(app,"Live performance","Aktuální výkon"));
-  let own=app.output_rates.snapshot(std::time::Instant::now()).map_or_else(||"—".into(),|s|format!("{:.0}",s.real));
+  ui.add_space(8.);ui.separator();
   ui.horizontal_wrapped(|ui|{
-   for (label,value) in [(vf_local(app,"GAME FPS","FPS HRY"),fps_text(app,"fps")),
-    (vf_local(app,"FRAME TIME","ČAS SNÍMKU"),fps_text(app,"frametime")),
-    (vf_local(app,"OUTPUT FPS","FPS VÝSTUPU"),own)]{
-    Frame::new().fill(Color32::from_rgb(12,16,22)).corner_radius(10).inner_margin(egui::Margin::same(12)).show(ui,|ui|{
-     ui.set_min_width(140.);
-     ui.label(RichText::new(label).size(10.).strong().color(VF_MUTED));
-     ui.label(RichText::new(value).size(31.).strong().color(VF_FOREGROUND));
-    });
+   for(area,en,cs)in [(SuiteArea::Visual,"Visual studio","Vizuální studio"),(SuiteArea::Macros,"Macro recorder","Makra"),(SuiteArea::System,"PC advisor","Kontrola PC"),(SuiteArea::Overlay,"FPS HUD","FPS HUD")]{
+    if vf_button(ui,vf_local(app,en,cs),false,true){area.go(app);}
    }
   });
-  vf_hint(ui,vf_local(app,"Live values appear when measured. Output FPS is not game FPS.","Hodnoty až po měření. FPS výstupu není FPS hry."));
  });
 }
 fn vf_quality(app:&mut BoostApp,ui:&mut Ui){
@@ -352,20 +368,29 @@ fn vf_filters(app:&mut BoostApp,ui:&mut Ui){
   vf_hint(ui,vf_local(app,"Choose directly. The effect applies to the independent GPU output.",
    "Vyber přímo. Efekt se použije na nezávislý GPU výstup."));
   ui.add_space(10.);
-  for row in RM_LOOKS.chunks(4){
-   ui.horizontal_wrapped(|ui|{
-    for (preset,en,cs,_,_,_) in row{
-     let selected=app.settings.native_preset==*preset;
-     let label=vf_local(app,en,cs);
-     if ui.add_sized([146.,33.],egui::Button::new(label)
-       .fill(if selected{Color32::from_rgb(92,39,48)}else{Color32::from_rgb(32,34,43)})
-       .stroke(Stroke::new(1.,if selected{VF_ACCENT}else{VF_EDGE}))).clicked()&&!app.is_smoke{
-      app.select_native_preset(*preset);
-     }
+  let palettes=[([52,76,91],[143,191,180]),([50,44,64],[163,146,205]),([31,63,79],[95,200,195]),([54,40,35],[229,160,98]),([55,71,102],[247,201,129]),([34,49,65],[108,169,225]),([66,40,65],[238,139,177]),([45,58,52],[154,206,162])];
+  let cols=if ui.available_width()>620.{4}else{2};
+  for (row,items) in RM_LOOKS.chunks(cols).enumerate(){
+   ui.columns(cols,|uis|{
+    for (i,(preset,en,cs,_,_,_)) in items.iter().enumerate(){
+     let ui=&mut uis[i];let selected=app.settings.native_preset==*preset;
+     let (r,res)=ui.allocate_exact_size(egui::vec2(ui.available_width().max(100.),86.),egui::Sense::click());
+     let p=ui.painter();
+     p.rect_filled(r,9.,Color32::from_rgb(24,30,40));
+     p.rect_stroke(r,9.,Stroke::new(if selected{2.}else{1.},if selected{VF_ACCENT}else{VF_EDGE}),StrokeKind::Inside);
+     let (lo,hi)=palettes[row*cols+i];
+     let lo=Color32::from_rgb(lo[0],lo[1],lo[2]);let hi=Color32::from_rgb(hi[0],hi[1],hi[2]);
+     let sw=egui::Rect::from_min_max(r.min+egui::vec2(8.,8.),r.right_top()+egui::vec2(-8.,43.));
+     p.rect_filled(sw,6.,lo);
+     p.rect_filled(egui::Rect::from_min_max(sw.center_top(),sw.max),5.,hi);
+     p.text(r.left_bottom()+egui::vec2(10.,-15.),egui::Align2::LEFT_CENTER,vf_local(app,en,cs),egui::FontId::proportional(12.),VF_FOREGROUND);
+     if selected{p.circle_filled(r.right_bottom()+egui::vec2(-12.,-15.),3.5,VF_ACCENT);}
+     if res.clicked()&&!app.is_smoke{app.select_native_preset(*preset);}
     }
    });
-   ui.add_space(5.);
+   ui.add_space(7.);
   }
+  vf_hint(ui,vf_local(app,"Color swatches are visual labels, not rendered game previews.","Barevné vzorky jsou označení, nikoli náhledy hry."));
   let key=app.profile_key();
   let ids=app.settings.native_stack_profiles.get(&key).cloned()
    .unwrap_or_else(||crate::native_presets::PRESETS.get(app.settings.native_preset)
@@ -428,8 +453,11 @@ fn vf_filters(app:&mut BoostApp,ui:&mut Ui){
 }
 
 fn vf_combined_visual(app:&mut BoostApp,ui:&mut Ui){
- vf_filters(app,ui);
- ui.add_space(12.);
+ if ui.available_width()>=930.{
+  ui.columns(2,|cols|{vf_filters(app,&mut cols[0]);vf_upscale_settings(app,&mut cols[1]);});
+ }else{vf_filters(app,ui);ui.add_space(12.);vf_upscale_settings(app,ui);}
+}
+fn vf_upscale_settings(app:&mut BoostApp,ui:&mut Ui){
  vf_frame(ui,|ui|{
   vf_section(ui,vf_local(app,"Upscaling","Zvětšení obrazu"));
   vf_hint(ui,vf_local(app,"Simple settings first. Advanced algorithms are in More upscalers.",
@@ -442,7 +470,16 @@ fn vf_combined_visual(app:&mut BoostApp,ui:&mut Ui){
    }
   });
   if mode!=app.settings.native_scale_mode&&!app.is_smoke{app.apply_scale_algorithm(mode);}
-  vf_quality(app,ui);
+  ui.add_space(8.);
+  let mut ratio=app.settings.native_scale_ratio;
+  ui.horizontal_wrapped(|ui|{
+   ui.label(vf_local(app,"Scale","Měřítko"));
+   egui::ComboBox::from_id_salt("vf-v140-ratio").selected_text(format!("{ratio:.2}x")).show_ui(ui,|ui|{
+    for v in crate::spatial::RATIOS{ui.selectable_value(&mut ratio,v,format!("{v:.2}x"));}
+   });
+  });
+  if ratio!=app.settings.native_scale_ratio&&!app.is_smoke{app.settings.native_scale_ratio=ratio;app.save();app.refresh_native_mirror();}
+  ui.add_space(8.);vf_quality(app,ui);
   let mut cap=app.settings.preview_fps_limit;
   ui.horizontal(|ui|{
    ui.label(vf_local(app,"GPU output limit","Limit GPU výstupu"));
@@ -558,6 +595,7 @@ fn vf_macros(app:&mut BoostApp,ui:&mut Ui){
   ui.add_enabled(!s.busy()&&!armed,egui::Checkbox::new(&mut s.consent,loc("Permitted offline / local use","Povolené offline / místní použití")));
   if !s.status.is_empty(){ui.label(RichText::new(&s.status).size(12.).color(VF_MUTED));}
   ui.horizontal_wrapped(|ui|{
+   ui.add_enabled(!s.busy()&&!armed,egui::Checkbox::new(&mut s.continuous,loc("Loop until Stop","Smyčka do zastavení")));
    ui.checkbox(&mut show,loc("Macro overlay","Makro overlay"));
    ui.label(RichText::new("F12 = STOP").size(11.).monospace().color(VF_ACCENT));
   });
@@ -599,45 +637,71 @@ fn vf_macros(app:&mut BoostApp,ui:&mut Ui){
  egui::CollapsingHeader::new(loc("Playback settings","Nastavení přehrávání")).default_open(false).show(ui,|ui|{
   let s=&mut app.window_macro;
   ui.add_enabled(!s.busy(),egui::Slider::new(&mut s.plan.speed,50..=200).text(loc("Speed","Rychlost")).suffix("%"));
-  ui.add_enabled(!s.busy(),egui::Slider::new(&mut s.plan.repeat,1..=10).text(loc("Repeat","Opakování")));
+  ui.add_enabled(!s.busy()&&!s.continuous,egui::Slider::new(&mut s.plan.repeat,1..=10).text(loc("Repeat","Opakování")));
+  ui.add_enabled(!s.busy(),egui::Slider::new(&mut s.plan.between_ms,100..=3000).text(loc("Loop delay","Prodleva smyčky")).suffix(" ms"));
   ui.add_enabled(!s.busy(),egui::Checkbox::new(&mut s.relative_mouse,loc("Raw mouse / camera","Relativní myš / kamera")));
   if s.relative_mouse{vf_hint(ui,loc("Experimental camera playback. Game may ignore SendInput.","Experimentální přehrávání kamery. Hra může SendInput ignorovat."));}
  });
  egui::CollapsingHeader::new(loc("In-game shortcut & video","Herní zkratka a video")).default_open(false).show(ui,|ui|{vf_macro_background(app,ui);});
  egui::CollapsingHeader::new(loc("Edit timeline","Upravit časovou osu")).default_open(false).show(ui,|ui|{vf_macro_timeline(app,ui);});
 }
-fn vf_macro_badge(app:&BoostApp,ui:&mut Ui){
+fn vf_macro_badge(app:&mut BoostApp,ui:&mut Ui){
  let armed=crate::window_macro::hotkey_active();
  let hotkey_state=crate::window_macro::hotkey_status();
  let mode=if app.window_macro.busy(){app.window_macro.mode()}else if armed&&hotkey_state.starts_with("Playing"){"Playing"}else if armed{"Armed"}else{"Idle"};
  let color=match mode{"Recording"=>VF_ACCENT,"Playing"=>VF_SUCCESS,"Armed"=>Color32::from_rgb(129,178,255),_=>VF_MUTED};
- let r=ui.available_rect_before_wrap();
- let p=ui.painter();
- p.rect_filled(r,11.,Color32::from_rgb(13,19,26));
- p.rect_stroke(r,11.,Stroke::new(1.,Color32::from_rgb(55,69,82)),StrokeKind::Inside);
- p.circle_filled(r.left_top()+egui::vec2(19.,19.),5.,color);
- p.text(r.left_top()+egui::vec2(33.,19.),egui::Align2::LEFT_CENTER,"MACRO",egui::FontId::proportional(11.),VF_MUTED);
- p.text(r.right_top()+egui::vec2(-14.,19.),egui::Align2::RIGHT_CENTER,mode.to_uppercase(),egui::FontId::proportional(12.),color);
- p.text(r.left_top()+egui::vec2(13.,40.),egui::Align2::LEFT_CENTER,format!("{:.1}s  /  {} steps",app.window_macro.plan.duration()as f64/1000.,app.window_macro.plan.events.len()),egui::FontId::monospace(17.),VF_FOREGROUND);
- p.text(r.left_top()+egui::vec2(13.,60.),egui::Align2::LEFT_CENTER,app.window_macro.selected.as_ref().map(|w|trim(&w.title,30)).unwrap_or_else(||"No target selected".into()),egui::FontId::proportional(11.),VF_MUTED);
- p.text(r.left_bottom()+egui::vec2(13.,-13.),egui::Align2::LEFT_CENTER,app.settings.global_shortcuts.label("MACRO"),egui::FontId::proportional(11.),VF_MUTED);
- p.text(r.right_bottom()+egui::vec2(-13.,-13.),egui::Align2::RIGHT_CENTER,"F12 STOP",egui::FontId::proportional(11.),VF_ACCENT);
- ui.allocate_rect(r,egui::Sense::hover());
+ let czech=app.settings.ui_language==1;
+ let loc=|en:&'static str,cs:&'static str|if czech{cs}else{en};
+ let busy=app.window_macro.busy();
+ let blocked=app.is_smoke||armed||app.macro_runner.running()||app.macro_armed_pid.is_some();
+ let ready=!blocked&&!busy&&app.window_macro.selected.is_some()&&app.window_macro.consent;
+ ui.horizontal(|ui|{
+  let (r,drag)=ui.allocate_exact_size(egui::vec2(122.,24.),egui::Sense::click_and_drag());
+  ui.painter().circle_filled(r.left_center()+egui::vec2(8.,0.),4.,color);
+  ui.painter().text(r.left_center()+egui::vec2(19.,0.),egui::Align2::LEFT_CENTER,"VANTA / MACRO",egui::FontId::proportional(11.),VF_FOREGROUND);
+  if drag.drag_started()&&!app.is_smoke{ui.ctx().send_viewport_cmd(ViewportCommand::StartDrag);}
+  ui.with_layout(Layout::right_to_left(Align::Center),|ui|{
+   if ui.small_button("×").clicked(){app.window_macro.cancel();crate::window_macro::hotkey_disarm();vf_macro_set(ui.ctx(),false);}
+   ui.colored_label(color,mode.to_uppercase());
+  });
+ });
+ ui.separator();
+ ui.horizontal(|ui|{
+  ui.label(RichText::new(format!("{:05.1}s",app.window_macro.plan.duration()as f64/1000.)).monospace().size(26.).strong());
+  ui.with_layout(Layout::right_to_left(Align::Center),|ui|{ui.label(RichText::new(format!("{} steps",app.window_macro.plan.events.len())).size(11.).color(VF_MUTED));});
+ });
+ ui.horizontal(|ui|{
+  let w=(ui.available_width()-ui.spacing().item_spacing.x*2.)/3.;
+  for (kind,label,tint,enabled) in [(0,loc("● REC","● REC"),VF_ACCENT,ready),(1,loc("▶ PLAY","▶ HRÁT"),VF_SUCCESS,ready&&app.window_macro.plan.validate().is_ok()),(2,"■ STOP",VF_FOREGROUND,busy||armed)]{
+   let button=egui::Button::new(RichText::new(label).strong().color(tint)).fill(Color32::from_rgb(29,37,49)).corner_radius(7.);
+   if ui.add_enabled_ui(enabled,|ui|ui.add_sized([w,30.],button)).inner.clicked(){
+    if kind==2{app.window_macro.cancel();crate::window_macro::hotkey_disarm();}
+    else if let Err(e)=app.window_macro.start(kind==0){app.window_macro.status=e;}
+   }
+  }
+ });
+ ui.horizontal(|ui|{
+  ui.add_enabled(!busy&&!armed,egui::Checkbox::new(&mut app.window_macro.continuous,loc("∞ Loop","∞ Smyčka")));
+  ui.with_layout(Layout::right_to_left(Align::Center),|ui|{ui.label(RichText::new("F12 STOP").monospace().size(11.).color(VF_ACCENT));});
+ });
+ if !busy&&!armed&&app.window_macro.selected.is_some(){
+  ui.checkbox(&mut app.window_macro.consent,loc("Permit selected app","Povolit vybranou aplikaci"));
+ }else{
+  ui.label(RichText::new(app.window_macro.selected.as_ref().map(|w|trim(&w.title,33)).unwrap_or_else(||"Select target in main app".into())).size(11.).color(VF_MUTED));
+ }
 }
 fn vf_macro_overlay(app:&mut BoostApp,ctx:&egui::Context){
  if !vf_macro_show(ctx)||app.is_smoke{return;}
- let screen=crate::win::screen_size();
  let title=crate::win::MACRO_HUD_TITLE;
  ctx.show_viewport_immediate(ViewportId::from_hash_of("vanta-macro-overlay"),
-  ViewportBuilder::default().with_title(title).with_inner_size([310.,102.])
-   .with_position([16.,(screen.1 as f32-124.).max(8.)]).with_always_on_top()
-   .with_active(false).with_mouse_passthrough(true).with_taskbar(false).with_decorations(false).with_resizable(false),
+  ViewportBuilder::default().with_title(title).with_inner_size([342.,181.])
+   .with_always_on_top().with_active(false).with_mouse_passthrough(false).with_taskbar(false).with_decorations(false).with_resizable(false),
   |child,_|{
-   if child.input(|i|i.viewport().close_requested()){vf_macro_set(ctx,false);return;}
-   egui::CentralPanel::default().frame(Frame::new().fill(Color32::from_rgb(13,19,26)).inner_margin(egui::Margin::same(2))).show(child,|ui|vf_macro_badge(app,ui));
-   child.request_repaint_after(std::time::Duration::from_millis(120));
+   if child.input(|i|i.viewport().close_requested()){app.window_macro.cancel();crate::window_macro::hotkey_disarm();vf_macro_set(ctx,false);return;}
+   egui::CentralPanel::default().frame(Frame::new().fill(Color32::from_rgb(13,19,26)).inner_margin(egui::Margin::same(10)).stroke(Stroke::new(1.,VF_EDGE))).show(child,|ui|vf_macro_badge(app,ui));
+   child.request_repaint_after(std::time::Duration::from_millis(100));
   });
- match crate::win::configure_named_overlay(title,true,0.95){
+ match crate::win::configure_named_overlay(title,false,1.0){
   Ok(())=>{},
   Err(e) if e.contains("does not exist yet")=>{},
   Err(e)=>{vf_macro_set(ctx,false);app.status=format!("Macro overlay hidden: {e}");}
@@ -687,7 +751,7 @@ fn vf_macro_background(app:&mut BoostApp,ui:&mut Ui){
     }
    }else if vf_button(ui,vf_local(app,"ARM FOR BACKGROUND","AKTIVOVAT PRO HRU"),true,ready){
     if let (Some(t),Some(chord))=(target,app.settings.global_shortcuts.get("MACRO")){
-     match crate::window_macro::hotkey_arm(t,plan,chord){
+     match crate::window_macro::hotkey_arm(t,plan,chord,app.window_macro.continuous){
       Ok(())=>{app.window_macro.consent=false;app.named_macro_arm=None;},
       Err(e)=>app.window_macro.status=e,
      }

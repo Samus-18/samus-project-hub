@@ -768,8 +768,8 @@ fn main() -> eframe::Result<()> {
     let options=eframe::NativeOptions {
         viewport:egui::ViewportBuilder::default()
             .with_title(win::MAIN_TITLE)
-            .with_inner_size(if macro_badge_visual{[310.,102.]}else if proof_overlay_editor_small{[420.0,620.0]}else if proof_overlay_small{[205.0,61.0]}else if proof_overlay_compact{[252.0,70.0]}else if visual_overlay{[670.0,730.0]}else if proof_narrow_filters{[960.0,720.0]}else if proof_compact_main{[840.0,560.0]}else if proof_appearance{[940.0,680.0]}else if proof_extras_view==Some(5){[940.0,620.0]}else if smoke{[1280.0,780.0]}else{saved_window})
-            .with_min_inner_size(if macro_badge_visual{[310.,102.]}else if proof_overlay_editor_small{[420.0,620.0]}else if proof_overlay_small{[205.0,61.0]}else if proof_overlay_compact{[252.0,70.0]}else if visual_overlay{[620.0,650.0]}else if smoke{[800.0,540.0]}else{[800.0,540.0]})
+            .with_inner_size(if macro_badge_visual{[342.,181.]}else if proof_overlay_editor_small{[420.0,620.0]}else if proof_overlay_small{[205.0,61.0]}else if proof_overlay_compact{[252.0,70.0]}else if visual_overlay{[670.0,730.0]}else if proof_narrow_filters{[960.0,720.0]}else if proof_compact_main{[840.0,560.0]}else if proof_appearance{[940.0,680.0]}else if proof_extras_view==Some(5){[940.0,620.0]}else if smoke{[1280.0,780.0]}else{saved_window})
+            .with_min_inner_size(if macro_badge_visual{[342.,181.]}else if proof_overlay_editor_small{[420.0,620.0]}else if proof_overlay_small{[205.0,61.0]}else if proof_overlay_compact{[252.0,70.0]}else if visual_overlay{[620.0,650.0]}else if smoke{[800.0,540.0]}else{[800.0,540.0]})
             .with_decorations(false)
             .with_resizable(true)
             .with_visible(!smoke),
@@ -2539,7 +2539,7 @@ impl eframe::App for BoostApp {
                                 "actual-instant-replay-v30-real.png"
                             }else{"actual-main-v22dev-hidden.png"};
                         let custom=std::env::args().find_map(|a|a.strip_prefix("--visual-oled=").and_then(|v|v.parse::<u8>().ok())).filter(|v|*v<=10).map(|v|format!("actual-eclipse-v79-{v}-{}.png",if self.settings.ui_language==1{"cz"}else{"en"}));
-                        let macro_name=if std::env::args().any(|a|a=="--visual-macro-overlay"){Some("actual-macro-overlay-v139.png".to_string())}else{std::env::args().any(|a|a=="--visual-macro").then(||format!("actual-macro-v79-{}.png",if self.settings.ui_language==1{"cz"}else{"en"}))};
+                        let macro_name=if std::env::args().any(|a|a=="--visual-macro-overlay"){Some("actual-macro-overlay-v140.png".to_string())}else{std::env::args().any(|a|a=="--visual-macro").then(||format!("actual-macro-v79-{}.png",if self.settings.ui_language==1{"cz"}else{"en"}))};
                         let journal_name=std::env::args().find_map(|a|a.strip_prefix("--visual-journal=").and_then(|v|v.parse::<usize>().ok())).filter(|v|(10..=19).contains(v)).map(|v|format!("actual-journal-{v}.png"));
                         let output=std::env::current_dir().unwrap_or_default().join("build-tests").join(journal_name.as_deref().or(macro_name.as_deref()).or(custom.as_deref()).unwrap_or(filename));
                         let _=std::fs::create_dir_all(output.parent().unwrap());

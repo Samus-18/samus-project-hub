@@ -10,9 +10,9 @@
     },
     {
       "slug": "vanta-fx",
-      "version": "V139",
-      "tag": "vanta-fx-v139-dev",
-      "status": "Rust dev preview; 569 tests; compact macro recorder, independent macro overlay, redesigned FPS HUD; unsigned"
+      "version": "V140",
+      "tag": "vanta-fx-v140-dev",
+      "status": "Rust dev preview; 571 tests; movable macro controller, opt-in loop, dashboard, filter cards and hardware advisor; unsigned"
     },
     {
       "slug": "thalvoryn",

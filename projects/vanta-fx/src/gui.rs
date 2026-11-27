@@ -104,7 +104,7 @@ pub fn render(app:&mut BoostApp,ctx:&egui::Context){
     // Hidden screenshot proof: paint the same overlay widget tree in a hidden
     // primary viewport so screenshots work without briefly showing a game HUD.
     if app.is_smoke&&std::env::args().any(|a|a=="--visual-macro-overlay"){
-      egui::CentralPanel::default().frame(Frame::new().fill(Color32::from_rgb(13,19,26)).inner_margin(egui::Margin::same(2))).show(ctx,|ui|vf_macro_badge(app,ui));
+      egui::CentralPanel::default().frame(Frame::new().fill(Color32::from_rgb(13,19,26)).inner_margin(egui::Margin::same(10)).stroke(Stroke::new(1.,VF_EDGE))).show(ctx,|ui|vf_macro_badge(app,ui));
       return;
     }
     if app.is_smoke&&app.visual_overlay{
@@ -172,7 +172,7 @@ pub fn render(app:&mut BoostApp,ctx:&egui::Context){
             ui.horizontal(|ui|{
                 ui.colored_label(RED,"FX");
                 caption(ui,&app.status);if app.recorder.elapsed().is_some(){ui.colored_label(RED,"REC");}else if app.replay.active(){ui.label("REPLAY");}
-                ui.with_layout(Layout::right_to_left(Align::Center),|ui|{caption(ui,"VANTA FX · V139 DEV  /  D3D11");});
+                ui.with_layout(Layout::right_to_left(Align::Center),|ui|{caption(ui,"VANTA FX · V140 DEV  /  D3D11");});
             });
         });
 

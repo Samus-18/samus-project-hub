@@ -121,15 +121,21 @@ fn optimizer_panel(app:&mut BoostApp,ui:&mut Ui){
  let matched=rows.iter().zip(&proposed).filter(|(a,b)|a==b).count();
  frame(PANEL).show(ui,|ui|{
   ui.set_min_width(ui.available_width());
-  heading(ui,"PC CHECK / RECOMMENDED SETTINGS");
-  caption(ui,"Scans your actual GPU, RAM and frame samples. Nothing changes until you press Apply. Any FPS comparison must be measured.");
+  ui.label(RichText::new("SYSTEM CHECK").size(10.).strong().color(VF_ACCENT));
+  ui.label(RichText::new("Optimize your setup").size(25.).strong());
+  caption(ui,"Scan → review → apply with backup.");
   ui.horizontal_wrapped(|ui|{
    ui.label(RichText::new("Detected PC").color(VF_FOREGROUND).strong());
    ui.label(&app.gpu);
    ui.label(format!("{} logical CPU threads",std::thread::available_parallelism().map(|n|n.get()).unwrap_or(0)));
    if app.telem.total_ram_gb>0.{ui.label(format!("{:.1}/{:.1} GiB RAM",app.telem.used_ram_gb,app.telem.total_ram_gb));}
   });
-  ui.label(RichText::new(format!("Recommended: {}",OPT_NAMES[rec])).size(16.).strong());
+  ui.add_space(12.);
+  Frame::new().fill(Color32::from_rgb(20,39,37)).corner_radius(9).inner_margin(egui::Margin::same(13)).show(ui,|ui|{
+   ui.set_min_width(ui.available_width());
+   ui.label(RichText::new("RECOMMENDED PROFILE").size(10.).color(VF_SUCCESS));
+   ui.label(RichText::new(OPT_NAMES[rec]).size(22.).strong().color(VF_FOREGROUND));
+  });
    let key=app.profile_key();let mut target=app.settings.output_targets.get(&key).copied().unwrap_or(app.target_fps);
    egui::CollapsingHeader::new("MORE / own output FPS target").default_open(false).show(ui,|ui|{if ui.add(egui::Slider::new(&mut target,30..=165).suffix(" FPS").text("Output target")).changed(){app.settings.output_targets.insert(key,target);app.render_guard.reset();app.preview_guard.reset();app.save();}caption(ui,"Not the game FPS limiter.");});
    caption(ui,OPT_DESC[rec]);
@@ -144,7 +150,7 @@ fn optimizer_panel(app:&mut BoostApp,ui:&mut Ui){
    for i in 0..OPT_LABELS.len(){ui.horizontal_wrapped(|ui|{ui.label(OPT_LABELS[i]);ui.label(&rows[i]);if rows[i]!=proposed[i]{ui.colored_label(RED,format!("-> {}",proposed[i]));}else{ui.label("Unchanged");}});}
   });
   ui.horizontal_wrapped(|ui|{
-   if ui.add_enabled(!app.is_smoke&&matched<OPT_LABELS.len(),egui::Button::new("Apply selected preset")).clicked(){
+   if vf_button(ui,"Apply + backup",true,!app.is_smoke&&matched<OPT_LABELS.len()){
     let key=app.profile_key();
     match opt_backup_save(&key,current){
      Ok(())=>{st.undo=Some((key,current));chosen.apply(app);st.applied_at=Some(std::time::Instant::now());st.after=None;
@@ -165,7 +171,13 @@ fn optimizer_panel(app:&mut BoostApp,ui:&mut Ui){
  });
  ui.add_space(8.);
  frame(PANEL).show(ui,|ui|{
-  heading(ui,"REAL GAME FPS / BEFORE AND AFTER");
+  ui.label(RichText::new("FPS comparison").size(22.).strong());
+  let before=st.before.as_ref().map_or("—".into(),|m|format!("{:.1}",m.fps));
+  let after=st.after.as_ref().map_or("—".into(),|m|format!("{:.1}",m.fps));
+  ui.columns(2,|cols|{
+   let w=cols[0].available_width()-28.;vf_metric_tile(&mut cols[0],"BEFORE",&before,"Measured FPS",VF_FOREGROUND,w);
+   let w=cols[1].available_width()-28.;vf_metric_tile(&mut cols[1],"AFTER",&after,"Measured FPS",VF_SUCCESS,w);
+  });
   caption(ui,"Capture two real rolling snapshots in the same game and scene, at least 10 seconds apart. This is not a controlled benchmark.");
   ui.horizontal_wrapped(|ui|{
    if ui.button("Capture BEFORE").clicked(){st.before=opt_sample(app);st.after=None;st.message=if st.before.is_some(){"Baseline captured."}else{"Select a game and collect at least 100 actual frames."}.into();}

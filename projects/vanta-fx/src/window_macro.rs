@@ -226,7 +226,7 @@ impl Held{
  fn conflict(&self)->bool{KEYS.iter().copied().any(|k|!self.keys.contains(&k)&&down(k))||[(0,1),(1,2)].into_iter().any(|(b,k)|!self.buttons.contains(&b)&&down(k))}
 }
 impl Drop for Held{fn drop(&mut self){for &k in &self.keys{let _=crate::game_macros::emit_key(k,true);}for &b in &self.buttons{let _=crate::game_macros::emit_mouse(b,true);}}}
-fn playback(t:&Target,p:&Plan,run:&AtomicBool,progress:&AtomicUsize)->Result<(),String>{
+fn playback(t:&Target,p:&Plan,run:&AtomicBool,progress:&AtomicUsize,continuous:bool)->Result<(),String>{
  p.validate()?;wait_focus(t,run)?;let geometry=(t.origin().ok_or("Target origin missing")?,t.size().ok_or("Target size missing")?);let mut held=Held::default();let mut expected=None;let mut n=0;
  let check=|held:&Held,expected:Option<[u16;2]>|->Result<(),String>{guard(t,run)?;if t.origin()!=Some(geometry.0)||t.size()!=Some(geometry.1){return Err("Window geometry changed; stopped".into());}if held.conflict(){return Err("Manual input detected".into());}if let Some(p)=expected{let q=t.pointer().ok_or("Pointer left target")?;if p[0].abs_diff(q[0])>180||p[1].abs_diff(q[1])>180{return Err("Pointer moved / target resized".into());}}Ok(())};
  let mut pause=PauseGate::default();
@@ -237,15 +237,22 @@ fn playback(t:&Target,p:&Plan,run:&AtomicBool,progress:&AtomicUsize)->Result<(),
   end+=start.elapsed();
  }
  let rem=end.saturating_duration_since(Instant::now());if rem.is_zero(){return Ok(());}thread::sleep(rem.min(Duration::from_millis(10)));}};
- for cycle in 0..p.repeat{if cycle>0{wait(u64::from(p.between_ms),&held,expected)?;}for e in &p.events{
+ let mut cycle=0usize;
+ while repeat_cycle(cycle,p.repeat,continuous){
+  if cycle>0{wait(repeat_gap(p.between_ms,continuous),&held,expected)?;}
+  for e in &p.events{
   wait(p.delay(e.wait_ms),&held,expected)?;match e.action{
    Action::Move{x,y}=>{let pt=t.absolute(x,y).ok_or("Target point unavailable")?;guard(t,run)?;if unsafe{SetCursorPos(pt.x,pt.y)}==0{return Err("Pointer move refused".into());}expected=t.pointer();if expected.is_none(){return Err("Pointer outside selected window".into());}},
    Action::Relative{dx,dy}=>{check(&held,expected)?;crate::game_macros::emit_relative_mouse(i32::from(dx),i32::from(dy))?;},
    Action::Button{..}=>{if !p.relative_camera&&(expected.is_none()||t.pointer().is_none()){return Err("Mouse target unavailable".into());}check(&held,expected)?;held.emit(e.action)?;},
    Action::Key{..}=>{check(&held,expected)?;held.emit(e.action)?;},
-  }n+=1;progress.store(n,Ordering::Relaxed);
- }}Ok(())
+  }n=usize::saturating_add(n,1);progress.store(n,Ordering::Relaxed);
+  }
+  cycle=cycle.saturating_add(1);
+ }Ok(())
 }
+fn repeat_cycle(cycle:usize,count:u8,continuous:bool)->bool{continuous||cycle<usize::from(count)}
+fn repeat_gap(ms:u32,continuous:bool)->u64{u64::from(if continuous{ms.max(100)}else{ms})}
 enum Finished{Recorded(Plan),Played}
 struct Worker{cancel:Arc<AtomicBool>,progress:Arc<AtomicUsize>,rx:Receiver<Result<Finished,String>>,record:bool,thread:Option<thread::JoinHandle<()>>}
 #[derive(Default)]pub struct History{past:Vec<Plan>,future:Vec<Plan>}
@@ -255,7 +262,7 @@ impl History{
  pub fn redo(&mut self,p:&mut Plan)->bool{if let Some(v)=self.future.pop(){self.past.push(std::mem::replace(p,v));true}else{false}}
  pub fn can_undo(&self)->bool{!self.past.is_empty()}pub fn can_redo(&self)->bool{!self.future.is_empty()}
 }
-#[derive(Default)]pub struct Studio{pub windows:Vec<Target>,pub selected:Option<Target>,pub relative_mouse:bool,pub plan:Plan,pub name:String,pub raw:String,pub status:String,pub consent:bool,pub preview_at:Option<Instant>,pub history:History,worker:Option<Worker>}
+#[derive(Default)]pub struct Studio{pub windows:Vec<Target>,pub selected:Option<Target>,pub relative_mouse:bool,pub continuous:bool,pub plan:Plan,pub name:String,pub raw:String,pub status:String,pub consent:bool,pub preview_at:Option<Instant>,pub history:History,worker:Option<Worker>}
 impl Studio{
  pub fn busy(&self)->bool{self.worker.is_some()}
  pub fn progress(&self)->usize{self.worker.as_ref().map_or(0,|w|w.progress.load(Ordering::Relaxed))}
@@ -266,9 +273,9 @@ impl Studio{
   if crate::anticheat_guard::inspect(std::path::Path::new(""),&t.title).blocked{
    return Err("Protected multiplayer/anti-cheat title: macro recording and playback are disabled. This is a heuristic, not certification.".into());
   }
-  let p=self.plan.clone();let relative_mouse=self.relative_mouse;if !record{p.validate()?;}
+  let p=self.plan.clone();let relative_mouse=self.relative_mouse;let continuous=self.continuous;if !record{p.validate()?;}
   let cancel=Arc::new(AtomicBool::new(true));let progress=Arc::new(AtomicUsize::new(0));let(a,b)=(cancel.clone(),progress.clone());let(tx,rx)=mpsc::channel();
-  let worker=thread::Builder::new().name("Horizon window macro".into()).spawn(move||{let result=if record{capture(&t,&a,&b,relative_mouse).map(Finished::Recorded)}else{playback(&t,&p,&a,&b).map(|_|Finished::Played)};let _=tx.send(result);}).map_err(|e|e.to_string())?;
+  let worker=thread::Builder::new().name("Horizon window macro".into()).spawn(move||{let result=if record{capture(&t,&a,&b,relative_mouse).map(Finished::Recorded)}else{playback(&t,&p,&a,&b,continuous).map(|_|Finished::Played)};let _=tx.send(result);}).map_err(|e|e.to_string())?;
   self.consent=false;self.preview_at=None;self.worker=Some(Worker{cancel,progress,rx,record,thread:Some(worker)});self.status="Focus selected window within 20 seconds. F12 stops.".into();Ok(())
  }
  pub fn cancel(&mut self){self.preview_at=None;if let Some(w)=&self.worker{w.cancel.store(false,Ordering::Release);self.status="Stopping...".into();;}}
@@ -312,7 +319,7 @@ pub fn hotkey_disarm(){
   }
  }
 }
-pub fn hotkey_arm(target:Target,plan:Plan,chord:crate::shortcut_registry::Chord)->Result<(),String>{
+pub fn hotkey_arm(target:Target,plan:Plan,chord:crate::shortcut_registry::Chord,continuous:bool)->Result<(),String>{
  plan.validate()?;
  if !chord.valid()||chord.mods!=1||!(0x70..=0x7a).contains(&chord.key)||chord.key==0x73{
   return Err("Choose Alt+F1..F11 except Alt+F4. F12 remains emergency stop.".into());
@@ -335,12 +342,17 @@ pub fn hotkey_arm(target:Target,plan:Plan,chord:crate::shortcut_registry::Chord)
    let pressed=chord.down();
    if pressed&&!was_down&&target.focused(){
     if let Ok(mut s)=result.lock(){*s="Playing in selected game...".into();}
-    let playback_result=playback(&target,&plan,&run,&progress);
+    progress.store(0,Ordering::Relaxed);
+    let playback_result=playback(&target,&plan,&run,&progress,continuous);
+    if playback_result.as_ref().is_err_and(|e|e=="Cancelled"){run.store(false,Ordering::Release);}
     if let Ok(mut s)=result.lock(){*s=match playback_result{
      Ok(())=>format!("Finished {} macro actions. Shortcut remains armed.",progress.load(Ordering::Relaxed)),
      Err(e)=>format!("Stopped: {e}. Shortcut remains armed."),
     };}
-    if down(0x7b){run.store(false,Ordering::Release);break;}
+    if down(0x7b)||!run.load(Ordering::Acquire){run.store(false,Ordering::Release);break;}
+    was_down=chord.down();
+    thread::sleep(Duration::from_millis(16));
+    continue;
    }
    was_down=pressed;
    thread::sleep(Duration::from_millis(16));
@@ -461,5 +473,20 @@ impl PauseGate{fn sample(&mut self,key:bool,safe:bool)->bool{if key&&!self.held{
   assert!(p.validate().is_err());
   let old=Plan::default();
   assert!(!old.relative_camera);
+ }
+}
+
+#[cfg(test)]mod v140_loop_tests{
+ use super::*;
+ #[test]fn finite_and_explicit_continuous_cycles(){
+  assert!(repeat_cycle(0,1,false));assert!(!repeat_cycle(1,1,false));
+  assert!(repeat_cycle(usize::MAX,1,true));
+  assert_eq!(repeat_gap(0,true),100);assert_eq!(repeat_gap(200,true),200);
+  assert_eq!(repeat_gap(0,false),0);
+ }
+ #[test]fn loop_is_not_persisted_or_enabled_by_default(){
+  assert!(!Studio::default().continuous);
+  let mut p=Plan::default();p.append_key("E",20,50).unwrap();
+  assert!(!p.export().unwrap().contains("continuous"));
  }
 }
