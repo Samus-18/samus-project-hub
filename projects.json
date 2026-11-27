@@ -10,9 +10,9 @@
     },
     {
       "slug": "vanta-fx",
-      "version": "V138",
-      "tag": "vanta-fx-v138-dev",
-      "status": "Rust dev preview; 569 tests; HUD window fix and optional raw mouse camera capture; unsigned"
+      "version": "V139",
+      "tag": "vanta-fx-v139-dev",
+      "status": "Rust dev preview; 569 tests; compact macro recorder, independent macro overlay, redesigned FPS HUD; unsigned"
     },
     {
       "slug": "thalvoryn",

@@ -32,35 +32,25 @@ fn v26_hud_geometry(app:&BoostApp,screen:(u32,u32))->(f32,f32,f32,f32){
     (width,height,x.clamp(4.,max_x),y.clamp(4.,max_y))
 }
 fn v26_compact_overlay(app:&BoostApp,ui:&mut Ui){
-    if app.settings.hud_layout.enabled{widget_hud(app,ui);return;}
-    let z=app.settings.overlay_size_scale.clamp(0.78,1.35);
-    let width=ui.available_width().max(146.);
-    let (r,_)=ui.allocate_exact_size(egui::vec2(width,55.*z),egui::Sense::hover());
-    let p=ui.painter().with_clip_rect(r);
-    p.rect_filled(r,8.*z,Color32::from_rgb(8,9,13));
-    p.rect_stroke(r,8.*z,Stroke::new(0.8_f32,Color32::from_rgb(95,34,53)),StrokeKind::Inside);
-    let tl=|x:f32,y:f32|r.min+egui::vec2(x*z,y*z);
-    let rt=|x:f32,y:f32|r.right_top()+egui::vec2(x*z,y*z);
-    let v=current_fg_readout(app,true);
-    p.rect_filled(Rect::from_min_size(tl(7.,6.),egui::vec2(2.*z,19.*z)),1.*z,RED);
-    let target=app.hud_target.as_ref().map(|v|trim(&v.1,19)).unwrap_or("HORIZON".into());
-    p.text(tl(14.,4.),egui::Align2::LEFT_TOP,target,FontId::proportional(10.*z),MUTED);
-    p.text(tl(14.,17.),egui::Align2::LEFT_TOP,format!("{} FPS",v.game),FontId::proportional(17.*z),WHITE);
-    if app.settings.hud_show_fg{
-      p.text(rt(-9.,4.),egui::Align2::RIGHT_TOP,&v.state,FontId::proportional(9.*z),RED);
-      p.text(rt(-9.,17.),egui::Align2::RIGHT_TOP,if v.state=="FG off"{"OFF".into()}else{format!("{} OUT",v.output)},FontId::proportional(17.*z),if v.state=="FG off"{MUTED}else{V25_MINT});
-    }
-    let secondary=match app.settings.hud_metric{
-      2=>format!("1% low {}",hud_stats_text(app,"low")),3=>format!("GPU {}",hud_stats_text(app,"gpu")),
-      8=>app.hud_snapshot().and_then(|_|app.hud_meter().low_01_fps()).map(|v|format!("0.1% {v:.0}")).unwrap_or("0.1% --".into()),
-      9=>v.detail.clone(),7=>app.reminders.next_seconds(std::time::Instant::now()).map(|s|format!("NEXT {s}s")).unwrap_or("NO TIMER".into()),
-      5=>crate::gametimer::RunTimer::fmt_elapsed(app.game_timer.elapsed()),6=>if app.window_macro.busy()||app.macro_runner.running(){"MACRO RUN".into()}else{"MACRO OFF".into()},
-      4=>app.network_probe.stats().and_then(|v|v.0).map(|v|format!("PING {v}ms")).unwrap_or("PING --".into()),
-      _=>format!("FT {}",hud_stats_text(app,"frametime"))
-    };
-    p.line_segment([tl(8.,39.),rt(-8.,39.)],Stroke::new(0.5_f32,Color32::from_rgb(42,32,43)));
-    p.text(tl(9.,43.),egui::Align2::LEFT_TOP,secondary,FontId::proportional(9.*z),MUTED);
-    p.text(rt(-9.,43.),egui::Align2::RIGHT_TOP,if app.settings.hud_f12{"F12 / Alt+Z"}else{"Alt+Z"},FontId::proportional(9.*z),MUTED);
+ if app.settings.hud_layout.enabled{widget_hud(app,ui);return;}
+ let z=app.settings.overlay_size_scale.clamp(0.78,1.35);
+ let width=ui.available_width().max(146.);
+ let (r,_)=ui.allocate_exact_size(egui::vec2(width,55.*z),egui::Sense::hover());
+ let p=ui.painter().with_clip_rect(r);
+ p.rect_filled(r,8.*z,Color32::from_rgb(9,13,17));
+ let tl=|x:f32,y:f32|r.min+egui::vec2(x*z,y*z);
+ let rt=|x:f32,y:f32|r.right_top()+egui::vec2(x*z,y*z);
+ let v=current_fg_readout(app,true);
+ let mint=Color32::from_rgb(90,220,183);
+ p.text(tl(9.,3.),egui::Align2::LEFT_TOP,"GAME FPS",FontId::proportional(9.*z),MUTED);
+ p.text(tl(9.,13.),egui::Align2::LEFT_TOP,&v.game,FontId::proportional(26.*z),mint);
+ p.text(tl(9.,43.),egui::Align2::LEFT_TOP,format!("FT {}",hud_stats_text(app,"frametime")),FontId::monospace(9.*z),MUTED);
+ p.line_segment([tl(92.,8.),tl(92.,48.)],Stroke::new(1.,Color32::from_rgb(38,48,55)));
+ p.text(tl(103.,5.),egui::Align2::LEFT_TOP,if app.settings.hud_show_fg{"OUTPUT FPS"}else{"GPU TIME"},FontId::proportional(9.*z),MUTED);
+ let secondary=if app.settings.hud_show_fg{if v.state=="FG off"{"OFF".into()}else{v.output.clone()}}else{hud_stats_text(app,"gpu")};
+ p.text(tl(103.,17.),egui::Align2::LEFT_TOP,secondary,FontId::proportional(20.*z),WHITE);
+ p.text(tl(103.,43.),egui::Align2::LEFT_TOP,if app.settings.hud_show_fg{v.state.as_str()}else{"LIVE"},FontId::monospace(9.*z),MUTED);
+ p.text(rt(-6.,43.),egui::Align2::RIGHT_TOP,"Alt+Z",FontId::monospace(9.*z),MUTED);
 }
 fn v26_overlay_editor(app:&mut BoostApp,ctx:&egui::Context,ui:&mut Ui){
     let width=ui.available_width().max(310.0);

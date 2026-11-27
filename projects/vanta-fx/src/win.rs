@@ -1,4 +1,5 @@
 pub(crate) const HUD_TITLE:&str="Vanta FX - HUD";
+pub(crate) const MACRO_HUD_TITLE:&str="Vanta FX - Macro";
 pub(crate) const MAIN_TITLE:&str="Vanta FX - Native GPU Tools";
 // Windows top-level game detection. Does not inject, hook or alter any game process.
 use std::{ffi::c_void,path::{Path,PathBuf},process::{Command,Stdio}};
@@ -470,7 +471,11 @@ pub fn show_passive_hud()->bool{
     (unsafe{SetWindowPos(hwnd,(-1isize) as Handle,0,0,0,0,0x0001|0x0002|0x0010|0x0040)})!=0
 }
 pub fn configure_overlay_interaction(passive:bool,opacity:f32)->Result<(),String>{
-    let hwnd=own_window(HUD_TITLE);
+ configure_named_overlay(HUD_TITLE,passive,opacity)
+}
+pub fn configure_named_overlay(title:&str,passive:bool,opacity:f32)->Result<(),String>{
+    if title!=HUD_TITLE&&title!=MACRO_HUD_TITLE{return Err("Not an owned Vanta overlay title".into());}
+    let hwnd=own_window(title);
     if hwnd.is_null(){return Err("Horizon HUD window does not exist yet".into());}
     const GWL_EXSTYLE:i32=-20;
     const WS_EX_LAYERED:i32=0x00080000;

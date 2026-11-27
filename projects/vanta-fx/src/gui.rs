@@ -2,7 +2,7 @@ use crate::{BoostApp,Page,adlx,lab};
 use crate::settings::FilterProfile;
 use eframe::egui::{self,Align,Color32,CornerRadius,Frame,Layout,RichText,Stroke,StrokeKind,Ui,Vec2,ViewportBuilder,ViewportCommand,ViewportId};
 
-const BG:Color32=Color32::from_rgb(12,13,23);
+const BG:Color32=Color32::from_rgb(10,12,17);
 const PANEL:Color32=Color32::from_rgb(24,24,34);
 const CARD:Color32=Color32::from_rgb(32,32,44);
 const RED:Color32=Color32::from_rgb(240,48,63);
@@ -103,6 +103,10 @@ pub fn render(app:&mut BoostApp,ctx:&egui::Context){
     }
     // Hidden screenshot proof: paint the same overlay widget tree in a hidden
     // primary viewport so screenshots work without briefly showing a game HUD.
+    if app.is_smoke&&std::env::args().any(|a|a=="--visual-macro-overlay"){
+      egui::CentralPanel::default().frame(Frame::new().fill(Color32::from_rgb(13,19,26)).inner_margin(egui::Margin::same(2))).show(ctx,|ui|vf_macro_badge(app,ui));
+      return;
+    }
     if app.is_smoke&&app.visual_overlay{
         egui::CentralPanel::default().frame(Frame::new()
             .fill(Color32::from_rgb(14,15,22))
@@ -168,7 +172,7 @@ pub fn render(app:&mut BoostApp,ctx:&egui::Context){
             ui.horizontal(|ui|{
                 ui.colored_label(RED,"FX");
                 caption(ui,&app.status);if app.recorder.elapsed().is_some(){ui.colored_label(RED,"REC");}else if app.replay.active(){ui.label("REPLAY");}
-                ui.with_layout(Layout::right_to_left(Align::Center),|ui|{caption(ui,"VANTA FX · V138 DEV  /  D3D11");});
+                ui.with_layout(Layout::right_to_left(Align::Center),|ui|{caption(ui,"VANTA FX · V139 DEV  /  D3D11");});
             });
         });
 
@@ -334,6 +338,7 @@ pub fn render(app:&mut BoostApp,ctx:&egui::Context){
         app.last_overlay_passive=None;
         app.last_hud_reassert=None;
     }
+    vf_macro_overlay(app,ctx);
     animated_window_outline(app,ctx,"main");
 }
 fn trim(s:&str,n:usize)->String{if s.chars().count()>n{format!("{}…",s.chars().take(n).collect::<String>())}else{s.to_owned()}}
